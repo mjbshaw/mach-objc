@@ -437,7 +437,7 @@ pub const Parser = struct {
                 try self.match(.kw_class);
                 const props = try self.parsePointerProps(is_const);
 
-                const t = Type{ .name = "c.objc_class" };
+                const t = Type{ .name = "objc.Class" };
 
                 const child = try self.allocator.create(Type);
                 child.* = t;
@@ -451,7 +451,7 @@ pub const Parser = struct {
             },
             .kw_sel => {
                 try self.match(.kw_sel);
-                const t = Type{ .name = "c.objc_selector" };
+                const t = Type{ .name = "objc.Selector" };
                 const child = try self.allocator.create(Type);
                 child.* = t;
 
@@ -469,7 +469,7 @@ pub const Parser = struct {
 
                     return self.parsePointerSuffix(types.items[0], is_const, true);
                 } else {
-                    const t = Type{ .name = "c.objc_object" };
+                    const t = Type{ .name = "objc.Id" };
                     return self.parsePointerSuffix(t, is_const, true);
                 }
             },
@@ -977,17 +977,9 @@ pub fn trimTrailingColon(id: []const u8) []const u8 {
 }
 
 fn isKeyword(id: []const u8) bool {
-    if (std.mem.eql(u8, id, "error")) {
-        return true;
-    } else if (std.mem.eql(u8, id, "opaque")) {
-        return true;
-    } else if (std.mem.eql(u8, id, "type")) {
-        return true;
-    } else if (std.mem.eql(u8, id, "resume")) {
-        return true;
-    } else {
-        return false;
-    }
+    return std.mem.eql(u8, id, "error") or std.mem.eql(u8, id, "opaque") or
+        std.mem.eql(u8, id, "type") or std.mem.eql(u8, id, "resume") or
+        std.mem.eql(u8, id, "struct") or std.mem.eql(u8, id, "volatile");
 }
 
 fn Generator(comptime WriterType: type) type {
@@ -1062,77 +1054,74 @@ fn Generator(comptime WriterType: type) type {
         pub fn generate(self: *Self) !void {
             try self.generateEnumerations();
             try self.generateContainers();
-            try self.generateClasses();
-            try self.generateSelectors();
-            try self.generateInit();
-        }
-
-        fn generateClasses(self: *Self) !void {
-            for (self.containers.items) |container| {
-                if (container.is_interface) {
-                    try self.writer.print("var class_", .{});
-                    try self.generateContainerName(container);
-                    try self.writer.print(": *c.objc_class = undefined;\n", .{});
-                }
-            }
-        }
-
-        fn generateSelectors(self: *Self) !void {
-            var it = self.selectors.iterator();
-            while (it.next()) |entry| {
-                const method_name = entry.key_ptr.*;
-                try self.writer.print("var sel_", .{});
-                try self.generateSelectorName(method_name);
-                try self.writer.print(": *c.objc_selector = undefined;\n", .{});
-            }
-            try self.writer.print("\n", .{});
-        }
-
-        fn generateInit(self: *Self) !void {
-            try self.writer.print("pub fn init() void {{\n", .{});
-            try self.generateInitClasses();
-            try self.writer.print("\n", .{});
-            try self.generateInitSelectors();
-            try self.writer.print("}}\n", .{});
-        }
-
-        fn generateInitClasses(self: *Self) !void {
-            for (self.containers.items) |container| {
-                if (container.is_interface) {
-                    try self.writer.print("    class_", .{});
-                    try self.generateContainerName(container);
-                    try self.writer.print(" = c.objc_getClass(\"{s}\").?;\n", .{container.name});
-                }
-            }
-        }
-
-        fn generateInitSelectors(self: *Self) !void {
-            var it = self.selectors.iterator();
-            while (it.next()) |entry| {
-                const method_name = entry.key_ptr.*;
-                try self.writer.print("    sel_", .{});
-                try self.generateSelectorName(method_name);
-                try self.writer.print(" = c.sel_registerName(\"{s}\").?;\n", .{method_name});
-            }
         }
 
         fn generateEnumerations(self: *Self) !void {
+            // TODO: generate NS_OPTIONS as bitfields.
             for (self.enums.items) |e| {
                 try self.writer.writeAll("\n");
-                try self.writer.print("pub const ", .{});
+                try self.writer.print("/// `{s}`\n", .{e.name});
+                try self.writer.writeAll("pub const ");
                 try self.generateTypeName(e.name);
-                try self.writer.print(" = ", .{});
+                try self.writer.writeAll(" = enum(");
                 try self.generateType(e.ty);
-                try self.writer.print(";\n", .{});
+                try self.writer.writeAll(") {\n");
 
                 for (e.values.items) |v| {
-                    try self.writer.print("pub const ", .{});
-                    try self.generateTypeName(v.name);
-                    try self.writer.print(": ", .{});
-                    try self.generateTypeName(e.name);
-                    try self.writer.print(" = {d};\n", .{v.value});
+                    try self.writer.print("    /// `{s}`\n", .{v.name});
+                    try self.writer.writeAll("    ");
+                    try self.generateEnumValueName(e.name, v.name);
+                    try self.writer.print(" = {d},\n", .{v.value});
                 }
+                try self.writer.writeAll("    _,\n};\n");
             }
+        }
+
+        fn generateSnakeCaseFromCamelCase(self: *Self, camel_case: []const u8, ty: Type) !void {
+            if (camel_case.len <= 2) return self.generateLower(camel_case);
+
+            if (isKeyword(camel_case) and ty == .bool) {
+                return self.writer.print("is_{s}", .{camel_case});
+            } else if (std.ascii.eqlIgnoreCase(camel_case, "error")) {
+                return self.writer.writeAll("err");
+            } else if (std.ascii.eqlIgnoreCase(camel_case, "type")) {
+                return self.writer.writeAll("@\"type\"");
+            } else if (std.ascii.eqlIgnoreCase(camel_case, "struct")) {
+                return self.writer.writeAll("structure");
+            } else if (std.ascii.eqlIgnoreCase(camel_case, "volatile")) {
+                return self.writer.writeAll("@\"volatile\"");
+            } else if (std.ascii.eqlIgnoreCase(camel_case, "opaque")) {
+                return self.writer.writeAll("@\"opaque\"");
+            }
+
+            var first = true;
+            var previous_c = camel_case[0];
+            var segment_start: usize = 0;
+            for (camel_case[1..], 1..) |c, i| {
+                const digit_to_alpha = std.ascii.isDigit(previous_c) and std.ascii.isAlphabetic(c);
+                const lower_to_upper = std.ascii.isLower(previous_c) and std.ascii.isUpper(c);
+                if (digit_to_alpha or lower_to_upper) {
+                    if (!first) try self.writer.writeByte('_');
+                    first = false;
+                    try self.generateLower(camel_case[segment_start..i]);
+                    segment_start = i;
+                }
+                previous_c = c;
+            }
+
+            if (!first) try self.writer.writeByte('_');
+            return self.generateLower(camel_case[segment_start..]);
+        }
+
+        fn generateEnumValueName(self: *Self, enum_name: []const u8, value_name: []const u8) !void {
+            var name = value_name;
+            if (std.mem.startsWith(u8, value_name, enum_name)) {
+                name = value_name[enum_name.len..];
+            }
+            if (std.mem.startsWith(u8, name, "_")) {
+                name = name[1..];
+            }
+            try self.generateSnakeCaseFromCamelCase(name, .c_int);
         }
 
         fn generateContainers(self: *Self) !void {
@@ -1143,107 +1132,70 @@ fn Generator(comptime WriterType: type) type {
 
         fn generateContainer(self: *Self, container: *Container) !void {
             try self.writer.writeAll("\n");
+            try self.writer.print("/// `{s}`\n", .{container.name});
             if (container.type_params.items.len > 0) {
-                try self.writer.print("pub fn ", .{});
+                try self.writer.writeAll("pub fn ");
                 try self.generateContainerName(container);
-                try self.writer.print("(", .{});
+                try self.writer.writeAll("(");
                 var first = true;
                 for (container.type_params.items) |type_param| {
-                    if (!first)
-                        try self.writer.writeAll(", ");
+                    if (!first) try self.writer.writeAll(", ");
                     first = false;
                     try self.writer.print("comptime {s}: type", .{type_param.name});
                 }
-                try self.writer.print(") type {{ return opaque {{\n", .{});
+                try self.writer.writeAll(") type { return opaque {\n");
             } else {
-                try self.writer.print("pub const ", .{});
+                try self.writer.writeAll("pub const ");
                 try self.generateContainerName(container);
-                try self.writer.print(" = opaque {{\n", .{});
-            }
-            if (container.super) |super| {
-                _ = super;
-                // try self.writer.print("    pub const Super = ", .{});
-                // try self.generateContainerName(super);
-                // try self.writer.print(";\n", .{});
-            }
-            if (container.protocols.items.len > 0) {
-                // try self.writer.print("    pub const ConformsTo = &[_]type{{ ", .{});
-                // var first = true;
-                // for (container.protocols.items) |protocol| {
-                //     if (!first)
-                //         try self.writer.writeAll(", ");
-                //     first = false;
-                //     try self.generateContainerName(protocol);
-                // }
-                // try self.writer.print(" }};\n", .{});
+                try self.writer.writeAll(" = opaque {\n");
             }
             if (container.is_interface) {
-                try self.writer.print("    pub fn class() *c.objc_class {{ return class_", .{});
-                try self.generateContainerName(container);
-                try self.writer.print("; }}\n", .{});
-            }
-            try self.writer.print("    pub usingnamespace Methods(", .{});
-            try self.generateContainerName(container);
-            try self.writer.print(");\n", .{});
-            try self.writer.print("\n", .{});
-
-            var inherited_method_sets = std.ArrayList(*Container).init(self.allocator);
-            defer inherited_method_sets.deinit();
-            if (container.super) |super| {
-                const will_generate = blk: {
-                    if (self.isExternalContainerName(super)) break :blk true;
-                    if (getNamespace(super.name).len > 0) break :blk true;
-                    for (self.containers.items) |container2| {
-                        if (std.mem.eql(u8, container2.name, super.name)) break :blk true;
-                    }
-                    break :blk false;
-                };
-                if (will_generate) try inherited_method_sets.append(super);
-            }
-            for (container.protocols.items) |protocol| {
-                const will_generate = blk: {
-                    if (self.isExternalContainerName(protocol)) break :blk true;
-                    if (getNamespace(protocol.name).len > 0) break :blk true;
-
-                    for (self.containers.items) |container2| {
-                        if (std.mem.eql(u8, container2.name, protocol.name)) break :blk true;
-                    }
-                    break :blk false;
-                };
-                if (will_generate) try inherited_method_sets.append(protocol);
-            }
-
-            if (inherited_method_sets.items.len == 0 and container.methods.items.len == 0) {
-                try self.writer.print("    pub fn Methods(comptime _: type) type {{\n", .{});
+                try self.writer.writeAll("    const InternalInfo = objc.ExternClass(@This(), ");
             } else {
-                try self.writer.print("    pub fn Methods(comptime T: type) type {{\n", .{});
+                try self.writer.writeAll("    const InternalInfo = objc.ExternProtocol(@This(), ");
             }
-            try self.writer.print("        return struct {{\n", .{});
-
-            for (inherited_method_sets.items) |inherited| {
-                const will_generate = blk: {
-                    if (self.isExternalContainerName(inherited)) break :blk true;
-                    for (self.containers.items) |container2| {
-                        if (std.mem.eql(u8, container2.name, inherited.name)) break :blk true;
-                    }
-                    break :blk false;
-                };
-                if (will_generate) {
-                    try self.writer.print("            pub usingnamespace ", .{});
-                    try self.generateContainerName(inherited);
-                    try self.writer.print(".Methods(T);\n", .{});
+            if (container.super) |super| {
+                try self.generateContainerName(super);
+            } else {
+                if (!container.is_interface and container.protocols.items.len == 1) {
+                    try self.generateContainerName(container.protocols.items[0]);
+                } else {
+                    try self.writer.writeAll("objc.Id");
                 }
             }
-            if (inherited_method_sets.items.len > 0) {
-                try self.writer.print("\n", .{});
+            try self.writer.writeAll(");\n");
+            if ((container.is_interface and container.protocols.items.len > 0) or container.protocols.items.len > 1) {
+                try self.writer.writeAll("    pub fn as(self: *@This(), comptime Base: type) *Base {\n");
+                for (container.protocols.items) |protocol| {
+                    try self.writer.writeAll("        if (Base == ");
+                    try self.generateContainerName(protocol);
+                    try self.writer.writeAll(") return @ptrCast(self);\n");
+                }
+                try self.writer.writeAll("        return InternalInfo.as(self, Base);\n");
+                try self.writer.writeAll("    }\n");
+            } else {
+                try self.writer.writeAll("    const as = InternalInfo.as;\n");
+            }
+
+            if (container.is_interface) {
+                // TODO: check if the type (or one of its parents) marks new/alloc/init as NS_UNAVAILABLE.
+                try self.writer.print("    /// `+[{s} new]`\n", .{container.name});
+                try self.writer.writeAll("    pub const new = InternalInfo.new;\n");
+
+                try self.writer.print("    /// `+[{s} alloc]`\n", .{container.name});
+                try self.writer.writeAll("    pub const alloc = InternalInfo.alloc;\n");
+
+                try self.writer.print("    /// `[[{s} alloc] init]`\n", .{container.name});
+                try self.writer.writeAll("    pub const allocInit = InternalInfo.allocInit;\n");
             }
 
             for (container.methods.items) |method| {
+                if (std.mem.eql(u8, method.name, "new") or std.mem.eql(u8, method.name, "init")) {
+                    continue;
+                }
                 try self.generateMethod(container, method);
             }
 
-            try self.writer.print("        }};\n", .{});
-            try self.writer.print("    }}\n", .{});
             try self.writer.print("}};\n", .{});
             if (container.type_params.items.len > 0) {
                 try self.writer.print("}}\n", .{});
@@ -1271,58 +1223,48 @@ fn Generator(comptime WriterType: type) type {
 
         fn generateMethod(self: *Self, container: *Container, method: Method) !void {
             if (!self.isAllowedMethod(container, method)) return;
-            if (container.super) |super| {
-                if (self.doesParentHaveMethod(super, method.name))
-                    return;
-            }
 
-            try self.writer.writeAll("            pub fn ");
-            try self.generateMethodName(method.name);
-            try self.writer.print("(", .{});
+            try self.writer.print("    /// `{s}[{s} {s}]\n", .{ if (method.instance) "-" else "+", container.name, method.name });
+            try self.writer.writeAll("    pub fn ");
+            try self.generateMethodName(method);
+            try self.writer.writeAll("(");
             try self.generateMethodParams(method);
-            try self.writer.print(") ", .{});
+            try self.writer.writeAll(") ");
             try self.generateType(method.return_type);
-            try self.writer.print(" {{\n", .{});
-            try self.generateBlockHelpers(method);
-            try self.writer.writeAll("                return @as(");
-            try self.generateObjcSignature(method);
-            try self.writer.writeAll(", @ptrCast(&c.objc_msgSend))(");
+            try self.writer.writeAll(" {\n");
+            try self.writer.writeAll("        return objc.msgSend(");
             try self.generateMethodArgs(method);
-            try self.writer.print(");\n", .{});
-            try self.writer.print("            }}\n", .{});
+            try self.writer.writeAll(");\n");
+            try self.writer.writeAll("    }\n");
         }
 
-        fn doesParentHaveMethod(self: *Self, container: *Container, name: []const u8) bool {
-            if (container.super) |super| {
-                if (self.doesParentHaveMethod(super, name))
-                    return true;
-            }
-
-            for (container.methods.items) |method| {
-                if (std.mem.eql(u8, method.name, name))
-                    return true;
-            }
-
-            return false;
-        }
-
-        fn generateMethodName(self: *Self, name: []const u8) !void {
-            if (isKeyword(name)) {
-                try self.writer.print("@\"{s}\"", .{name});
+        fn generateMethodName(self: *Self, method: Method) !void {
+            if (isKeyword(method.name)) {
+                if (method.return_type == .bool) {
+                    try self.writer.print("@\"{s}\"", .{method.name});
+                } else {
+                    try self.writer.print("@\"{s}\"", .{method.name});
+                }
             } else {
-                try self.generateSelectorName(trimTrailingColon(name));
+                var iter = std.mem.splitScalar(u8, method.name, ':');
+                try self.writer.writeAll(iter.first());
+                while (iter.next()) |segment| {
+                    try self.writer.writeByte('_');
+                    try self.writer.writeAll(segment);
+                }
             }
         }
 
         fn generateMethodParams(self: *Self, method: Method) !void {
             var first = true;
             if (method.instance) {
-                try self.writer.print("self_: *T", .{});
+                try self.writer.print("self: *@This()", .{});
                 first = false;
             }
             for (method.params.items) |param| {
-                if (!first)
+                if (!first) {
                     try self.writer.writeAll(", ");
+                }
                 first = false;
                 try self.generateMethodParam(param);
             }
@@ -1330,82 +1272,41 @@ fn Generator(comptime WriterType: type) type {
 
         fn generateMethodParam(self: *Self, param: Param) !void {
             if (getBlockType(param)) |f| {
-                try self.writer.writeAll("context: anytype, comptime ");
-                try self.writer.print("{s}_: ", .{param.name});
-                try self.writer.writeAll("fn (ctx: @TypeOf(context)");
+                try self.generateSnakeCaseFromCamelCase(param.name, param.ty);
+                try self.writer.writeAll(": *ns.Block(fn (");
+                var first = true;
                 for (f.params.items) |param_ty| {
-                    try self.writer.writeAll(", _: ");
+                    if (!first) try self.writer.writeAll(", ");
+                    first = false;
                     try self.generateType(param_ty);
                 }
                 try self.writer.writeAll(") ");
                 try self.generateType(f.return_type.*);
+                try self.writer.writeByte(')');
             } else {
-                try self.writer.print("{s}_: ", .{param.name});
+                try self.generateSnakeCaseFromCamelCase(param.name, param.ty);
+                try self.writer.writeAll(": ");
                 try self.generateType(param.ty);
             }
         }
 
-        fn generateBlockHelpers(self: *Self, method: Method) !void {
-            for (method.params.items) |param| {
-                if (getBlockType(param)) |f| {
-                    try self.writer.writeAll("                const Literal = ns.BlockLiteral(@TypeOf(context));\n");
-                    try self.writer.writeAll("                const Helper = struct {\n");
-                    try self.writer.writeAll("                    pub fn cCallback(literal: *Literal");
-                    for (f.params.items, 0..) |param_ty, i| {
-                        try self.writer.print(", a{d}: ", .{i});
-                        try self.generateType(param_ty);
-                    }
-                    try self.writer.writeAll(") callconv(.C) void {\n");
-                    try self.writer.print("                        {s}_(literal.context", .{param.name});
-                    for (0..f.params.items.len) |i| {
-                        try self.writer.print(", a{d}", .{i});
-                    }
-                    try self.writer.writeAll(");\n");
-                    try self.writer.writeAll("                    }\n");
-                    try self.writer.writeAll("                };\n");
-                    try self.writer.writeAll("                const descriptor = ns.BlockDescriptor{ .reserved = 0, .size = @sizeOf(Literal) };\n");
-                    try self.writer.writeAll("                const block = Literal{ .isa = _NSConcreteStackBlock, .flags = 0, .reserved = 0, .invoke = @ptrCast(&Helper.cCallback), .descriptor = &descriptor, .context = context };\n");
-                }
-            }
-        }
-
-        fn generateObjcSignature(self: *Self, method: Method) !void {
-            try self.writer.writeAll("*const fn (");
-            if (method.instance) {
-                try self.writer.writeAll("*T");
-            } else {
-                try self.writer.writeAll("*c.objc_class");
-            }
-            try self.writer.writeAll(", *c.objc_selector");
-            for (method.params.items) |param| {
-                try self.writer.writeAll(", ");
-                if (getBlockType(param)) |_| {
-                    try self.writer.writeAll("*const anyopaque");
-                } else {
-                    try self.generateType(param.ty);
-                }
-            }
-            try self.writer.writeAll(") callconv(.C) ");
-            try self.generateType(method.return_type);
-        }
-
         fn generateMethodArgs(self: *Self, method: Method) !void {
             if (method.instance) {
-                try self.writer.print("self_", .{});
+                try self.writer.writeAll("self");
             } else {
-                try self.writer.print("T.class()", .{});
+                try self.writer.writeAll("InternalInfo.class()");
             }
-            try self.writer.print(", sel_", .{});
-            try self.generateSelectorName(method.name);
+            try self.writer.print(", \"{s}\", ", .{method.name});
+            try self.generateType(method.return_type);
+            try self.writer.writeAll(", .{");
 
+            var first = true;
             for (method.params.items) |param| {
-                try self.writer.writeAll(", ");
-                if (getBlockType(param)) |_| {
-                    try self.writer.writeAll("@ptrCast(&block)");
-                } else {
-                    try self.writer.print("{s}_", .{param.name});
-                }
+                if (!first) try self.writer.writeAll(", ");
+                first = false;
+                try self.generateSnakeCaseFromCamelCase(param.name, param.ty);
             }
+            try self.writer.writeAll("}");
         }
 
         fn getBlockType(param: Param) ?Type.Function {
@@ -1422,16 +1323,6 @@ fn Generator(comptime WriterType: type) type {
                 else => return null,
             }
             return null;
-        }
-
-        fn generateSelectorName(self: *Self, name: []const u8) !void {
-            for (name) |ch| {
-                if (ch == ':') {
-                    try self.writer.writeByte('_');
-                } else {
-                    try self.writer.writeByte(ch);
-                }
-            }
         }
 
         fn generateType(self: *Self, ty: Type) WriteError!void {
@@ -1479,7 +1370,7 @@ fn Generator(comptime WriterType: type) type {
                     try self.generateTypeName(n);
                 },
                 .instance_type => {
-                    try self.writer.writeAll("T");
+                    try self.writer.writeAll("@This()");
                 },
                 .pointer => |p| {
                     if (p.is_optional)
@@ -1530,16 +1421,18 @@ fn Generator(comptime WriterType: type) type {
         }
 
         fn generateContainerSuffix(self: *Self, container: *Container) !void {
-            if (container.ambiguous) {
-                if (container.is_interface) {
-                    try self.writer.writeAll("Interface");
-                } else {
-                    try self.writer.writeAll("Protocol");
-                }
+            if (container.ambiguous and !container.is_interface) {
+                try self.writer.writeAll("Protocol");
             }
         }
 
         fn generateTypeName(self: *Self, name: []const u8) !void {
+            if (std.mem.eql(u8, name, "NSUInteger")) {
+                return self.writer.writeAll("usize");
+            }
+            if (std.mem.eql(u8, name, "NSInteger")) {
+                return self.writer.writeAll("isize");
+            }
             try self.generateTypePrefix(name);
             try self.writer.writeAll(trimNamespace(name));
             if (registry.protocols.get(name)) |container| {

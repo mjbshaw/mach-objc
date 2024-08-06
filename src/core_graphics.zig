@@ -1,8 +1,10 @@
 const builtin = @import("builtin");
+const objc = @import("objc.zig");
 
-pub const ColorSpaceRef = *opaque {};
+pub const ColorSpace = opaque {};
 
-pub const Float = if (builtin.target.ptrBitWidth() == 64) f64 else f32;
+// TODO: consider removing `Float` and just using `f64` directly. 32-bit Apple platforms are dead.
+pub const Float = if (builtin.target.ptrBitWidth() != 64) f64 else unreachable;
 
 pub const Point = extern struct {
     x: Float,

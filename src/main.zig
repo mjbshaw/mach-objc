@@ -1,35 +1,10 @@
-const std = @import("std");
+pub const app_kit = @import("app_kit.zig");
+pub const avf_audio = @import("avf_audio.zig");
+pub const core_foundation = @import("core_foundation.zig");
+pub const core_graphics = @import("core_graphics.zig");
+pub const core_midi = @import("core_midi.zig");
+pub const dispatch = @import("dispatch.zig");
+pub const foundation = @import("foundation.zig");
+pub const metal = @import("metal.zig");
 pub const objc = @import("objc.zig");
-
-pub const avf_audio = struct {
-    pub const avaudio = @import("avf_audio/avaudio.zig");
-};
-
-pub const core_foundation = struct {
-    pub const cf = @import("core_foundation/cf.zig");
-};
-
-pub const core_graphics = struct {
-    pub const cg = @import("core_graphics/cg.zig");
-};
-
-pub const foundation = struct {
-    pub const ns = @import("foundation/ns.zig");
-};
-
-pub const metal = struct {
-    pub const mtl = @import("metal/mtl.zig");
-};
-
-pub const quartz_core = struct {
-    pub const ca = @import("quartz_core/ca.zig");
-};
-
-pub const appkit = struct {
-    pub const ns = @import("appkit/appkit.zig");
-};
-
-test {
-    @setEvalBranchQuota(10000);
-    std.testing.refAllDeclsRecursive(@This());
-}
+pub const quartz_core = @import("quartz_core.zig");
