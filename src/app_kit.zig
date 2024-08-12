@@ -1,41 +1,112 @@
 const ns = @import("foundation.zig");
 const objc = @import("objc");
 
+/// `NSBackingStoreType`
+pub const BackingStoreType = enum(usize) {
+    /// `NSBackingStoreRetained`
+    nsbacking_store_retained = 0,
+    /// `NSBackingStoreNonretained`
+    nsbacking_store_nonretained = 1,
+    /// `NSBackingStoreBuffered`
+    nsbacking_store_buffered = 2,
+    _,
+};
+
+/// `NSWindowStyleMask`
+pub const WindowStyleMask = enum(usize) {
+    /// `NSWindowStyleMaskBorderless`
+    borderless = 0,
+    /// `NSWindowStyleMaskTitled`
+    titled = 1,
+    /// `NSWindowStyleMaskClosable`
+    closable = 2,
+    /// `NSWindowStyleMaskMiniaturizable`
+    miniaturizable = 4,
+    /// `NSWindowStyleMaskResizable`
+    resizable = 8,
+    /// `NSWindowStyleMaskTexturedBackground`
+    textured_background = 256,
+    /// `NSWindowStyleMaskUnifiedTitleAndToolbar`
+    unified_title_and_toolbar = 4096,
+    /// `NSWindowStyleMaskFullScreen`
+    full_screen = 16384,
+    /// `NSWindowStyleMaskFullSizeContentView`
+    full_size_content_view = 32768,
+    /// `NSWindowStyleMaskUtilityWindow`
+    utility_window = 16,
+    /// `NSWindowStyleMaskDocModalWindow`
+    doc_modal_window = 64,
+    /// `NSWindowStyleMaskNonactivatingPanel`
+    nonactivating_panel = 128,
+    /// `NSWindowStyleMaskHUDWindow`
+    hudwindow = 8192,
+    _,
+};
+
+/// `NSResponder`
+pub const Responder = opaque {
+    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    const as = InternalInfo.as;
+};
+
 /// `NSApplication`
 pub const Application = opaque {
-    pub const InternalInfo = objc.ExternClass("NSApplication", @This(), ns.Object);
-
-    pub const as = InternalInfo.as;
-
-    /// `+[NSApplication sharedApplication]`
+    const InternalInfo = objc.ExternClass(@This(), Responder);
+    const as = InternalInfo.as;
+    /// `+[NSApplication new]`
+    pub const new = InternalInfo.new;
+    /// `+[NSApplication alloc]`
+    pub const alloc = InternalInfo.alloc;
+    /// `[[NSApplication alloc] init]`
+    pub const allocInit = InternalInfo.allocInit;
+    /// `-[NSApplication run]
+    pub fn run(self: *@This()) void {
+        return objc.msgSend(self, "run", void, .{});
+    }
+    /// `+[NSApplication sharedApplication]
     pub fn sharedApplication() *Application {
         return objc.msgSend(InternalInfo.class(), "sharedApplication", *Application, .{});
     }
-
-    /// `-[NSApplication run]`
-    pub fn run(self: *Application) void {
-        objc.msgSend(self, "run", void, .{});
+    /// `-[NSApplication setDelegate:]
+    pub fn setDelegate_(self: *@This(), delegate: ?*ApplicationDelegate) void {
+        return objc.msgSend(self, "setDelegate:", void, .{delegate});
     }
+};
 
-    /// `-[NSApplication stop:]`
-    pub fn stop(self: *Application, sender: *objc.id) void {
-        objc.msgSend(self, "stop:", void, .{sender});
+/// `NSWindow`
+pub const Window = opaque {
+    const InternalInfo = objc.ExternClass(@This(), Responder);
+    const as = InternalInfo.as;
+    /// `+[NSWindow new]`
+    pub const new = InternalInfo.new;
+    /// `+[NSWindow alloc]`
+    pub const alloc = InternalInfo.alloc;
+    /// `[[NSWindow alloc] init]`
+    pub const allocInit = InternalInfo.allocInit;
+    /// `-[NSWindow initWithContentRect:styleMask:backing:defer:screen:]
+    pub fn initWithContentRect_styleMask_backing_defer_screen_(self: *@This(), content_rect: ns.Rect, style: WindowStyleMask, backing_store_type: BackingStoreType, flag: bool, screen: ?*Screen) *@This() {
+        return objc.msgSend(self, "initWithContentRect:styleMask:backing:defer:screen:", *@This(), .{ content_rect, style, backing_store_type, flag, screen });
     }
+};
 
-    /// `-[NSApplication delegate]`
-    pub fn delegate(self: *Application) ?*ApplicationDelegate {
-        return objc.msgSend(self, "delegate", ?*ApplicationDelegate, .{});
-    }
-
-    /// `-[NSApplication setDelegate:]`
-    pub fn setDelegate(self: *Application, delegate_object: ?*ApplicationDelegate) void {
-        return objc.msgSend(self, "setDelegate:", void, .{delegate_object});
+/// `NSScreen`
+pub const Screen = opaque {
+    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    const as = InternalInfo.as;
+    /// `+[NSScreen new]`
+    pub const new = InternalInfo.new;
+    /// `+[NSScreen alloc]`
+    pub const alloc = InternalInfo.alloc;
+    /// `[[NSScreen alloc] init]`
+    pub const allocInit = InternalInfo.allocInit;
+    /// `+[NSScreen screens]
+    pub fn screens() *ns.Array(Screen) {
+        return objc.msgSend(InternalInfo.class(), "screens", *ns.Array(Screen), .{});
     }
 };
 
 /// `NSApplicationDelegate`
 pub const ApplicationDelegate = opaque {
-    pub const InternalInfo = objc.ExternProtocol(@This(), objc.ObjectProtocol);
-
-    pub const as = InternalInfo.as;
+    const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
+    const as = InternalInfo.as;
 };

@@ -2,6 +2,7 @@ const builtin = @import("builtin");
 const dispatch = @import("dispatch.zig");
 const cf = @import("core_foundation.zig");
 const objc = @import("objc.zig");
+const cg = @import("core_graphics.zig");
 const std = @import("std");
 const system = @import("system");
 
@@ -11,6 +12,8 @@ pub const BlockLiteralWithSignature = system.BlockLiteralWithSignature;
 pub const stackBlockLiteral = system.stackBlockLiteral;
 pub const globalBlockLiteral = system.globalBlockLiteral;
 pub const globalBlock = system.globalBlock;
+
+pub const Rect = cg.Rect;
 
 /// `NSObject`'s protocol (`NSObjectProtocol` in Swift)
 pub const ObjectProtocol = opaque {

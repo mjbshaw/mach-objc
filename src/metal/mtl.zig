@@ -2329,8 +2329,8 @@ pub const AccelerationStructureDescriptor = opaque {
         return objc.msgSend(self, "usage", AccelerationStructureUsage, .{});
     }
     /// `-[MTLAccelerationStructureDescriptor setUsage:]
-    pub fn setUsage_(self: *@This(), usage: AccelerationStructureUsage) void {
-        return objc.msgSend(self, "setUsage:", void, .{usage});
+    pub fn setUsage_(self: *@This(), value: AccelerationStructureUsage) void {
+        return objc.msgSend(self, "setUsage:", void, .{value});
     }
 };
 
@@ -3828,8 +3828,8 @@ pub const CaptureDescriptor = opaque {
         return objc.msgSend(self, "destination", CaptureDestination, .{});
     }
     /// `-[MTLCaptureDescriptor setDestination:]
-    pub fn setDestination_(self: *@This(), destination: CaptureDestination) void {
-        return objc.msgSend(self, "setDestination:", void, .{destination});
+    pub fn setDestination_(self: *@This(), value: CaptureDestination) void {
+        return objc.msgSend(self, "setDestination:", void, .{value});
     }
     /// `-[MTLCaptureDescriptor outputURL]
     pub fn outputUrl(self: *@This()) ?*ns.Url {
@@ -4921,8 +4921,8 @@ pub const ArgumentDescriptor = opaque {
         return objc.msgSend(self, "index", usize, .{});
     }
     /// `-[MTLArgumentDescriptor setIndex:]
-    pub fn setIndex_(self: *@This(), index: usize) void {
-        return objc.msgSend(self, "setIndex:", void, .{index});
+    pub fn setIndex_(self: *@This(), value: usize) void {
+        return objc.msgSend(self, "setIndex:", void, .{value});
     }
     /// `-[MTLArgumentDescriptor arrayLength]
     pub fn arrayLength(self: *@This()) usize {
@@ -4937,8 +4937,8 @@ pub const ArgumentDescriptor = opaque {
         return objc.msgSend(self, "access", BindingAccess, .{});
     }
     /// `-[MTLArgumentDescriptor setAccess:]
-    pub fn setAccess_(self: *@This(), access: BindingAccess) void {
-        return objc.msgSend(self, "setAccess:", void, .{access});
+    pub fn setAccess_(self: *@This(), value: BindingAccess) void {
+        return objc.msgSend(self, "setAccess:", void, .{value});
     }
     /// `-[MTLArgumentDescriptor textureType]
     pub fn textureType(self: *@This()) TextureType {
@@ -5638,8 +5638,8 @@ pub const FunctionDescriptor = opaque {
         return objc.msgSend(self, "name", ?*ns.String, .{});
     }
     /// `-[MTLFunctionDescriptor setName:]
-    pub fn setName_(self: *@This(), name: ?*ns.String) void {
-        return objc.msgSend(self, "setName:", void, .{name});
+    pub fn setName_(self: *@This(), str: ?*ns.String) void {
+        return objc.msgSend(self, "setName:", void, .{str});
     }
     /// `-[MTLFunctionDescriptor specializedName]
     pub fn specializedName(self: *@This()) ?*ns.String {
@@ -5662,8 +5662,8 @@ pub const FunctionDescriptor = opaque {
         return objc.msgSend(self, "options", FunctionOptions, .{});
     }
     /// `-[MTLFunctionDescriptor setOptions:]
-    pub fn setOptions_(self: *@This(), options: FunctionOptions) void {
-        return objc.msgSend(self, "setOptions:", void, .{options});
+    pub fn setOptions_(self: *@This(), opts: FunctionOptions) void {
+        return objc.msgSend(self, "setOptions:", void, .{opts});
     }
     /// `-[MTLFunctionDescriptor binaryArchives]
     pub fn binaryArchives(self: *@This()) ?*ns.Array(*BinaryArchive) {
@@ -5830,24 +5830,24 @@ pub const FunctionStitchingFunctionNode = opaque {
     /// `[[MTLFunctionStitchingFunctionNode alloc] init]`
     pub const allocInit = InternalInfo.allocInit;
     /// `-[MTLFunctionStitchingFunctionNode initWithName:arguments:controlDependencies:]
-    pub fn initWithName_arguments_controlDependencies_(self: *@This(), name: *ns.String, arguments: *ns.Array(*FunctionStitchingNode), control_dependencies: *ns.Array(*FunctionStitchingFunctionNode)) *@This() {
-        return objc.msgSend(self, "initWithName:arguments:controlDependencies:", *@This(), .{ name, arguments, control_dependencies });
+    pub fn initWithName_arguments_controlDependencies_(self: *@This(), name_str: *ns.String, args: *ns.Array(*FunctionStitchingNode), control_dependencies: *ns.Array(*FunctionStitchingFunctionNode)) *@This() {
+        return objc.msgSend(self, "initWithName:arguments:controlDependencies:", *@This(), .{ name_str, args, control_dependencies });
     }
     /// `-[MTLFunctionStitchingFunctionNode name]
     pub fn name(self: *@This()) *ns.String {
         return objc.msgSend(self, "name", *ns.String, .{});
     }
     /// `-[MTLFunctionStitchingFunctionNode setName:]
-    pub fn setName_(self: *@This(), name: *ns.String) void {
-        return objc.msgSend(self, "setName:", void, .{name});
+    pub fn setName_(self: *@This(), str: *ns.String) void {
+        return objc.msgSend(self, "setName:", void, .{str});
     }
     /// `-[MTLFunctionStitchingFunctionNode arguments]
     pub fn arguments(self: *@This()) *ns.Array(*FunctionStitchingNode) {
         return objc.msgSend(self, "arguments", *ns.Array(*FunctionStitchingNode), .{});
     }
     /// `-[MTLFunctionStitchingFunctionNode setArguments:]
-    pub fn setArguments_(self: *@This(), arguments: *ns.Array(*FunctionStitchingNode)) void {
-        return objc.msgSend(self, "setArguments:", void, .{arguments});
+    pub fn setArguments_(self: *@This(), args: *ns.Array(*FunctionStitchingNode)) void {
+        return objc.msgSend(self, "setArguments:", void, .{args});
     }
     /// `-[MTLFunctionStitchingFunctionNode controlDependencies]
     pub fn controlDependencies(self: *@This()) *ns.Array(*FunctionStitchingFunctionNode) {
@@ -5873,8 +5873,8 @@ pub const FunctionStitchingGraph = opaque {
     /// `[[MTLFunctionStitchingGraph alloc] init]`
     pub const allocInit = InternalInfo.allocInit;
     /// `-[MTLFunctionStitchingGraph initWithFunctionName:nodes:outputNode:attributes:]
-    pub fn initWithFunctionName_nodes_outputNode_attributes_(self: *@This(), function_name: *ns.String, nodes: *ns.Array(*FunctionStitchingFunctionNode), output_node: ?*FunctionStitchingFunctionNode, attributes: *ns.Array(*FunctionStitchingAttribute)) *@This() {
-        return objc.msgSend(self, "initWithFunctionName:nodes:outputNode:attributes:", *@This(), .{ function_name, nodes, output_node, attributes });
+    pub fn initWithFunctionName_nodes_outputNode_attributes_(self: *@This(), function_name: *ns.String, fn_nodes: *ns.Array(*FunctionStitchingFunctionNode), output_node: ?*FunctionStitchingFunctionNode, attrs: *ns.Array(*FunctionStitchingAttribute)) *@This() {
+        return objc.msgSend(self, "initWithFunctionName:nodes:outputNode:attributes:", *@This(), .{ function_name, fn_nodes, output_node, attrs });
     }
     /// `-[MTLFunctionStitchingGraph functionName]
     pub fn functionName(self: *@This()) *ns.String {
@@ -5889,8 +5889,8 @@ pub const FunctionStitchingGraph = opaque {
         return objc.msgSend(self, "nodes", *ns.Array(*FunctionStitchingFunctionNode), .{});
     }
     /// `-[MTLFunctionStitchingGraph setNodes:]
-    pub fn setNodes_(self: *@This(), nodes: *ns.Array(*FunctionStitchingFunctionNode)) void {
-        return objc.msgSend(self, "setNodes:", void, .{nodes});
+    pub fn setNodes_(self: *@This(), fn_nodes: *ns.Array(*FunctionStitchingFunctionNode)) void {
+        return objc.msgSend(self, "setNodes:", void, .{fn_nodes});
     }
     /// `-[MTLFunctionStitchingGraph outputNode]
     pub fn outputNode(self: *@This()) ?*FunctionStitchingFunctionNode {
@@ -5905,8 +5905,8 @@ pub const FunctionStitchingGraph = opaque {
         return objc.msgSend(self, "attributes", *ns.Array(*FunctionStitchingAttribute), .{});
     }
     /// `-[MTLFunctionStitchingGraph setAttributes:]
-    pub fn setAttributes_(self: *@This(), attributes: *ns.Array(*FunctionStitchingAttribute)) void {
-        return objc.msgSend(self, "setAttributes:", void, .{attributes});
+    pub fn setAttributes_(self: *@This(), attrs: *ns.Array(*FunctionStitchingAttribute)) void {
+        return objc.msgSend(self, "setAttributes:", void, .{attrs});
     }
 };
 
@@ -5936,8 +5936,8 @@ pub const StitchedLibraryDescriptor = opaque {
         return objc.msgSend(self, "functions", *ns.Array(*Function), .{});
     }
     /// `-[MTLStitchedLibraryDescriptor setFunctions:]
-    pub fn setFunctions_(self: *@This(), functions: *ns.Array(*Function)) void {
-        return objc.msgSend(self, "setFunctions:", void, .{functions});
+    pub fn setFunctions_(self: *@This(), fns: *ns.Array(*Function)) void {
+        return objc.msgSend(self, "setFunctions:", void, .{fns});
     }
 };
 
@@ -5959,8 +5959,8 @@ pub const HeapDescriptor = opaque {
         return objc.msgSend(self, "size", usize, .{});
     }
     /// `-[MTLHeapDescriptor setSize:]
-    pub fn setSize_(self: *@This(), size: usize) void {
-        return objc.msgSend(self, "setSize:", void, .{size});
+    pub fn setSize_(self: *@This(), value: usize) void {
+        return objc.msgSend(self, "setSize:", void, .{value});
     }
     /// `-[MTLHeapDescriptor storageMode]
     pub fn storageMode(self: *@This()) StorageMode {
@@ -6007,8 +6007,8 @@ pub const HeapDescriptor = opaque {
         return objc.msgSend(self, "type", HeapType, .{});
     }
     /// `-[MTLHeapDescriptor setType:]
-    pub fn setType_(self: *@This(), @"type": HeapType) void {
-        return objc.msgSend(self, "setType:", void, .{@"type"});
+    pub fn setType_(self: *@This(), value: HeapType) void {
+        return objc.msgSend(self, "setType:", void, .{value});
     }
 };
 
@@ -6041,16 +6041,16 @@ pub const Heap = opaque {
         return objc.msgSend(self, "newTextureWithDescriptor:offset:", ?*Texture, .{ descriptor, offset });
     }
     /// `-[MTLHeap newAccelerationStructureWithSize:]
-    pub fn newAccelerationStructureWithSize_(self: *@This(), size: usize) ?*AccelerationStructure {
-        return objc.msgSend(self, "newAccelerationStructureWithSize:", ?*AccelerationStructure, .{size});
+    pub fn newAccelerationStructureWithSize_(self: *@This(), n_bytes: usize) ?*AccelerationStructure {
+        return objc.msgSend(self, "newAccelerationStructureWithSize:", ?*AccelerationStructure, .{n_bytes});
     }
     /// `-[MTLHeap newAccelerationStructureWithDescriptor:]
     pub fn newAccelerationStructureWithDescriptor_(self: *@This(), descriptor: *AccelerationStructureDescriptor) ?*AccelerationStructure {
         return objc.msgSend(self, "newAccelerationStructureWithDescriptor:", ?*AccelerationStructure, .{descriptor});
     }
     /// `-[MTLHeap newAccelerationStructureWithSize:offset:]
-    pub fn newAccelerationStructureWithSize_offset_(self: *@This(), size: usize, offset: usize) ?*AccelerationStructure {
-        return objc.msgSend(self, "newAccelerationStructureWithSize:offset:", ?*AccelerationStructure, .{ size, offset });
+    pub fn newAccelerationStructureWithSize_offset_(self: *@This(), n_bytes: usize, offset: usize) ?*AccelerationStructure {
+        return objc.msgSend(self, "newAccelerationStructureWithSize:offset:", ?*AccelerationStructure, .{ n_bytes, offset });
     }
     /// `-[MTLHeap newAccelerationStructureWithDescriptor:offset:]
     pub fn newAccelerationStructureWithDescriptor_offset_(self: *@This(), descriptor: *AccelerationStructureDescriptor, offset: usize) ?*AccelerationStructure {
@@ -6586,16 +6586,16 @@ pub const IoCommandQueueDescriptor = opaque {
         return objc.msgSend(self, "priority", IoPriority, .{});
     }
     /// `-[MTLIOCommandQueueDescriptor setPriority:]
-    pub fn setPriority_(self: *@This(), priority: IoPriority) void {
-        return objc.msgSend(self, "setPriority:", void, .{priority});
+    pub fn setPriority_(self: *@This(), value: IoPriority) void {
+        return objc.msgSend(self, "setPriority:", void, .{value});
     }
     /// `-[MTLIOCommandQueueDescriptor type]
     pub fn @"type"(self: *@This()) IoCommandQueueType {
         return objc.msgSend(self, "type", IoCommandQueueType, .{});
     }
     /// `-[MTLIOCommandQueueDescriptor setType:]
-    pub fn setType_(self: *@This(), @"type": IoCommandQueueType) void {
-        return objc.msgSend(self, "setType:", void, .{@"type"});
+    pub fn setType_(self: *@This(), value: IoCommandQueueType) void {
+        return objc.msgSend(self, "setType:", void, .{value});
     }
     /// `-[MTLIOCommandQueueDescriptor maxCommandsInFlight]
     pub fn maxCommandsInFlight(self: *@This()) usize {
@@ -6845,8 +6845,8 @@ pub const CompileOptions = opaque {
         return objc.msgSend(self, "libraries", ?*ns.Array(*DynamicLibrary), .{});
     }
     /// `-[MTLCompileOptions setLibraries:]
-    pub fn setLibraries_(self: *@This(), libraries: ?*ns.Array(*DynamicLibrary)) void {
-        return objc.msgSend(self, "setLibraries:", void, .{libraries});
+    pub fn setLibraries_(self: *@This(), libs: ?*ns.Array(*DynamicLibrary)) void {
+        return objc.msgSend(self, "setLibraries:", void, .{libs});
     }
     /// `-[MTLCompileOptions preserveInvariance]
     pub fn preserveInvariance(self: *@This()) bool {
@@ -6970,8 +6970,8 @@ pub const LinkedFunctions = opaque {
         return objc.msgSend(self, "functions", ?*ns.Array(*Function), .{});
     }
     /// `-[MTLLinkedFunctions setFunctions:]
-    pub fn setFunctions_(self: *@This(), functions: ?*ns.Array(*Function)) void {
-        return objc.msgSend(self, "setFunctions:", void, .{functions});
+    pub fn setFunctions_(self: *@This(), fns: ?*ns.Array(*Function)) void {
+        return objc.msgSend(self, "setFunctions:", void, .{fns});
     }
     /// `-[MTLLinkedFunctions binaryFunctions]
     pub fn binaryFunctions(self: *@This()) ?*ns.Array(*Function) {
@@ -6986,8 +6986,8 @@ pub const LinkedFunctions = opaque {
         return objc.msgSend(self, "groups", ?*ns.Dictionary(*ns.String, *ns.Array(*Function)), .{});
     }
     /// `-[MTLLinkedFunctions setGroups:]
-    pub fn setGroups_(self: *@This(), groups: ?*ns.Dictionary(*ns.String, *ns.Array(*Function))) void {
-        return objc.msgSend(self, "setGroups:", void, .{groups});
+    pub fn setGroups_(self: *@This(), fn_groups: ?*ns.Dictionary(*ns.String, *ns.Array(*Function))) void {
+        return objc.msgSend(self, "setGroups:", void, .{fn_groups});
     }
     /// `-[MTLLinkedFunctions privateFunctions]
     pub fn privateFunctions(self: *@This()) ?*ns.Array(*Function) {
@@ -7051,8 +7051,8 @@ pub const PipelineBufferDescriptor = opaque {
         return objc.msgSend(self, "mutability", Mutability, .{});
     }
     /// `-[MTLPipelineBufferDescriptor setMutability:]
-    pub fn setMutability_(self: *@This(), mutability: Mutability) void {
-        return objc.msgSend(self, "setMutability:", void, .{mutability});
+    pub fn setMutability_(self: *@This(), mut: Mutability) void {
+        return objc.msgSend(self, "setMutability:", void, .{mut});
     }
 };
 
@@ -7111,8 +7111,8 @@ pub const RasterizationRateLayerDescriptor = opaque {
         return objc.msgSend(self, "initWithSampleCount:", *@This(), .{sample_count});
     }
     /// `-[MTLRasterizationRateLayerDescriptor initWithSampleCount:horizontal:vertical:]
-    pub fn initWithSampleCount_horizontal_vertical_(self: *@This(), sample_count: Size, horizontal: *const f32, vertical: *const f32) *@This() {
-        return objc.msgSend(self, "initWithSampleCount:horizontal:vertical:", *@This(), .{ sample_count, horizontal, vertical });
+    pub fn initWithSampleCount_horizontal_vertical_(self: *@This(), sample_count: Size, h: *const f32, v: *const f32) *@This() {
+        return objc.msgSend(self, "initWithSampleCount:horizontal:vertical:", *@This(), .{ sample_count, h, v });
     }
     /// `-[MTLRasterizationRateLayerDescriptor sampleCount]
     pub fn sampleCount(self: *@This()) Size {
@@ -7186,8 +7186,8 @@ pub const RasterizationRateMapDescriptor = opaque {
         return objc.msgSend(InternalInfo.class(), "rasterizationRateMapDescriptorWithScreenSize:layer:", *RasterizationRateMapDescriptor, .{ screen_size, layer });
     }
     /// `+[MTLRasterizationRateMapDescriptor rasterizationRateMapDescriptorWithScreenSize:layerCount:layers:]
-    pub fn rasterizationRateMapDescriptorWithScreenSize_layerCount_layers_(screen_size: Size, layer_count: usize, layers: [*]*const RasterizationRateLayerDescriptor) *RasterizationRateMapDescriptor {
-        return objc.msgSend(InternalInfo.class(), "rasterizationRateMapDescriptorWithScreenSize:layerCount:layers:", *RasterizationRateMapDescriptor, .{ screen_size, layer_count, layers });
+    pub fn rasterizationRateMapDescriptorWithScreenSize_layerCount_layers_(screen_size: Size, layer_count: usize, layer_descrioptors: [*]*const RasterizationRateLayerDescriptor) *RasterizationRateMapDescriptor {
+        return objc.msgSend(InternalInfo.class(), "rasterizationRateMapDescriptorWithScreenSize:layerCount:layers:", *RasterizationRateMapDescriptor, .{ screen_size, layer_count, layer_descrioptors });
     }
     /// `-[MTLRasterizationRateMapDescriptor layerAtIndex:]
     pub fn layerAtIndex_(self: *@This(), layer_index: usize) ?*RasterizationRateLayerDescriptor {
@@ -7809,24 +7809,24 @@ pub const RenderPassAttachmentDescriptor = opaque {
         return objc.msgSend(self, "texture", ?*Texture, .{});
     }
     /// `-[MTLRenderPassAttachmentDescriptor setTexture:]
-    pub fn setTexture_(self: *@This(), texture: ?*Texture) void {
-        return objc.msgSend(self, "setTexture:", void, .{texture});
+    pub fn setTexture_(self: *@This(), value: ?*Texture) void {
+        return objc.msgSend(self, "setTexture:", void, .{value});
     }
     /// `-[MTLRenderPassAttachmentDescriptor level]
     pub fn level(self: *@This()) usize {
         return objc.msgSend(self, "level", usize, .{});
     }
     /// `-[MTLRenderPassAttachmentDescriptor setLevel:]
-    pub fn setLevel_(self: *@This(), level: usize) void {
-        return objc.msgSend(self, "setLevel:", void, .{level});
+    pub fn setLevel_(self: *@This(), lvl: usize) void {
+        return objc.msgSend(self, "setLevel:", void, .{lvl});
     }
     /// `-[MTLRenderPassAttachmentDescriptor slice]
     pub fn slice(self: *@This()) usize {
         return objc.msgSend(self, "slice", usize, .{});
     }
     /// `-[MTLRenderPassAttachmentDescriptor setSlice:]
-    pub fn setSlice_(self: *@This(), slice: usize) void {
-        return objc.msgSend(self, "setSlice:", void, .{slice});
+    pub fn setSlice_(self: *@This(), value: usize) void {
+        return objc.msgSend(self, "setSlice:", void, .{value});
     }
     /// `-[MTLRenderPassAttachmentDescriptor depthPlane]
     pub fn depthPlane(self: *@This()) usize {
@@ -9425,8 +9425,8 @@ pub const BufferLayoutDescriptor = opaque {
         return objc.msgSend(self, "stride", usize, .{});
     }
     /// `-[MTLBufferLayoutDescriptor setStride:]
-    pub fn setStride_(self: *@This(), stride: usize) void {
-        return objc.msgSend(self, "setStride:", void, .{stride});
+    pub fn setStride_(self: *@This(), value: usize) void {
+        return objc.msgSend(self, "setStride:", void, .{value});
     }
     /// `-[MTLBufferLayoutDescriptor stepFunction]
     pub fn stepFunction(self: *@This()) StepFunction {
@@ -9484,16 +9484,16 @@ pub const AttributeDescriptor = opaque {
         return objc.msgSend(self, "format", AttributeFormat, .{});
     }
     /// `-[MTLAttributeDescriptor setFormat:]
-    pub fn setFormat_(self: *@This(), format: AttributeFormat) void {
-        return objc.msgSend(self, "setFormat:", void, .{format});
+    pub fn setFormat_(self: *@This(), fmt: AttributeFormat) void {
+        return objc.msgSend(self, "setFormat:", void, .{fmt});
     }
     /// `-[MTLAttributeDescriptor offset]
     pub fn offset(self: *@This()) usize {
         return objc.msgSend(self, "offset", usize, .{});
     }
     /// `-[MTLAttributeDescriptor setOffset:]
-    pub fn setOffset_(self: *@This(), offset: usize) void {
-        return objc.msgSend(self, "setOffset:", void, .{offset});
+    pub fn setOffset_(self: *@This(), value: usize) void {
+        return objc.msgSend(self, "setOffset:", void, .{value});
     }
     /// `-[MTLAttributeDescriptor bufferIndex]
     pub fn bufferIndex(self: *@This()) usize {
@@ -9609,16 +9609,16 @@ pub const TextureDescriptor = opaque {
     /// `[[MTLTextureDescriptor alloc] init]`
     pub const allocInit = InternalInfo.allocInit;
     /// `+[MTLTextureDescriptor texture2DDescriptorWithPixelFormat:width:height:mipmapped:]
-    pub fn texture2DDescriptorWithPixelFormat_width_height_mipmapped_(pixel_format: PixelFormat, width: usize, height: usize, mipmapped: bool) *TextureDescriptor {
-        return objc.msgSend(InternalInfo.class(), "texture2DDescriptorWithPixelFormat:width:height:mipmapped:", *TextureDescriptor, .{ pixel_format, width, height, mipmapped });
+    pub fn texture2DDescriptorWithPixelFormat_width_height_mipmapped_(pixel_format: PixelFormat, w: usize, h: usize, mipmapped: bool) *TextureDescriptor {
+        return objc.msgSend(InternalInfo.class(), "texture2DDescriptorWithPixelFormat:width:height:mipmapped:", *TextureDescriptor, .{ pixel_format, w, h, mipmapped });
     }
     /// `+[MTLTextureDescriptor textureCubeDescriptorWithPixelFormat:size:mipmapped:]
     pub fn textureCubeDescriptorWithPixelFormat_size_mipmapped_(pixel_format: PixelFormat, size: usize, mipmapped: bool) *TextureDescriptor {
         return objc.msgSend(InternalInfo.class(), "textureCubeDescriptorWithPixelFormat:size:mipmapped:", *TextureDescriptor, .{ pixel_format, size, mipmapped });
     }
     /// `+[MTLTextureDescriptor textureBufferDescriptorWithPixelFormat:width:resourceOptions:usage:]
-    pub fn textureBufferDescriptorWithPixelFormat_width_resourceOptions_usage_(pixel_format: PixelFormat, width: usize, resource_options: ResourceOptions, usage: TextureUsage) *TextureDescriptor {
-        return objc.msgSend(InternalInfo.class(), "textureBufferDescriptorWithPixelFormat:width:resourceOptions:usage:", *TextureDescriptor, .{ pixel_format, width, resource_options, usage });
+    pub fn textureBufferDescriptorWithPixelFormat_width_resourceOptions_usage_(pixel_format: PixelFormat, w: usize, resource_options: ResourceOptions, texture_usage: TextureUsage) *TextureDescriptor {
+        return objc.msgSend(InternalInfo.class(), "textureBufferDescriptorWithPixelFormat:width:resourceOptions:usage:", *TextureDescriptor, .{ pixel_format, w, resource_options, texture_usage });
     }
     /// `-[MTLTextureDescriptor textureType]
     pub fn textureType(self: *@This()) TextureType {
@@ -9641,24 +9641,24 @@ pub const TextureDescriptor = opaque {
         return objc.msgSend(self, "width", usize, .{});
     }
     /// `-[MTLTextureDescriptor setWidth:]
-    pub fn setWidth_(self: *@This(), width: usize) void {
-        return objc.msgSend(self, "setWidth:", void, .{width});
+    pub fn setWidth_(self: *@This(), w: usize) void {
+        return objc.msgSend(self, "setWidth:", void, .{w});
     }
     /// `-[MTLTextureDescriptor height]
     pub fn height(self: *@This()) usize {
         return objc.msgSend(self, "height", usize, .{});
     }
     /// `-[MTLTextureDescriptor setHeight:]
-    pub fn setHeight_(self: *@This(), height: usize) void {
-        return objc.msgSend(self, "setHeight:", void, .{height});
+    pub fn setHeight_(self: *@This(), h: usize) void {
+        return objc.msgSend(self, "setHeight:", void, .{h});
     }
     /// `-[MTLTextureDescriptor depth]
     pub fn depth(self: *@This()) usize {
         return objc.msgSend(self, "depth", usize, .{});
     }
     /// `-[MTLTextureDescriptor setDepth:]
-    pub fn setDepth_(self: *@This(), depth: usize) void {
-        return objc.msgSend(self, "setDepth:", void, .{depth});
+    pub fn setDepth_(self: *@This(), d: usize) void {
+        return objc.msgSend(self, "setDepth:", void, .{d});
     }
     /// `-[MTLTextureDescriptor mipmapLevelCount]
     pub fn mipmapLevelCount(self: *@This()) usize {
@@ -9721,8 +9721,8 @@ pub const TextureDescriptor = opaque {
         return objc.msgSend(self, "usage", TextureUsage, .{});
     }
     /// `-[MTLTextureDescriptor setUsage:]
-    pub fn setUsage_(self: *@This(), usage: TextureUsage) void {
-        return objc.msgSend(self, "setUsage:", void, .{usage});
+    pub fn setUsage_(self: *@This(), texture_usage: TextureUsage) void {
+        return objc.msgSend(self, "setUsage:", void, .{texture_usage});
     }
     /// `-[MTLTextureDescriptor allowGPUOptimizedContents]
     pub fn allowGPUOptimizedContents(self: *@This()) bool {
@@ -9745,8 +9745,8 @@ pub const TextureDescriptor = opaque {
         return objc.msgSend(self, "swizzle", TextureSwizzleChannels, .{});
     }
     /// `-[MTLTextureDescriptor setSwizzle:]
-    pub fn setSwizzle_(self: *@This(), swizzle: TextureSwizzleChannels) void {
-        return objc.msgSend(self, "setSwizzle:", void, .{swizzle});
+    pub fn setSwizzle_(self: *@This(), value: TextureSwizzleChannels) void {
+        return objc.msgSend(self, "setSwizzle:", void, .{value});
     }
 };
 
@@ -9787,8 +9787,8 @@ pub const Texture = opaque {
         return objc.msgSend(self, "newRemoteTextureViewForDevice:", ?*Texture, .{device});
     }
     /// `-[MTLTexture newTextureViewWithPixelFormat:textureType:levels:slices:swizzle:]
-    pub fn newTextureViewWithPixelFormat_textureType_levels_slices_swizzle_(self: *@This(), pixel_format: PixelFormat, texture_type: TextureType, level_range: ns.Range, slice_range: ns.Range, swizzle: TextureSwizzleChannels) ?*Texture {
-        return objc.msgSend(self, "newTextureViewWithPixelFormat:textureType:levels:slices:swizzle:", ?*Texture, .{ pixel_format, texture_type, level_range, slice_range, swizzle });
+    pub fn newTextureViewWithPixelFormat_textureType_levels_slices_swizzle_(self: *@This(), pixel_format: PixelFormat, texture_type: TextureType, level_range: ns.Range, slice_range: ns.Range, swizzle_channels: TextureSwizzleChannels) ?*Texture {
+        return objc.msgSend(self, "newTextureViewWithPixelFormat:textureType:levels:slices:swizzle:", ?*Texture, .{ pixel_format, texture_type, level_range, slice_range, swizzle_channels });
     }
     /// `-[MTLTexture rootResource]
     pub fn rootResource(self: *@This()) ?*Resource {
@@ -9922,8 +9922,8 @@ pub const VertexBufferLayoutDescriptor = opaque {
         return objc.msgSend(self, "stride", usize, .{});
     }
     /// `-[MTLVertexBufferLayoutDescriptor setStride:]
-    pub fn setStride_(self: *@This(), stride: usize) void {
-        return objc.msgSend(self, "setStride:", void, .{stride});
+    pub fn setStride_(self: *@This(), value: usize) void {
+        return objc.msgSend(self, "setStride:", void, .{value});
     }
     /// `-[MTLVertexBufferLayoutDescriptor stepFunction]
     pub fn stepFunction(self: *@This()) VertexStepFunction {
@@ -9981,16 +9981,16 @@ pub const VertexAttributeDescriptor = opaque {
         return objc.msgSend(self, "format", VertexFormat, .{});
     }
     /// `-[MTLVertexAttributeDescriptor setFormat:]
-    pub fn setFormat_(self: *@This(), format: VertexFormat) void {
-        return objc.msgSend(self, "setFormat:", void, .{format});
+    pub fn setFormat_(self: *@This(), fmt: VertexFormat) void {
+        return objc.msgSend(self, "setFormat:", void, .{fmt});
     }
     /// `-[MTLVertexAttributeDescriptor offset]
     pub fn offset(self: *@This()) usize {
         return objc.msgSend(self, "offset", usize, .{});
     }
     /// `-[MTLVertexAttributeDescriptor setOffset:]
-    pub fn setOffset_(self: *@This(), offset: usize) void {
-        return objc.msgSend(self, "setOffset:", void, .{offset});
+    pub fn setOffset_(self: *@This(), value: usize) void {
+        return objc.msgSend(self, "setOffset:", void, .{value});
     }
     /// `-[MTLVertexAttributeDescriptor bufferIndex]
     pub fn bufferIndex(self: *@This()) usize {
