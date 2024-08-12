@@ -5,6 +5,7 @@ pub const core_graphics = @import("core_graphics.zig");
 pub const core_midi = @import("core_midi.zig");
 pub const dispatch = @import("dispatch.zig");
 pub const foundation = @import("foundation.zig");
+pub const iosurface = @import("iosurface.zig");
 pub const metal = @import("metal.zig");
 pub const objc = @import("objc.zig");
 pub const quartz_core = @import("quartz_core.zig");
