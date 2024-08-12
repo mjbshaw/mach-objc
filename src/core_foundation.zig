@@ -129,10 +129,10 @@ pub const RunLoop = opaque {
     };
 
     /// `CFRunLoopRunInMode`
-    pub fn runInMode(self: *RunLoop, seconds: TimeInterval, return_after_source_handled: bool) RunLoop.RunResult {
-        return CFRunLoopRunInMode(self, seconds, return_after_source_handled);
+    pub fn runInMode(mode: *Mode, seconds: TimeInterval, return_after_source_handled: bool) RunResult {
+        return CFRunLoopRunInMode(mode, seconds, return_after_source_handled);
     }
-    extern fn CFRunLoopRunInMode(mode: *RunLoop.Mode, seconds: TimeInterval, return_after_source_handled: bool) RunLoop.RunResult;
+    extern fn CFRunLoopRunInMode(mode: *Mode, seconds: TimeInterval, return_after_source_handled: bool) RunResult;
 
     /// `CFRunLoopGetMain`
     pub fn getMain() *RunLoop {

@@ -21,6 +21,9 @@ extern fn dispatch_retain(*const anyopaque) void;
 extern fn dispatch_release(*const anyopaque) void;
 
 pub const Queue = opaque {
+    /// `dispatch_get_main_queue()`
+    pub const main = &system._dispatch_main_q;
+
     /// `dispatch_async()`
     pub fn dispatchAsync(self: *const Queue, work: *const Block) void {
         return system.dispatch_async(self, work);
@@ -52,11 +55,6 @@ pub const Queue = opaque {
         dispatch_release(self);
     }
 };
-
-/// `dispatch_get_main_queue()`
-pub inline fn getMainQueue() *Queue {
-    return &system._dispatch_main_q;
-}
 
 pub const Data = opaque {
     /// `DISPATCH_DATA_DESTRUCTOR_DEFAULT`

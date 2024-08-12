@@ -19,6 +19,8 @@ pub const Rect = cg.Rect;
 pub const ObjectProtocol = opaque {
     pub const InternalInfo = objc.ExternProtocol(@This(), objc.id);
 
+    pub const as = InternalInfo.as;
+
     /// `-[NSObject description]`
     pub fn description(self: *Object) *String {
         return objc.msgSend(self, "description", *String, .{});
