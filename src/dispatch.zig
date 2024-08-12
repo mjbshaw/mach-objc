@@ -5,11 +5,16 @@ pub const Block = system.Block(fn () void);
 pub const BlockLiteral = system.BlockLiteral;
 pub const BlockLiteralWithSignature = system.BlockLiteralWithSignature;
 
-pub fn stackBlockLiteral(invoke: anytype, context: anytype, comptime copy: ?fn (dst: *BlockLiteral(@TypeOf(context)), src: *const BlockLiteral(@TypeOf(context))) callconv(.C) void, comptime dispose: ?fn (block: *const BlockLiteral(@TypeOf(context))) callconv(.C) void) BlockLiteralWithSignature(@TypeOf(context), fn (*BlockLiteral(@TypeOf(context))) callconv(.C) void) {
+pub fn stackBlockLiteral(
+    invoke: anytype,
+    context: anytype,
+    comptime copy: ?fn (dst: *BlockLiteral(@TypeOf(context)), src: *const BlockLiteral(@TypeOf(context))) callconv(.C) void,
+    comptime dispose: ?fn (block: *const BlockLiteral(@TypeOf(context))) callconv(.C) void,
+) BlockLiteralWithSignature(@TypeOf(context), fn () void) {
     return system.stackBlockLiteral(invoke, context, copy, dispose);
 }
 
-pub fn globalBlockLiteral(invoke: anytype, context: anytype) BlockLiteralWithSignature(@TypeOf(context), fn (*BlockLiteral(@TypeOf(context))) callconv(.C) void) {
+pub fn globalBlockLiteral(invoke: anytype, context: anytype) BlockLiteralWithSignature(@TypeOf(context),fn () void) {
     return system.globalBlockLiteral(invoke, context);
 }
 

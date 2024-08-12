@@ -5,6 +5,10 @@ const ns = @import("foundation.zig");
 /// `UIApplication`
 pub const Application = opaque {
     pub const InternalInfo = objc.ExternClass("UIApplication", ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
 
     /// `+[UIApplication sharedApplication]`
     pub fn sharedApplication() *Application {
@@ -25,6 +29,9 @@ pub const Application = opaque {
 /// `UIApplicationDelegate`
 pub const ApplicationDelegate = opaque {
     pub const InternalInfo = objc.ExternProtocol(ApplicationDelegate, ns.ObjectProtocol);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub const as = InternalInfo.as;
 };
 

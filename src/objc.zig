@@ -9,20 +9,20 @@ extern "objc" fn objc_autoreleasePoolPush() *AutoreleasePool;
 pub const autoreleasePoolPop = objc_autoreleasePoolPop;
 pub const autoreleasePoolPush = objc_autoreleasePoolPush;
 
-extern "objc" fn objc_autorelease(*id) *id; // Same as `[object autorelease]`.
-extern "objc" fn objc_release(*id) void; // Same as `[object release]`.
-extern "objc" fn objc_retain(*id) *id; // Same as `[object retain]`.
+extern "objc" fn objc_autorelease(*Id) *Id; // Same as `[object autorelease]`.
+extern "objc" fn objc_release(*Id) void; // Same as `[object release]`.
+extern "objc" fn objc_retain(*Id) *Id; // Same as `[object retain]`.
 
 pub const autorelease = objc_autorelease;
 pub const release = objc_release;
 pub const retain = objc_retain;
 
 // APIs that are part of libobjc's public ABI, but not its public API.
-extern "objc" fn objc_alloc(class: *Class) ?*id; // Same as `[Class alloc]`.
-extern "objc" fn objc_alloc_init(class: *Class) ?*id; // Same as `[[Class alloc] init]`.
-extern "objc" fn objc_opt_new(class: *Class) ?*id; // Same as `[Class new]`.
-extern "objc" fn objc_opt_class(object: ?*id) ?*Class; // Same as `[object class]`.
-extern "objc" fn objc_opt_isKindOfClass(object: ?*id, class: ?*Class) bool; // Same as `[object isKindOfClass:class]`.
+extern "objc" fn objc_alloc(class: *Class) ?*Id; // Same as `[Class alloc]`.
+extern "objc" fn objc_alloc_init(class: *Class) ?*Id; // Same as `[[Class alloc] init]`.
+extern "objc" fn objc_opt_new(class: *Class) ?*Id; // Same as `[Class new]`.
+extern "objc" fn objc_opt_class(object: ?*Id) ?*Class; // Same as `[object class]`.
+extern "objc" fn objc_opt_isKindOfClass(object: ?*Id, class: ?*Class) bool; // Same as `[object isKindOfClass:class]`.
 
 pub const alloc = objc_alloc_init;
 pub const alloc_init = objc_alloc_init;
@@ -31,19 +31,23 @@ pub const opt_class = objc_opt_class;
 pub const opt_isKindOfClass = objc_opt_isKindOfClass;
 
 // APIs that are part of libobjc's public API.
-pub const id = opaque {
+pub const Id = opaque {
     pub const InternalInfo = struct {
-        pub fn as(_: *id, comptime _: type) unreachable {}
+        pub fn as(_: *Id, comptime _: type) unreachable {}
 
         pub fn class() unreachable {}
     };
-    pub fn as(_: *id, comptime _: type) unreachable {}
+    pub fn as(_: *Id, comptime _: type) unreachable {}
+
+    pub const retain = objc_retain;
+    pub const release = objc_release;
+    pub const autorelease = objc_autorelease;
 };
 pub const Protocol = opaque {};
 pub const Class = opaque {};
 pub const SEL = [*:0]const c_char;
 
-extern "objc" fn objc_enumerationMutation(object: *id) void;
+extern "objc" fn objc_enumerationMutation(object: *Id) void;
 pub const enumerationMutation = objc_enumerationMutation;
 
 /// Calls `objc_msgSend(receiver, selector, args...)` (or `objc_msgSend_stret` if needed).
@@ -136,7 +140,7 @@ pub fn ExternClass(comptime name: []const u8, T: type, SuperType: type) type {
 
         pub fn as(self: *T, comptime Base: type) *Base {
             if (comptime Base == Super) return @ptrCast(self);
-            return Super.as(@ptrCast(self), T);
+            return Super.as(@ptrCast(self), Base);
         }
 
         pub fn new() *T {
@@ -149,6 +153,18 @@ pub fn ExternClass(comptime name: []const u8, T: type, SuperType: type) type {
 
         pub fn allocInit() *T {
             return @ptrCast(alloc_init(class()));
+        }
+
+        pub fn retain(self: *T) *T {
+            return @ptrCast(objc_retain(@ptrCast(self)));
+        }
+
+        pub fn release(self: *T) void {
+            return objc_release(@ptrCast(self));
+        }
+
+        pub fn autorelease(self: *T) *T {
+            return @ptrCast(objc_autorelease(@ptrCast(self)));
         }
     };
 }
@@ -171,7 +187,19 @@ pub fn ExternProtocol(T: type, SuperType: type) type {
 
         pub fn as(self: *T, comptime Base: type) *Base {
             if (comptime Base == Super) return @ptrCast(self);
-            return Super.as(@ptrCast(self), T);
+            return Super.as(@ptrCast(self), Base);
+        }
+
+        pub fn retain(self: *T) *T {
+            return @ptrCast(objc_retain(@ptrCast(self)));
+        }
+
+        pub fn release(self: *T) void {
+            return objc_release(@ptrCast(self));
+        }
+
+        pub fn autorelease(self: *T) *T {
+            return @ptrCast(objc_autorelease(@ptrCast(self)));
         }
     };
 }

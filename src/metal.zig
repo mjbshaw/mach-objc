@@ -132,7 +132,7 @@ pub const ScissorRect = extern struct {
     width: usize,
     height: usize,
 
-    pub fn init(x: ns.UInteger, y: ns.UInteger, width: ns.UInteger, height: ns.UInteger) ScissorRect {
+    pub fn init(x: usize, y: usize, width: usize, height: usize) ScissorRect {
         return ScissorRect{ .x = x, .y = y, .width = width, .height = height };
     }
 };
@@ -197,7 +197,7 @@ pub const Origin = extern struct {
     y: usize,
     z: usize,
 
-    pub fn init(x: ns.UInteger, y: ns.UInteger, z: ns.UInteger) Origin {
+    pub fn init(x: usize, y: usize, z: usize) Origin {
         return .{ .x = x, .y = y, .z = z };
     }
 };
@@ -208,7 +208,7 @@ pub const Size = extern struct {
     height: usize,
     depth: usize,
 
-    pub fn init(width: ns.UInteger, height: ns.UInteger, depth: ns.UInteger) Size {
+    pub fn init(width: usize, height: usize, depth: usize) Size {
         return .{ .width = width, .height = height, .depth = depth };
     }
 };
@@ -1404,9 +1404,9 @@ pub const PixelFormat = enum(usize) {
     /// `MTLPixelFormatBC5_RGSnorm`
     bc5_rg_snorm = 143,
     /// `MTLPixelFormatBC6H_RGBFloat`
-    bc6_h_rgbfloat = 150,
+    bc6_h_rgb_float = 150,
     /// `MTLPixelFormatBC6H_RGBUfloat`
-    bc6_h_rgbufloat = 151,
+    bc6_h_rgb_ufloat = 151,
     /// `MTLPixelFormatBC7_RGBAUnorm`
     bc7_rgba_unorm = 152,
     /// `MTLPixelFormatBC7_RGBAUnorm_sRGB`
@@ -1877,7 +1877,7 @@ pub const HazardTrackingMode = enum(usize) {
 pub const ResourceOptions = packed struct(usize) {
     cpu_cache_mode: Cpu = std.mem.zeroes(Cpu),
     storage_mode: Storage = std.mem.zeroes(Storage),
-    hazard_tracking: Hazard = std.mem.zeroes(Hazard),
+    hazard_tracking_mode: Hazard = std.mem.zeroes(Hazard),
     _padding: u54 = 0,
 
     pub const Cpu = enum(u4) {
@@ -2313,7 +2313,10 @@ pub const VertexStepFunction = enum(usize) {
 
 /// `MTLAccelerationStructureDescriptor`
 pub const AccelerationStructureDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLAccelerationStructureDescriptor", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == ns.Copying) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -2329,14 +2332,17 @@ pub const AccelerationStructureDescriptor = opaque {
         return objc.msgSend(self, "usage", AccelerationStructureUsage, .{});
     }
     /// `-[MTLAccelerationStructureDescriptor setUsage:]
-    pub fn setUsage_(self: *@This(), value: AccelerationStructureUsage) void {
+    pub fn setUsage(self: *@This(), value: AccelerationStructureUsage) void {
         return objc.msgSend(self, "setUsage:", void, .{value});
     }
 };
 
 /// `MTLAccelerationStructureGeometryDescriptor`
 pub const AccelerationStructureGeometryDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLAccelerationStructureGeometryDescriptor", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == ns.Copying) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -2352,7 +2358,7 @@ pub const AccelerationStructureGeometryDescriptor = opaque {
         return objc.msgSend(self, "intersectionFunctionTableOffset", usize, .{});
     }
     /// `-[MTLAccelerationStructureGeometryDescriptor setIntersectionFunctionTableOffset:]
-    pub fn setIntersectionFunctionTableOffset_(self: *@This(), intersection_function_table_offset: usize) void {
+    pub fn setIntersectionFunctionTableOffset(self: *@This(), intersection_function_table_offset: usize) void {
         return objc.msgSend(self, "setIntersectionFunctionTableOffset:", void, .{intersection_function_table_offset});
     }
     /// `-[MTLAccelerationStructureGeometryDescriptor opaque]
@@ -2360,7 +2366,7 @@ pub const AccelerationStructureGeometryDescriptor = opaque {
         return objc.msgSend(self, "opaque", bool, .{});
     }
     /// `-[MTLAccelerationStructureGeometryDescriptor setOpaque:]
-    pub fn setOpaque_(self: *@This(), is_opaque: bool) void {
+    pub fn setOpaque(self: *@This(), is_opaque: bool) void {
         return objc.msgSend(self, "setOpaque:", void, .{is_opaque});
     }
     /// `-[MTLAccelerationStructureGeometryDescriptor allowDuplicateIntersectionFunctionInvocation]
@@ -2368,7 +2374,7 @@ pub const AccelerationStructureGeometryDescriptor = opaque {
         return objc.msgSend(self, "allowDuplicateIntersectionFunctionInvocation", bool, .{});
     }
     /// `-[MTLAccelerationStructureGeometryDescriptor setAllowDuplicateIntersectionFunctionInvocation:]
-    pub fn setAllowDuplicateIntersectionFunctionInvocation_(self: *@This(), allow_duplicate_intersection_function_invocation: bool) void {
+    pub fn setAllowDuplicateIntersectionFunctionInvocation(self: *@This(), allow_duplicate_intersection_function_invocation: bool) void {
         return objc.msgSend(self, "setAllowDuplicateIntersectionFunctionInvocation:", void, .{allow_duplicate_intersection_function_invocation});
     }
     /// `-[MTLAccelerationStructureGeometryDescriptor label]
@@ -2376,7 +2382,7 @@ pub const AccelerationStructureGeometryDescriptor = opaque {
         return objc.msgSend(self, "label", ?*ns.String, .{});
     }
     /// `-[MTLAccelerationStructureGeometryDescriptor setLabel:]
-    pub fn setLabel_(self: *@This(), str: ?*ns.String) void {
+    pub fn setLabel(self: *@This(), str: ?*ns.String) void {
         return objc.msgSend(self, "setLabel:", void, .{str});
     }
     /// `-[MTLAccelerationStructureGeometryDescriptor primitiveDataBuffer]
@@ -2384,7 +2390,7 @@ pub const AccelerationStructureGeometryDescriptor = opaque {
         return objc.msgSend(self, "primitiveDataBuffer", ?*Buffer, .{});
     }
     /// `-[MTLAccelerationStructureGeometryDescriptor setPrimitiveDataBuffer:]
-    pub fn setPrimitiveDataBuffer_(self: *@This(), primitive_data_buffer: ?*Buffer) void {
+    pub fn setPrimitiveDataBuffer(self: *@This(), primitive_data_buffer: ?*Buffer) void {
         return objc.msgSend(self, "setPrimitiveDataBuffer:", void, .{primitive_data_buffer});
     }
     /// `-[MTLAccelerationStructureGeometryDescriptor primitiveDataBufferOffset]
@@ -2392,7 +2398,7 @@ pub const AccelerationStructureGeometryDescriptor = opaque {
         return objc.msgSend(self, "primitiveDataBufferOffset", usize, .{});
     }
     /// `-[MTLAccelerationStructureGeometryDescriptor setPrimitiveDataBufferOffset:]
-    pub fn setPrimitiveDataBufferOffset_(self: *@This(), primitive_data_buffer_offset: usize) void {
+    pub fn setPrimitiveDataBufferOffset(self: *@This(), primitive_data_buffer_offset: usize) void {
         return objc.msgSend(self, "setPrimitiveDataBufferOffset:", void, .{primitive_data_buffer_offset});
     }
     /// `-[MTLAccelerationStructureGeometryDescriptor primitiveDataStride]
@@ -2400,7 +2406,7 @@ pub const AccelerationStructureGeometryDescriptor = opaque {
         return objc.msgSend(self, "primitiveDataStride", usize, .{});
     }
     /// `-[MTLAccelerationStructureGeometryDescriptor setPrimitiveDataStride:]
-    pub fn setPrimitiveDataStride_(self: *@This(), primitive_data_stride: usize) void {
+    pub fn setPrimitiveDataStride(self: *@This(), primitive_data_stride: usize) void {
         return objc.msgSend(self, "setPrimitiveDataStride:", void, .{primitive_data_stride});
     }
     /// `-[MTLAccelerationStructureGeometryDescriptor primitiveDataElementSize]
@@ -2408,15 +2414,18 @@ pub const AccelerationStructureGeometryDescriptor = opaque {
         return objc.msgSend(self, "primitiveDataElementSize", usize, .{});
     }
     /// `-[MTLAccelerationStructureGeometryDescriptor setPrimitiveDataElementSize:]
-    pub fn setPrimitiveDataElementSize_(self: *@This(), primitive_data_element_size: usize) void {
+    pub fn setPrimitiveDataElementSize(self: *@This(), primitive_data_element_size: usize) void {
         return objc.msgSend(self, "setPrimitiveDataElementSize:", void, .{primitive_data_element_size});
     }
 };
 
 /// `MTLPrimitiveAccelerationStructureDescriptor`
 pub const PrimitiveAccelerationStructureDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), AccelerationStructureDescriptor);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternClass("MTLPrimitiveAccelerationStructureDescriptor", @This(), AccelerationStructureDescriptor);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `+[MTLPrimitiveAccelerationStructureDescriptor new]`
     pub const new = InternalInfo.new;
     /// `+[MTLPrimitiveAccelerationStructureDescriptor alloc]`
@@ -2432,7 +2441,7 @@ pub const PrimitiveAccelerationStructureDescriptor = opaque {
         return objc.msgSend(self, "geometryDescriptors", ?*ns.Array(*AccelerationStructureGeometryDescriptor), .{});
     }
     /// `-[MTLPrimitiveAccelerationStructureDescriptor setGeometryDescriptors:]
-    pub fn setGeometryDescriptors_(self: *@This(), geometry_descriptors: ?*ns.Array(*AccelerationStructureGeometryDescriptor)) void {
+    pub fn setGeometryDescriptors(self: *@This(), geometry_descriptors: ?*ns.Array(*AccelerationStructureGeometryDescriptor)) void {
         return objc.msgSend(self, "setGeometryDescriptors:", void, .{geometry_descriptors});
     }
     /// `-[MTLPrimitiveAccelerationStructureDescriptor motionStartBorderMode]
@@ -2440,7 +2449,7 @@ pub const PrimitiveAccelerationStructureDescriptor = opaque {
         return objc.msgSend(self, "motionStartBorderMode", MotionBorderMode, .{});
     }
     /// `-[MTLPrimitiveAccelerationStructureDescriptor setMotionStartBorderMode:]
-    pub fn setMotionStartBorderMode_(self: *@This(), motion_start_border_mode: MotionBorderMode) void {
+    pub fn setMotionStartBorderMode(self: *@This(), motion_start_border_mode: MotionBorderMode) void {
         return objc.msgSend(self, "setMotionStartBorderMode:", void, .{motion_start_border_mode});
     }
     /// `-[MTLPrimitiveAccelerationStructureDescriptor motionEndBorderMode]
@@ -2448,7 +2457,7 @@ pub const PrimitiveAccelerationStructureDescriptor = opaque {
         return objc.msgSend(self, "motionEndBorderMode", MotionBorderMode, .{});
     }
     /// `-[MTLPrimitiveAccelerationStructureDescriptor setMotionEndBorderMode:]
-    pub fn setMotionEndBorderMode_(self: *@This(), motion_end_border_mode: MotionBorderMode) void {
+    pub fn setMotionEndBorderMode(self: *@This(), motion_end_border_mode: MotionBorderMode) void {
         return objc.msgSend(self, "setMotionEndBorderMode:", void, .{motion_end_border_mode});
     }
     /// `-[MTLPrimitiveAccelerationStructureDescriptor motionStartTime]
@@ -2456,7 +2465,7 @@ pub const PrimitiveAccelerationStructureDescriptor = opaque {
         return objc.msgSend(self, "motionStartTime", f32, .{});
     }
     /// `-[MTLPrimitiveAccelerationStructureDescriptor setMotionStartTime:]
-    pub fn setMotionStartTime_(self: *@This(), motion_start_time: f32) void {
+    pub fn setMotionStartTime(self: *@This(), motion_start_time: f32) void {
         return objc.msgSend(self, "setMotionStartTime:", void, .{motion_start_time});
     }
     /// `-[MTLPrimitiveAccelerationStructureDescriptor motionEndTime]
@@ -2464,7 +2473,7 @@ pub const PrimitiveAccelerationStructureDescriptor = opaque {
         return objc.msgSend(self, "motionEndTime", f32, .{});
     }
     /// `-[MTLPrimitiveAccelerationStructureDescriptor setMotionEndTime:]
-    pub fn setMotionEndTime_(self: *@This(), motion_end_time: f32) void {
+    pub fn setMotionEndTime(self: *@This(), motion_end_time: f32) void {
         return objc.msgSend(self, "setMotionEndTime:", void, .{motion_end_time});
     }
     /// `-[MTLPrimitiveAccelerationStructureDescriptor motionKeyframeCount]
@@ -2472,15 +2481,18 @@ pub const PrimitiveAccelerationStructureDescriptor = opaque {
         return objc.msgSend(self, "motionKeyframeCount", usize, .{});
     }
     /// `-[MTLPrimitiveAccelerationStructureDescriptor setMotionKeyframeCount:]
-    pub fn setMotionKeyframeCount_(self: *@This(), motion_keyframe_count: usize) void {
+    pub fn setMotionKeyframeCount(self: *@This(), motion_keyframe_count: usize) void {
         return objc.msgSend(self, "setMotionKeyframeCount:", void, .{motion_keyframe_count});
     }
 };
 
 /// `MTLAccelerationStructureTriangleGeometryDescriptor`
 pub const AccelerationStructureTriangleGeometryDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), AccelerationStructureGeometryDescriptor);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternClass("MTLAccelerationStructureTriangleGeometryDescriptor", @This(), AccelerationStructureGeometryDescriptor);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `+[MTLAccelerationStructureTriangleGeometryDescriptor new]`
     pub const new = InternalInfo.new;
     /// `+[MTLAccelerationStructureTriangleGeometryDescriptor alloc]`
@@ -2496,7 +2508,7 @@ pub const AccelerationStructureTriangleGeometryDescriptor = opaque {
         return objc.msgSend(self, "vertexBuffer", ?*Buffer, .{});
     }
     /// `-[MTLAccelerationStructureTriangleGeometryDescriptor setVertexBuffer:]
-    pub fn setVertexBuffer_(self: *@This(), vertex_buffer: ?*Buffer) void {
+    pub fn setVertexBuffer(self: *@This(), vertex_buffer: ?*Buffer) void {
         return objc.msgSend(self, "setVertexBuffer:", void, .{vertex_buffer});
     }
     /// `-[MTLAccelerationStructureTriangleGeometryDescriptor vertexBufferOffset]
@@ -2504,7 +2516,7 @@ pub const AccelerationStructureTriangleGeometryDescriptor = opaque {
         return objc.msgSend(self, "vertexBufferOffset", usize, .{});
     }
     /// `-[MTLAccelerationStructureTriangleGeometryDescriptor setVertexBufferOffset:]
-    pub fn setVertexBufferOffset_(self: *@This(), vertex_buffer_offset: usize) void {
+    pub fn setVertexBufferOffset(self: *@This(), vertex_buffer_offset: usize) void {
         return objc.msgSend(self, "setVertexBufferOffset:", void, .{vertex_buffer_offset});
     }
     /// `-[MTLAccelerationStructureTriangleGeometryDescriptor vertexFormat]
@@ -2512,7 +2524,7 @@ pub const AccelerationStructureTriangleGeometryDescriptor = opaque {
         return objc.msgSend(self, "vertexFormat", AttributeFormat, .{});
     }
     /// `-[MTLAccelerationStructureTriangleGeometryDescriptor setVertexFormat:]
-    pub fn setVertexFormat_(self: *@This(), vertex_format: AttributeFormat) void {
+    pub fn setVertexFormat(self: *@This(), vertex_format: AttributeFormat) void {
         return objc.msgSend(self, "setVertexFormat:", void, .{vertex_format});
     }
     /// `-[MTLAccelerationStructureTriangleGeometryDescriptor vertexStride]
@@ -2520,7 +2532,7 @@ pub const AccelerationStructureTriangleGeometryDescriptor = opaque {
         return objc.msgSend(self, "vertexStride", usize, .{});
     }
     /// `-[MTLAccelerationStructureTriangleGeometryDescriptor setVertexStride:]
-    pub fn setVertexStride_(self: *@This(), vertex_stride: usize) void {
+    pub fn setVertexStride(self: *@This(), vertex_stride: usize) void {
         return objc.msgSend(self, "setVertexStride:", void, .{vertex_stride});
     }
     /// `-[MTLAccelerationStructureTriangleGeometryDescriptor indexBuffer]
@@ -2528,7 +2540,7 @@ pub const AccelerationStructureTriangleGeometryDescriptor = opaque {
         return objc.msgSend(self, "indexBuffer", ?*Buffer, .{});
     }
     /// `-[MTLAccelerationStructureTriangleGeometryDescriptor setIndexBuffer:]
-    pub fn setIndexBuffer_(self: *@This(), index_buffer: ?*Buffer) void {
+    pub fn setIndexBuffer(self: *@This(), index_buffer: ?*Buffer) void {
         return objc.msgSend(self, "setIndexBuffer:", void, .{index_buffer});
     }
     /// `-[MTLAccelerationStructureTriangleGeometryDescriptor indexBufferOffset]
@@ -2536,7 +2548,7 @@ pub const AccelerationStructureTriangleGeometryDescriptor = opaque {
         return objc.msgSend(self, "indexBufferOffset", usize, .{});
     }
     /// `-[MTLAccelerationStructureTriangleGeometryDescriptor setIndexBufferOffset:]
-    pub fn setIndexBufferOffset_(self: *@This(), index_buffer_offset: usize) void {
+    pub fn setIndexBufferOffset(self: *@This(), index_buffer_offset: usize) void {
         return objc.msgSend(self, "setIndexBufferOffset:", void, .{index_buffer_offset});
     }
     /// `-[MTLAccelerationStructureTriangleGeometryDescriptor indexType]
@@ -2544,7 +2556,7 @@ pub const AccelerationStructureTriangleGeometryDescriptor = opaque {
         return objc.msgSend(self, "indexType", IndexType, .{});
     }
     /// `-[MTLAccelerationStructureTriangleGeometryDescriptor setIndexType:]
-    pub fn setIndexType_(self: *@This(), index_type: IndexType) void {
+    pub fn setIndexType(self: *@This(), index_type: IndexType) void {
         return objc.msgSend(self, "setIndexType:", void, .{index_type});
     }
     /// `-[MTLAccelerationStructureTriangleGeometryDescriptor triangleCount]
@@ -2552,7 +2564,7 @@ pub const AccelerationStructureTriangleGeometryDescriptor = opaque {
         return objc.msgSend(self, "triangleCount", usize, .{});
     }
     /// `-[MTLAccelerationStructureTriangleGeometryDescriptor setTriangleCount:]
-    pub fn setTriangleCount_(self: *@This(), triangle_count: usize) void {
+    pub fn setTriangleCount(self: *@This(), triangle_count: usize) void {
         return objc.msgSend(self, "setTriangleCount:", void, .{triangle_count});
     }
     /// `-[MTLAccelerationStructureTriangleGeometryDescriptor transformationMatrixBuffer]
@@ -2560,7 +2572,7 @@ pub const AccelerationStructureTriangleGeometryDescriptor = opaque {
         return objc.msgSend(self, "transformationMatrixBuffer", ?*Buffer, .{});
     }
     /// `-[MTLAccelerationStructureTriangleGeometryDescriptor setTransformationMatrixBuffer:]
-    pub fn setTransformationMatrixBuffer_(self: *@This(), transformation_matrix_buffer: ?*Buffer) void {
+    pub fn setTransformationMatrixBuffer(self: *@This(), transformation_matrix_buffer: ?*Buffer) void {
         return objc.msgSend(self, "setTransformationMatrixBuffer:", void, .{transformation_matrix_buffer});
     }
     /// `-[MTLAccelerationStructureTriangleGeometryDescriptor transformationMatrixBufferOffset]
@@ -2568,15 +2580,18 @@ pub const AccelerationStructureTriangleGeometryDescriptor = opaque {
         return objc.msgSend(self, "transformationMatrixBufferOffset", usize, .{});
     }
     /// `-[MTLAccelerationStructureTriangleGeometryDescriptor setTransformationMatrixBufferOffset:]
-    pub fn setTransformationMatrixBufferOffset_(self: *@This(), transformation_matrix_buffer_offset: usize) void {
+    pub fn setTransformationMatrixBufferOffset(self: *@This(), transformation_matrix_buffer_offset: usize) void {
         return objc.msgSend(self, "setTransformationMatrixBufferOffset:", void, .{transformation_matrix_buffer_offset});
     }
 };
 
 /// `MTLAccelerationStructureBoundingBoxGeometryDescriptor`
 pub const AccelerationStructureBoundingBoxGeometryDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), AccelerationStructureGeometryDescriptor);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternClass("MTLAccelerationStructureBoundingBoxGeometryDescriptor", @This(), AccelerationStructureGeometryDescriptor);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `+[MTLAccelerationStructureBoundingBoxGeometryDescriptor new]`
     pub const new = InternalInfo.new;
     /// `+[MTLAccelerationStructureBoundingBoxGeometryDescriptor alloc]`
@@ -2592,7 +2607,7 @@ pub const AccelerationStructureBoundingBoxGeometryDescriptor = opaque {
         return objc.msgSend(self, "boundingBoxBuffer", ?*Buffer, .{});
     }
     /// `-[MTLAccelerationStructureBoundingBoxGeometryDescriptor setBoundingBoxBuffer:]
-    pub fn setBoundingBoxBuffer_(self: *@This(), bounding_box_buffer: ?*Buffer) void {
+    pub fn setBoundingBoxBuffer(self: *@This(), bounding_box_buffer: ?*Buffer) void {
         return objc.msgSend(self, "setBoundingBoxBuffer:", void, .{bounding_box_buffer});
     }
     /// `-[MTLAccelerationStructureBoundingBoxGeometryDescriptor boundingBoxBufferOffset]
@@ -2600,7 +2615,7 @@ pub const AccelerationStructureBoundingBoxGeometryDescriptor = opaque {
         return objc.msgSend(self, "boundingBoxBufferOffset", usize, .{});
     }
     /// `-[MTLAccelerationStructureBoundingBoxGeometryDescriptor setBoundingBoxBufferOffset:]
-    pub fn setBoundingBoxBufferOffset_(self: *@This(), bounding_box_buffer_offset: usize) void {
+    pub fn setBoundingBoxBufferOffset(self: *@This(), bounding_box_buffer_offset: usize) void {
         return objc.msgSend(self, "setBoundingBoxBufferOffset:", void, .{bounding_box_buffer_offset});
     }
     /// `-[MTLAccelerationStructureBoundingBoxGeometryDescriptor boundingBoxStride]
@@ -2608,7 +2623,7 @@ pub const AccelerationStructureBoundingBoxGeometryDescriptor = opaque {
         return objc.msgSend(self, "boundingBoxStride", usize, .{});
     }
     /// `-[MTLAccelerationStructureBoundingBoxGeometryDescriptor setBoundingBoxStride:]
-    pub fn setBoundingBoxStride_(self: *@This(), bounding_box_stride: usize) void {
+    pub fn setBoundingBoxStride(self: *@This(), bounding_box_stride: usize) void {
         return objc.msgSend(self, "setBoundingBoxStride:", void, .{bounding_box_stride});
     }
     /// `-[MTLAccelerationStructureBoundingBoxGeometryDescriptor boundingBoxCount]
@@ -2616,15 +2631,18 @@ pub const AccelerationStructureBoundingBoxGeometryDescriptor = opaque {
         return objc.msgSend(self, "boundingBoxCount", usize, .{});
     }
     /// `-[MTLAccelerationStructureBoundingBoxGeometryDescriptor setBoundingBoxCount:]
-    pub fn setBoundingBoxCount_(self: *@This(), bounding_box_count: usize) void {
+    pub fn setBoundingBoxCount(self: *@This(), bounding_box_count: usize) void {
         return objc.msgSend(self, "setBoundingBoxCount:", void, .{bounding_box_count});
     }
 };
 
 /// `MTLMotionKeyframeData`
 pub const MotionKeyframeData = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternClass("MTLMotionKeyframeData", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `+[MTLMotionKeyframeData new]`
     pub const new = InternalInfo.new;
     /// `+[MTLMotionKeyframeData alloc]`
@@ -2640,7 +2658,7 @@ pub const MotionKeyframeData = opaque {
         return objc.msgSend(self, "buffer", ?*Buffer, .{});
     }
     /// `-[MTLMotionKeyframeData setBuffer:]
-    pub fn setBuffer_(self: *@This(), buf: ?*Buffer) void {
+    pub fn setBuffer(self: *@This(), buf: ?*Buffer) void {
         return objc.msgSend(self, "setBuffer:", void, .{buf});
     }
     /// `-[MTLMotionKeyframeData offset]
@@ -2648,15 +2666,18 @@ pub const MotionKeyframeData = opaque {
         return objc.msgSend(self, "offset", usize, .{});
     }
     /// `-[MTLMotionKeyframeData setOffset:]
-    pub fn setOffset_(self: *@This(), value: usize) void {
+    pub fn setOffset(self: *@This(), value: usize) void {
         return objc.msgSend(self, "setOffset:", void, .{value});
     }
 };
 
 /// `MTLAccelerationStructureMotionTriangleGeometryDescriptor`
 pub const AccelerationStructureMotionTriangleGeometryDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), AccelerationStructureGeometryDescriptor);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternClass("MTLAccelerationStructureMotionTriangleGeometryDescriptor", @This(), AccelerationStructureGeometryDescriptor);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `+[MTLAccelerationStructureMotionTriangleGeometryDescriptor new]`
     pub const new = InternalInfo.new;
     /// `+[MTLAccelerationStructureMotionTriangleGeometryDescriptor alloc]`
@@ -2672,7 +2693,7 @@ pub const AccelerationStructureMotionTriangleGeometryDescriptor = opaque {
         return objc.msgSend(self, "vertexBuffers", *ns.Array(*MotionKeyframeData), .{});
     }
     /// `-[MTLAccelerationStructureMotionTriangleGeometryDescriptor setVertexBuffers:]
-    pub fn setVertexBuffers_(self: *@This(), vertex_buffers: *ns.Array(*MotionKeyframeData)) void {
+    pub fn setVertexBuffers(self: *@This(), vertex_buffers: *ns.Array(*MotionKeyframeData)) void {
         return objc.msgSend(self, "setVertexBuffers:", void, .{vertex_buffers});
     }
     /// `-[MTLAccelerationStructureMotionTriangleGeometryDescriptor vertexFormat]
@@ -2680,7 +2701,7 @@ pub const AccelerationStructureMotionTriangleGeometryDescriptor = opaque {
         return objc.msgSend(self, "vertexFormat", AttributeFormat, .{});
     }
     /// `-[MTLAccelerationStructureMotionTriangleGeometryDescriptor setVertexFormat:]
-    pub fn setVertexFormat_(self: *@This(), vertex_format: AttributeFormat) void {
+    pub fn setVertexFormat(self: *@This(), vertex_format: AttributeFormat) void {
         return objc.msgSend(self, "setVertexFormat:", void, .{vertex_format});
     }
     /// `-[MTLAccelerationStructureMotionTriangleGeometryDescriptor vertexStride]
@@ -2688,7 +2709,7 @@ pub const AccelerationStructureMotionTriangleGeometryDescriptor = opaque {
         return objc.msgSend(self, "vertexStride", usize, .{});
     }
     /// `-[MTLAccelerationStructureMotionTriangleGeometryDescriptor setVertexStride:]
-    pub fn setVertexStride_(self: *@This(), vertex_stride: usize) void {
+    pub fn setVertexStride(self: *@This(), vertex_stride: usize) void {
         return objc.msgSend(self, "setVertexStride:", void, .{vertex_stride});
     }
     /// `-[MTLAccelerationStructureMotionTriangleGeometryDescriptor indexBuffer]
@@ -2696,7 +2717,7 @@ pub const AccelerationStructureMotionTriangleGeometryDescriptor = opaque {
         return objc.msgSend(self, "indexBuffer", ?*Buffer, .{});
     }
     /// `-[MTLAccelerationStructureMotionTriangleGeometryDescriptor setIndexBuffer:]
-    pub fn setIndexBuffer_(self: *@This(), index_buffer: ?*Buffer) void {
+    pub fn setIndexBuffer(self: *@This(), index_buffer: ?*Buffer) void {
         return objc.msgSend(self, "setIndexBuffer:", void, .{index_buffer});
     }
     /// `-[MTLAccelerationStructureMotionTriangleGeometryDescriptor indexBufferOffset]
@@ -2704,7 +2725,7 @@ pub const AccelerationStructureMotionTriangleGeometryDescriptor = opaque {
         return objc.msgSend(self, "indexBufferOffset", usize, .{});
     }
     /// `-[MTLAccelerationStructureMotionTriangleGeometryDescriptor setIndexBufferOffset:]
-    pub fn setIndexBufferOffset_(self: *@This(), index_buffer_offset: usize) void {
+    pub fn setIndexBufferOffset(self: *@This(), index_buffer_offset: usize) void {
         return objc.msgSend(self, "setIndexBufferOffset:", void, .{index_buffer_offset});
     }
     /// `-[MTLAccelerationStructureMotionTriangleGeometryDescriptor indexType]
@@ -2712,7 +2733,7 @@ pub const AccelerationStructureMotionTriangleGeometryDescriptor = opaque {
         return objc.msgSend(self, "indexType", IndexType, .{});
     }
     /// `-[MTLAccelerationStructureMotionTriangleGeometryDescriptor setIndexType:]
-    pub fn setIndexType_(self: *@This(), index_type: IndexType) void {
+    pub fn setIndexType(self: *@This(), index_type: IndexType) void {
         return objc.msgSend(self, "setIndexType:", void, .{index_type});
     }
     /// `-[MTLAccelerationStructureMotionTriangleGeometryDescriptor triangleCount]
@@ -2720,7 +2741,7 @@ pub const AccelerationStructureMotionTriangleGeometryDescriptor = opaque {
         return objc.msgSend(self, "triangleCount", usize, .{});
     }
     /// `-[MTLAccelerationStructureMotionTriangleGeometryDescriptor setTriangleCount:]
-    pub fn setTriangleCount_(self: *@This(), triangle_count: usize) void {
+    pub fn setTriangleCount(self: *@This(), triangle_count: usize) void {
         return objc.msgSend(self, "setTriangleCount:", void, .{triangle_count});
     }
     /// `-[MTLAccelerationStructureMotionTriangleGeometryDescriptor transformationMatrixBuffer]
@@ -2728,7 +2749,7 @@ pub const AccelerationStructureMotionTriangleGeometryDescriptor = opaque {
         return objc.msgSend(self, "transformationMatrixBuffer", ?*Buffer, .{});
     }
     /// `-[MTLAccelerationStructureMotionTriangleGeometryDescriptor setTransformationMatrixBuffer:]
-    pub fn setTransformationMatrixBuffer_(self: *@This(), transformation_matrix_buffer: ?*Buffer) void {
+    pub fn setTransformationMatrixBuffer(self: *@This(), transformation_matrix_buffer: ?*Buffer) void {
         return objc.msgSend(self, "setTransformationMatrixBuffer:", void, .{transformation_matrix_buffer});
     }
     /// `-[MTLAccelerationStructureMotionTriangleGeometryDescriptor transformationMatrixBufferOffset]
@@ -2736,15 +2757,18 @@ pub const AccelerationStructureMotionTriangleGeometryDescriptor = opaque {
         return objc.msgSend(self, "transformationMatrixBufferOffset", usize, .{});
     }
     /// `-[MTLAccelerationStructureMotionTriangleGeometryDescriptor setTransformationMatrixBufferOffset:]
-    pub fn setTransformationMatrixBufferOffset_(self: *@This(), transformation_matrix_buffer_offset: usize) void {
+    pub fn setTransformationMatrixBufferOffset(self: *@This(), transformation_matrix_buffer_offset: usize) void {
         return objc.msgSend(self, "setTransformationMatrixBufferOffset:", void, .{transformation_matrix_buffer_offset});
     }
 };
 
 /// `MTLAccelerationStructureMotionBoundingBoxGeometryDescriptor`
 pub const AccelerationStructureMotionBoundingBoxGeometryDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), AccelerationStructureGeometryDescriptor);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternClass("MTLAccelerationStructureMotionBoundingBoxGeometryDescriptor", @This(), AccelerationStructureGeometryDescriptor);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `+[MTLAccelerationStructureMotionBoundingBoxGeometryDescriptor new]`
     pub const new = InternalInfo.new;
     /// `+[MTLAccelerationStructureMotionBoundingBoxGeometryDescriptor alloc]`
@@ -2760,7 +2784,7 @@ pub const AccelerationStructureMotionBoundingBoxGeometryDescriptor = opaque {
         return objc.msgSend(self, "boundingBoxBuffers", *ns.Array(*MotionKeyframeData), .{});
     }
     /// `-[MTLAccelerationStructureMotionBoundingBoxGeometryDescriptor setBoundingBoxBuffers:]
-    pub fn setBoundingBoxBuffers_(self: *@This(), bounding_box_buffers: *ns.Array(*MotionKeyframeData)) void {
+    pub fn setBoundingBoxBuffers(self: *@This(), bounding_box_buffers: *ns.Array(*MotionKeyframeData)) void {
         return objc.msgSend(self, "setBoundingBoxBuffers:", void, .{bounding_box_buffers});
     }
     /// `-[MTLAccelerationStructureMotionBoundingBoxGeometryDescriptor boundingBoxStride]
@@ -2768,7 +2792,7 @@ pub const AccelerationStructureMotionBoundingBoxGeometryDescriptor = opaque {
         return objc.msgSend(self, "boundingBoxStride", usize, .{});
     }
     /// `-[MTLAccelerationStructureMotionBoundingBoxGeometryDescriptor setBoundingBoxStride:]
-    pub fn setBoundingBoxStride_(self: *@This(), bounding_box_stride: usize) void {
+    pub fn setBoundingBoxStride(self: *@This(), bounding_box_stride: usize) void {
         return objc.msgSend(self, "setBoundingBoxStride:", void, .{bounding_box_stride});
     }
     /// `-[MTLAccelerationStructureMotionBoundingBoxGeometryDescriptor boundingBoxCount]
@@ -2776,15 +2800,18 @@ pub const AccelerationStructureMotionBoundingBoxGeometryDescriptor = opaque {
         return objc.msgSend(self, "boundingBoxCount", usize, .{});
     }
     /// `-[MTLAccelerationStructureMotionBoundingBoxGeometryDescriptor setBoundingBoxCount:]
-    pub fn setBoundingBoxCount_(self: *@This(), bounding_box_count: usize) void {
+    pub fn setBoundingBoxCount(self: *@This(), bounding_box_count: usize) void {
         return objc.msgSend(self, "setBoundingBoxCount:", void, .{bounding_box_count});
     }
 };
 
 /// `MTLInstanceAccelerationStructureDescriptor`
 pub const InstanceAccelerationStructureDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), AccelerationStructureDescriptor);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternClass("MTLInstanceAccelerationStructureDescriptor", @This(), AccelerationStructureDescriptor);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `+[MTLInstanceAccelerationStructureDescriptor new]`
     pub const new = InternalInfo.new;
     /// `+[MTLInstanceAccelerationStructureDescriptor alloc]`
@@ -2800,7 +2827,7 @@ pub const InstanceAccelerationStructureDescriptor = opaque {
         return objc.msgSend(self, "instanceDescriptorBuffer", ?*Buffer, .{});
     }
     /// `-[MTLInstanceAccelerationStructureDescriptor setInstanceDescriptorBuffer:]
-    pub fn setInstanceDescriptorBuffer_(self: *@This(), instance_descriptor_buffer: ?*Buffer) void {
+    pub fn setInstanceDescriptorBuffer(self: *@This(), instance_descriptor_buffer: ?*Buffer) void {
         return objc.msgSend(self, "setInstanceDescriptorBuffer:", void, .{instance_descriptor_buffer});
     }
     /// `-[MTLInstanceAccelerationStructureDescriptor instanceDescriptorBufferOffset]
@@ -2808,7 +2835,7 @@ pub const InstanceAccelerationStructureDescriptor = opaque {
         return objc.msgSend(self, "instanceDescriptorBufferOffset", usize, .{});
     }
     /// `-[MTLInstanceAccelerationStructureDescriptor setInstanceDescriptorBufferOffset:]
-    pub fn setInstanceDescriptorBufferOffset_(self: *@This(), instance_descriptor_buffer_offset: usize) void {
+    pub fn setInstanceDescriptorBufferOffset(self: *@This(), instance_descriptor_buffer_offset: usize) void {
         return objc.msgSend(self, "setInstanceDescriptorBufferOffset:", void, .{instance_descriptor_buffer_offset});
     }
     /// `-[MTLInstanceAccelerationStructureDescriptor instanceDescriptorStride]
@@ -2816,7 +2843,7 @@ pub const InstanceAccelerationStructureDescriptor = opaque {
         return objc.msgSend(self, "instanceDescriptorStride", usize, .{});
     }
     /// `-[MTLInstanceAccelerationStructureDescriptor setInstanceDescriptorStride:]
-    pub fn setInstanceDescriptorStride_(self: *@This(), instance_descriptor_stride: usize) void {
+    pub fn setInstanceDescriptorStride(self: *@This(), instance_descriptor_stride: usize) void {
         return objc.msgSend(self, "setInstanceDescriptorStride:", void, .{instance_descriptor_stride});
     }
     /// `-[MTLInstanceAccelerationStructureDescriptor instanceCount]
@@ -2824,7 +2851,7 @@ pub const InstanceAccelerationStructureDescriptor = opaque {
         return objc.msgSend(self, "instanceCount", usize, .{});
     }
     /// `-[MTLInstanceAccelerationStructureDescriptor setInstanceCount:]
-    pub fn setInstanceCount_(self: *@This(), instance_count: usize) void {
+    pub fn setInstanceCount(self: *@This(), instance_count: usize) void {
         return objc.msgSend(self, "setInstanceCount:", void, .{instance_count});
     }
     /// `-[MTLInstanceAccelerationStructureDescriptor instancedAccelerationStructures]
@@ -2832,7 +2859,7 @@ pub const InstanceAccelerationStructureDescriptor = opaque {
         return objc.msgSend(self, "instancedAccelerationStructures", ?*ns.Array(*AccelerationStructure), .{});
     }
     /// `-[MTLInstanceAccelerationStructureDescriptor setInstancedAccelerationStructures:]
-    pub fn setInstancedAccelerationStructures_(self: *@This(), instanced_acceleration_structures: ?*ns.Array(*AccelerationStructure)) void {
+    pub fn setInstancedAccelerationStructures(self: *@This(), instanced_acceleration_structures: ?*ns.Array(*AccelerationStructure)) void {
         return objc.msgSend(self, "setInstancedAccelerationStructures:", void, .{instanced_acceleration_structures});
     }
     /// `-[MTLInstanceAccelerationStructureDescriptor instanceDescriptorType]
@@ -2840,7 +2867,7 @@ pub const InstanceAccelerationStructureDescriptor = opaque {
         return objc.msgSend(self, "instanceDescriptorType", AccelerationStructureInstanceDescriptorType, .{});
     }
     /// `-[MTLInstanceAccelerationStructureDescriptor setInstanceDescriptorType:]
-    pub fn setInstanceDescriptorType_(self: *@This(), instance_descriptor_type: AccelerationStructureInstanceDescriptorType) void {
+    pub fn setInstanceDescriptorType(self: *@This(), instance_descriptor_type: AccelerationStructureInstanceDescriptorType) void {
         return objc.msgSend(self, "setInstanceDescriptorType:", void, .{instance_descriptor_type});
     }
     /// `-[MTLInstanceAccelerationStructureDescriptor motionTransformBuffer]
@@ -2848,7 +2875,7 @@ pub const InstanceAccelerationStructureDescriptor = opaque {
         return objc.msgSend(self, "motionTransformBuffer", ?*Buffer, .{});
     }
     /// `-[MTLInstanceAccelerationStructureDescriptor setMotionTransformBuffer:]
-    pub fn setMotionTransformBuffer_(self: *@This(), motion_transform_buffer: ?*Buffer) void {
+    pub fn setMotionTransformBuffer(self: *@This(), motion_transform_buffer: ?*Buffer) void {
         return objc.msgSend(self, "setMotionTransformBuffer:", void, .{motion_transform_buffer});
     }
     /// `-[MTLInstanceAccelerationStructureDescriptor motionTransformBufferOffset]
@@ -2856,7 +2883,7 @@ pub const InstanceAccelerationStructureDescriptor = opaque {
         return objc.msgSend(self, "motionTransformBufferOffset", usize, .{});
     }
     /// `-[MTLInstanceAccelerationStructureDescriptor setMotionTransformBufferOffset:]
-    pub fn setMotionTransformBufferOffset_(self: *@This(), motion_transform_buffer_offset: usize) void {
+    pub fn setMotionTransformBufferOffset(self: *@This(), motion_transform_buffer_offset: usize) void {
         return objc.msgSend(self, "setMotionTransformBufferOffset:", void, .{motion_transform_buffer_offset});
     }
     /// `-[MTLInstanceAccelerationStructureDescriptor motionTransformCount]
@@ -2864,15 +2891,18 @@ pub const InstanceAccelerationStructureDescriptor = opaque {
         return objc.msgSend(self, "motionTransformCount", usize, .{});
     }
     /// `-[MTLInstanceAccelerationStructureDescriptor setMotionTransformCount:]
-    pub fn setMotionTransformCount_(self: *@This(), motion_transform_count: usize) void {
+    pub fn setMotionTransformCount(self: *@This(), motion_transform_count: usize) void {
         return objc.msgSend(self, "setMotionTransformCount:", void, .{motion_transform_count});
     }
 };
 
 /// `MTLAccelerationStructure`
 pub const AccelerationStructure = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), Resource);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), Resource);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `-[MTLAccelerationStructure size]
     pub fn size(self: *@This()) usize {
         return objc.msgSend(self, "size", usize, .{});
@@ -2885,69 +2915,75 @@ pub const AccelerationStructure = opaque {
 
 /// `MTLAccelerationStructureCommandEncoder`
 pub const AccelerationStructureCommandEncoder = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), CommandEncoder);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), CommandEncoder);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `-[MTLAccelerationStructureCommandEncoder buildAccelerationStructure:descriptor:scratchBuffer:scratchBufferOffset:]
-    pub fn buildAccelerationStructure_descriptor_scratchBuffer_scratchBufferOffset_(self: *@This(), acceleration_structure: *AccelerationStructure, descriptor: *AccelerationStructureDescriptor, scratch_buffer: *Buffer, scratch_buffer_offset: usize) void {
+    pub fn buildAccelerationStructure_descriptor_scratchBuffer_scratchBufferOffset(self: *@This(), acceleration_structure: *AccelerationStructure, descriptor: *AccelerationStructureDescriptor, scratch_buffer: *Buffer, scratch_buffer_offset: usize) void {
         return objc.msgSend(self, "buildAccelerationStructure:descriptor:scratchBuffer:scratchBufferOffset:", void, .{ acceleration_structure, descriptor, scratch_buffer, scratch_buffer_offset });
     }
     /// `-[MTLAccelerationStructureCommandEncoder refitAccelerationStructure:descriptor:destination:scratchBuffer:scratchBufferOffset:]
-    pub fn refitAccelerationStructure_descriptor_destination_scratchBuffer_scratchBufferOffset_(self: *@This(), source_acceleration_structure: *AccelerationStructure, descriptor: *AccelerationStructureDescriptor, destination_acceleration_structure: ?*AccelerationStructure, scratch_buffer: ?*Buffer, scratch_buffer_offset: usize) void {
+    pub fn refitAccelerationStructure_descriptor_destination_scratchBuffer_scratchBufferOffset(self: *@This(), source_acceleration_structure: *AccelerationStructure, descriptor: *AccelerationStructureDescriptor, destination_acceleration_structure: ?*AccelerationStructure, scratch_buffer: ?*Buffer, scratch_buffer_offset: usize) void {
         return objc.msgSend(self, "refitAccelerationStructure:descriptor:destination:scratchBuffer:scratchBufferOffset:", void, .{ source_acceleration_structure, descriptor, destination_acceleration_structure, scratch_buffer, scratch_buffer_offset });
     }
     /// `-[MTLAccelerationStructureCommandEncoder refitAccelerationStructure:descriptor:destination:scratchBuffer:scratchBufferOffset:options:]
-    pub fn refitAccelerationStructure_descriptor_destination_scratchBuffer_scratchBufferOffset_options_(self: *@This(), source_acceleration_structure: *AccelerationStructure, descriptor: *AccelerationStructureDescriptor, destination_acceleration_structure: ?*AccelerationStructure, scratch_buffer: ?*Buffer, scratch_buffer_offset: usize, options: AccelerationStructureRefitOptions) void {
+    pub fn refitAccelerationStructure_descriptor_destination_scratchBuffer_scratchBufferOffset_options(self: *@This(), source_acceleration_structure: *AccelerationStructure, descriptor: *AccelerationStructureDescriptor, destination_acceleration_structure: ?*AccelerationStructure, scratch_buffer: ?*Buffer, scratch_buffer_offset: usize, options: AccelerationStructureRefitOptions) void {
         return objc.msgSend(self, "refitAccelerationStructure:descriptor:destination:scratchBuffer:scratchBufferOffset:options:", void, .{ source_acceleration_structure, descriptor, destination_acceleration_structure, scratch_buffer, scratch_buffer_offset, options });
     }
     /// `-[MTLAccelerationStructureCommandEncoder copyAccelerationStructure:toAccelerationStructure:]
-    pub fn copyAccelerationStructure_toAccelerationStructure_(self: *@This(), source_acceleration_structure: *AccelerationStructure, destination_acceleration_structure: *AccelerationStructure) void {
+    pub fn copyAccelerationStructure_toAccelerationStructure(self: *@This(), source_acceleration_structure: *AccelerationStructure, destination_acceleration_structure: *AccelerationStructure) void {
         return objc.msgSend(self, "copyAccelerationStructure:toAccelerationStructure:", void, .{ source_acceleration_structure, destination_acceleration_structure });
     }
     /// `-[MTLAccelerationStructureCommandEncoder writeCompactedAccelerationStructureSize:toBuffer:offset:]
-    pub fn writeCompactedAccelerationStructureSize_toBuffer_offset_(self: *@This(), acceleration_structure: *AccelerationStructure, buffer: *Buffer, offset: usize) void {
+    pub fn writeCompactedAccelerationStructureSize_toBuffer_offset(self: *@This(), acceleration_structure: *AccelerationStructure, buffer: *Buffer, offset: usize) void {
         return objc.msgSend(self, "writeCompactedAccelerationStructureSize:toBuffer:offset:", void, .{ acceleration_structure, buffer, offset });
     }
     /// `-[MTLAccelerationStructureCommandEncoder writeCompactedAccelerationStructureSize:toBuffer:offset:sizeDataType:]
-    pub fn writeCompactedAccelerationStructureSize_toBuffer_offset_sizeDataType_(self: *@This(), acceleration_structure: *AccelerationStructure, buffer: *Buffer, offset: usize, size_data_type: DataType) void {
+    pub fn writeCompactedAccelerationStructureSize_toBuffer_offset_sizeDataType(self: *@This(), acceleration_structure: *AccelerationStructure, buffer: *Buffer, offset: usize, size_data_type: DataType) void {
         return objc.msgSend(self, "writeCompactedAccelerationStructureSize:toBuffer:offset:sizeDataType:", void, .{ acceleration_structure, buffer, offset, size_data_type });
     }
     /// `-[MTLAccelerationStructureCommandEncoder copyAndCompactAccelerationStructure:toAccelerationStructure:]
-    pub fn copyAndCompactAccelerationStructure_toAccelerationStructure_(self: *@This(), source_acceleration_structure: *AccelerationStructure, destination_acceleration_structure: *AccelerationStructure) void {
+    pub fn copyAndCompactAccelerationStructure_toAccelerationStructure(self: *@This(), source_acceleration_structure: *AccelerationStructure, destination_acceleration_structure: *AccelerationStructure) void {
         return objc.msgSend(self, "copyAndCompactAccelerationStructure:toAccelerationStructure:", void, .{ source_acceleration_structure, destination_acceleration_structure });
     }
     /// `-[MTLAccelerationStructureCommandEncoder updateFence:]
-    pub fn updateFence_(self: *@This(), fence: *Fence) void {
+    pub fn updateFence(self: *@This(), fence: *Fence) void {
         return objc.msgSend(self, "updateFence:", void, .{fence});
     }
     /// `-[MTLAccelerationStructureCommandEncoder waitForFence:]
-    pub fn waitForFence_(self: *@This(), fence: *Fence) void {
+    pub fn waitForFence(self: *@This(), fence: *Fence) void {
         return objc.msgSend(self, "waitForFence:", void, .{fence});
     }
     /// `-[MTLAccelerationStructureCommandEncoder useResource:usage:]
-    pub fn useResource_usage_(self: *@This(), resource: *Resource, usage: ResourceUsage) void {
+    pub fn useResource_usage(self: *@This(), resource: *Resource, usage: ResourceUsage) void {
         return objc.msgSend(self, "useResource:usage:", void, .{ resource, usage });
     }
     /// `-[MTLAccelerationStructureCommandEncoder useResources:count:usage:]
-    pub fn useResources_count_usage_(self: *@This(), resources: [*]*const Resource, count: usize, usage: ResourceUsage) void {
+    pub fn useResources_count_usage(self: *@This(), resources: [*]*const Resource, count: usize, usage: ResourceUsage) void {
         return objc.msgSend(self, "useResources:count:usage:", void, .{ resources, count, usage });
     }
     /// `-[MTLAccelerationStructureCommandEncoder useHeap:]
-    pub fn useHeap_(self: *@This(), heap: *Heap) void {
+    pub fn useHeap(self: *@This(), heap: *Heap) void {
         return objc.msgSend(self, "useHeap:", void, .{heap});
     }
     /// `-[MTLAccelerationStructureCommandEncoder useHeaps:count:]
-    pub fn useHeaps_count_(self: *@This(), heaps: [*]*const Heap, count: usize) void {
+    pub fn useHeaps_count(self: *@This(), heaps: [*]*const Heap, count: usize) void {
         return objc.msgSend(self, "useHeaps:count:", void, .{ heaps, count });
     }
     /// `-[MTLAccelerationStructureCommandEncoder sampleCountersInBuffer:atSampleIndex:withBarrier:]
-    pub fn sampleCountersInBuffer_atSampleIndex_withBarrier_(self: *@This(), sample_buffer: *CounterSampleBuffer, sample_index: usize, barrier: bool) void {
+    pub fn sampleCountersInBuffer_atSampleIndex_withBarrier(self: *@This(), sample_buffer: *CounterSampleBuffer, sample_index: usize, barrier: bool) void {
         return objc.msgSend(self, "sampleCountersInBuffer:atSampleIndex:withBarrier:", void, .{ sample_buffer, sample_index, barrier });
     }
 };
 
 /// `MTLAccelerationStructurePassSampleBufferAttachmentDescriptor`
 pub const AccelerationStructurePassSampleBufferAttachmentDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLAccelerationStructurePassSampleBufferAttachmentDescriptor", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == ns.Copying) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -2963,7 +2999,7 @@ pub const AccelerationStructurePassSampleBufferAttachmentDescriptor = opaque {
         return objc.msgSend(self, "sampleBuffer", ?*CounterSampleBuffer, .{});
     }
     /// `-[MTLAccelerationStructurePassSampleBufferAttachmentDescriptor setSampleBuffer:]
-    pub fn setSampleBuffer_(self: *@This(), sample_buffer: ?*CounterSampleBuffer) void {
+    pub fn setSampleBuffer(self: *@This(), sample_buffer: ?*CounterSampleBuffer) void {
         return objc.msgSend(self, "setSampleBuffer:", void, .{sample_buffer});
     }
     /// `-[MTLAccelerationStructurePassSampleBufferAttachmentDescriptor startOfEncoderSampleIndex]
@@ -2971,7 +3007,7 @@ pub const AccelerationStructurePassSampleBufferAttachmentDescriptor = opaque {
         return objc.msgSend(self, "startOfEncoderSampleIndex", usize, .{});
     }
     /// `-[MTLAccelerationStructurePassSampleBufferAttachmentDescriptor setStartOfEncoderSampleIndex:]
-    pub fn setStartOfEncoderSampleIndex_(self: *@This(), start_of_encoder_sample_index: usize) void {
+    pub fn setStartOfEncoderSampleIndex(self: *@This(), start_of_encoder_sample_index: usize) void {
         return objc.msgSend(self, "setStartOfEncoderSampleIndex:", void, .{start_of_encoder_sample_index});
     }
     /// `-[MTLAccelerationStructurePassSampleBufferAttachmentDescriptor endOfEncoderSampleIndex]
@@ -2979,15 +3015,18 @@ pub const AccelerationStructurePassSampleBufferAttachmentDescriptor = opaque {
         return objc.msgSend(self, "endOfEncoderSampleIndex", usize, .{});
     }
     /// `-[MTLAccelerationStructurePassSampleBufferAttachmentDescriptor setEndOfEncoderSampleIndex:]
-    pub fn setEndOfEncoderSampleIndex_(self: *@This(), end_of_encoder_sample_index: usize) void {
+    pub fn setEndOfEncoderSampleIndex(self: *@This(), end_of_encoder_sample_index: usize) void {
         return objc.msgSend(self, "setEndOfEncoderSampleIndex:", void, .{end_of_encoder_sample_index});
     }
 };
 
 /// `MTLAccelerationStructurePassSampleBufferAttachmentDescriptorArray`
 pub const AccelerationStructurePassSampleBufferAttachmentDescriptorArray = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternClass("MTLAccelerationStructurePassSampleBufferAttachmentDescriptorArray", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `+[MTLAccelerationStructurePassSampleBufferAttachmentDescriptorArray new]`
     pub const new = InternalInfo.new;
     /// `+[MTLAccelerationStructurePassSampleBufferAttachmentDescriptorArray alloc]`
@@ -2995,18 +3034,21 @@ pub const AccelerationStructurePassSampleBufferAttachmentDescriptorArray = opaqu
     /// `[[MTLAccelerationStructurePassSampleBufferAttachmentDescriptorArray alloc] init]`
     pub const allocInit = InternalInfo.allocInit;
     /// `-[MTLAccelerationStructurePassSampleBufferAttachmentDescriptorArray objectAtIndexedSubscript:]
-    pub fn objectAtIndexedSubscript_(self: *@This(), attachment_index: usize) *AccelerationStructurePassSampleBufferAttachmentDescriptor {
+    pub fn objectAtIndexedSubscript(self: *@This(), attachment_index: usize) *AccelerationStructurePassSampleBufferAttachmentDescriptor {
         return objc.msgSend(self, "objectAtIndexedSubscript:", *AccelerationStructurePassSampleBufferAttachmentDescriptor, .{attachment_index});
     }
     /// `-[MTLAccelerationStructurePassSampleBufferAttachmentDescriptorArray setObject:atIndexedSubscript:]
-    pub fn setObject_atIndexedSubscript_(self: *@This(), attachment: ?*AccelerationStructurePassSampleBufferAttachmentDescriptor, attachment_index: usize) void {
+    pub fn setObject_atIndexedSubscript(self: *@This(), attachment: ?*AccelerationStructurePassSampleBufferAttachmentDescriptor, attachment_index: usize) void {
         return objc.msgSend(self, "setObject:atIndexedSubscript:", void, .{ attachment, attachment_index });
     }
 };
 
 /// `MTLAccelerationStructurePassDescriptor`
 pub const AccelerationStructurePassDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLAccelerationStructurePassDescriptor", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == ns.Copying) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -3029,8 +3071,11 @@ pub const AccelerationStructurePassDescriptor = opaque {
 
 /// `MTLType`
 pub const Type = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternClass("MTLType", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `+[MTLType new]`
     pub const new = InternalInfo.new;
     /// `+[MTLType alloc]`
@@ -3045,8 +3090,11 @@ pub const Type = opaque {
 
 /// `MTLStructMember`
 pub const StructMember = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternClass("MTLStructMember", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `+[MTLStructMember new]`
     pub const new = InternalInfo.new;
     /// `+[MTLStructMember alloc]`
@@ -3089,8 +3137,11 @@ pub const StructMember = opaque {
 
 /// `MTLStructType`
 pub const StructType = opaque {
-    const InternalInfo = objc.ExternClass(@This(), Type);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternClass("MTLStructType", @This(), Type);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `+[MTLStructType new]`
     pub const new = InternalInfo.new;
     /// `+[MTLStructType alloc]`
@@ -3098,7 +3149,7 @@ pub const StructType = opaque {
     /// `[[MTLStructType alloc] init]`
     pub const allocInit = InternalInfo.allocInit;
     /// `-[MTLStructType memberByName:]
-    pub fn memberByName_(self: *@This(), name: *ns.String) ?*StructMember {
+    pub fn memberByName(self: *@This(), name: *ns.String) ?*StructMember {
         return objc.msgSend(self, "memberByName:", ?*StructMember, .{name});
     }
     /// `-[MTLStructType members]
@@ -3109,8 +3160,11 @@ pub const StructType = opaque {
 
 /// `MTLArrayType`
 pub const ArrayType = opaque {
-    const InternalInfo = objc.ExternClass(@This(), Type);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternClass("MTLArrayType", @This(), Type);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `+[MTLArrayType new]`
     pub const new = InternalInfo.new;
     /// `+[MTLArrayType alloc]`
@@ -3153,8 +3207,11 @@ pub const ArrayType = opaque {
 
 /// `MTLPointerType`
 pub const PointerType = opaque {
-    const InternalInfo = objc.ExternClass(@This(), Type);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternClass("MTLPointerType", @This(), Type);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `+[MTLPointerType new]`
     pub const new = InternalInfo.new;
     /// `+[MTLPointerType alloc]`
@@ -3193,8 +3250,11 @@ pub const PointerType = opaque {
 
 /// `MTLTextureReferenceType`
 pub const TextureReferenceType = opaque {
-    const InternalInfo = objc.ExternClass(@This(), Type);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternClass("MTLTextureReferenceType", @This(), Type);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `+[MTLTextureReferenceType new]`
     pub const new = InternalInfo.new;
     /// `+[MTLTextureReferenceType alloc]`
@@ -3221,8 +3281,11 @@ pub const TextureReferenceType = opaque {
 
 /// `MTLArgument`
 pub const Argument = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternClass("MTLArgument", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `+[MTLArgument new]`
     pub const new = InternalInfo.new;
     /// `+[MTLArgument alloc]`
@@ -3297,8 +3360,11 @@ pub const Argument = opaque {
 
 /// `MTLBinding`
 pub const Binding = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `-[MTLBinding name]
     pub fn name(self: *@This()) *ns.String {
         return objc.msgSend(self, "name", *ns.String, .{});
@@ -3327,8 +3393,11 @@ pub const Binding = opaque {
 
 /// `MTLBufferBinding`
 pub const BufferBinding = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), Binding);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), Binding);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `-[MTLBufferBinding bufferAlignment]
     pub fn bufferAlignment(self: *@This()) usize {
         return objc.msgSend(self, "bufferAlignment", usize, .{});
@@ -3353,8 +3422,11 @@ pub const BufferBinding = opaque {
 
 /// `MTLThreadgroupBinding`
 pub const ThreadgroupBinding = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), Binding);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), Binding);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `-[MTLThreadgroupBinding threadgroupMemoryAlignment]
     pub fn threadgroupMemoryAlignment(self: *@This()) usize {
         return objc.msgSend(self, "threadgroupMemoryAlignment", usize, .{});
@@ -3367,8 +3439,11 @@ pub const ThreadgroupBinding = opaque {
 
 /// `MTLTextureBinding`
 pub const TextureBinding = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), Binding);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), Binding);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `-[MTLTextureBinding textureType]
     pub fn textureType(self: *@This()) TextureType {
         return objc.msgSend(self, "textureType", TextureType, .{});
@@ -3389,8 +3464,11 @@ pub const TextureBinding = opaque {
 
 /// `MTLObjectPayloadBinding`
 pub const ObjectPayloadBinding = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), Binding);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), Binding);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `-[MTLObjectPayloadBinding objectPayloadAlignment]
     pub fn objectPayloadAlignment(self: *@This()) usize {
         return objc.msgSend(self, "objectPayloadAlignment", usize, .{});
@@ -3403,90 +3481,93 @@ pub const ObjectPayloadBinding = opaque {
 
 /// `MTLArgumentEncoder`
 pub const ArgumentEncoder = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `-[MTLArgumentEncoder setArgumentBuffer:offset:]
-    pub fn setArgumentBuffer_offset_(self: *@This(), argument_buffer: ?*Buffer, offset: usize) void {
+    pub fn setArgumentBuffer_offset(self: *@This(), argument_buffer: ?*Buffer, offset: usize) void {
         return objc.msgSend(self, "setArgumentBuffer:offset:", void, .{ argument_buffer, offset });
     }
     /// `-[MTLArgumentEncoder setArgumentBuffer:startOffset:arrayElement:]
-    pub fn setArgumentBuffer_startOffset_arrayElement_(self: *@This(), argument_buffer: ?*Buffer, start_offset: usize, array_element: usize) void {
+    pub fn setArgumentBuffer_startOffset_arrayElement(self: *@This(), argument_buffer: ?*Buffer, start_offset: usize, array_element: usize) void {
         return objc.msgSend(self, "setArgumentBuffer:startOffset:arrayElement:", void, .{ argument_buffer, start_offset, array_element });
     }
     /// `-[MTLArgumentEncoder setBuffer:offset:atIndex:]
-    pub fn setBuffer_offset_atIndex_(self: *@This(), buffer: ?*Buffer, offset: usize, index: usize) void {
+    pub fn setBuffer_offset_atIndex(self: *@This(), buffer: ?*Buffer, offset: usize, index: usize) void {
         return objc.msgSend(self, "setBuffer:offset:atIndex:", void, .{ buffer, offset, index });
     }
     /// `-[MTLArgumentEncoder setBuffers:offsets:withRange:]
-    pub fn setBuffers_offsets_withRange_(self: *@This(), buffers: [*]?*const Buffer, offsets: *const usize, range: ns.Range) void {
+    pub fn setBuffers_offsets_withRange(self: *@This(), buffers: [*]?*const Buffer, offsets: *const usize, range: ns.Range) void {
         return objc.msgSend(self, "setBuffers:offsets:withRange:", void, .{ buffers, offsets, range });
     }
     /// `-[MTLArgumentEncoder setTexture:atIndex:]
-    pub fn setTexture_atIndex_(self: *@This(), texture: ?*Texture, index: usize) void {
+    pub fn setTexture_atIndex(self: *@This(), texture: ?*Texture, index: usize) void {
         return objc.msgSend(self, "setTexture:atIndex:", void, .{ texture, index });
     }
     /// `-[MTLArgumentEncoder setTextures:withRange:]
-    pub fn setTextures_withRange_(self: *@This(), textures: [*]?*const Texture, range: ns.Range) void {
+    pub fn setTextures_withRange(self: *@This(), textures: [*]?*const Texture, range: ns.Range) void {
         return objc.msgSend(self, "setTextures:withRange:", void, .{ textures, range });
     }
     /// `-[MTLArgumentEncoder setSamplerState:atIndex:]
-    pub fn setSamplerState_atIndex_(self: *@This(), sampler: ?*SamplerState, index: usize) void {
+    pub fn setSamplerState_atIndex(self: *@This(), sampler: ?*SamplerState, index: usize) void {
         return objc.msgSend(self, "setSamplerState:atIndex:", void, .{ sampler, index });
     }
     /// `-[MTLArgumentEncoder setSamplerStates:withRange:]
-    pub fn setSamplerStates_withRange_(self: *@This(), samplers: [*]?*const SamplerState, range: ns.Range) void {
+    pub fn setSamplerStates_withRange(self: *@This(), samplers: [*]?*const SamplerState, range: ns.Range) void {
         return objc.msgSend(self, "setSamplerStates:withRange:", void, .{ samplers, range });
     }
     /// `-[MTLArgumentEncoder constantDataAtIndex:]
-    pub fn constantDataAtIndex_(self: *@This(), index: usize) *anyopaque {
+    pub fn constantDataAtIndex(self: *@This(), index: usize) *anyopaque {
         return objc.msgSend(self, "constantDataAtIndex:", *anyopaque, .{index});
     }
     /// `-[MTLArgumentEncoder setRenderPipelineState:atIndex:]
-    pub fn setRenderPipelineState_atIndex_(self: *@This(), pipeline: ?*RenderPipelineState, index: usize) void {
+    pub fn setRenderPipelineState_atIndex(self: *@This(), pipeline: ?*RenderPipelineState, index: usize) void {
         return objc.msgSend(self, "setRenderPipelineState:atIndex:", void, .{ pipeline, index });
     }
     /// `-[MTLArgumentEncoder setRenderPipelineStates:withRange:]
-    pub fn setRenderPipelineStates_withRange_(self: *@This(), pipelines: [*]?*const RenderPipelineState, range: ns.Range) void {
+    pub fn setRenderPipelineStates_withRange(self: *@This(), pipelines: [*]?*const RenderPipelineState, range: ns.Range) void {
         return objc.msgSend(self, "setRenderPipelineStates:withRange:", void, .{ pipelines, range });
     }
     /// `-[MTLArgumentEncoder setComputePipelineState:atIndex:]
-    pub fn setComputePipelineState_atIndex_(self: *@This(), pipeline: ?*ComputePipelineState, index: usize) void {
+    pub fn setComputePipelineState_atIndex(self: *@This(), pipeline: ?*ComputePipelineState, index: usize) void {
         return objc.msgSend(self, "setComputePipelineState:atIndex:", void, .{ pipeline, index });
     }
     /// `-[MTLArgumentEncoder setComputePipelineStates:withRange:]
-    pub fn setComputePipelineStates_withRange_(self: *@This(), pipelines: [*]?*const ComputePipelineState, range: ns.Range) void {
+    pub fn setComputePipelineStates_withRange(self: *@This(), pipelines: [*]?*const ComputePipelineState, range: ns.Range) void {
         return objc.msgSend(self, "setComputePipelineStates:withRange:", void, .{ pipelines, range });
     }
     /// `-[MTLArgumentEncoder setIndirectCommandBuffer:atIndex:]
-    pub fn setIndirectCommandBuffer_atIndex_(self: *@This(), indirect_command_buffer: ?*IndirectCommandBuffer, index: usize) void {
+    pub fn setIndirectCommandBuffer_atIndex(self: *@This(), indirect_command_buffer: ?*IndirectCommandBuffer, index: usize) void {
         return objc.msgSend(self, "setIndirectCommandBuffer:atIndex:", void, .{ indirect_command_buffer, index });
     }
     /// `-[MTLArgumentEncoder setIndirectCommandBuffers:withRange:]
-    pub fn setIndirectCommandBuffers_withRange_(self: *@This(), buffers: [*]?*const IndirectCommandBuffer, range: ns.Range) void {
+    pub fn setIndirectCommandBuffers_withRange(self: *@This(), buffers: [*]?*const IndirectCommandBuffer, range: ns.Range) void {
         return objc.msgSend(self, "setIndirectCommandBuffers:withRange:", void, .{ buffers, range });
     }
     /// `-[MTLArgumentEncoder setAccelerationStructure:atIndex:]
-    pub fn setAccelerationStructure_atIndex_(self: *@This(), acceleration_structure: ?*AccelerationStructure, index: usize) void {
+    pub fn setAccelerationStructure_atIndex(self: *@This(), acceleration_structure: ?*AccelerationStructure, index: usize) void {
         return objc.msgSend(self, "setAccelerationStructure:atIndex:", void, .{ acceleration_structure, index });
     }
     /// `-[MTLArgumentEncoder newArgumentEncoderForBufferAtIndex:]
-    pub fn newArgumentEncoderForBufferAtIndex_(self: *@This(), index: usize) ?*ArgumentEncoder {
+    pub fn newArgumentEncoderForBufferAtIndex(self: *@This(), index: usize) ?*ArgumentEncoder {
         return objc.msgSend(self, "newArgumentEncoderForBufferAtIndex:", ?*ArgumentEncoder, .{index});
     }
     /// `-[MTLArgumentEncoder setVisibleFunctionTable:atIndex:]
-    pub fn setVisibleFunctionTable_atIndex_(self: *@This(), visible_function_table: ?*VisibleFunctionTable, index: usize) void {
+    pub fn setVisibleFunctionTable_atIndex(self: *@This(), visible_function_table: ?*VisibleFunctionTable, index: usize) void {
         return objc.msgSend(self, "setVisibleFunctionTable:atIndex:", void, .{ visible_function_table, index });
     }
     /// `-[MTLArgumentEncoder setVisibleFunctionTables:withRange:]
-    pub fn setVisibleFunctionTables_withRange_(self: *@This(), visible_function_tables: [*]?*const VisibleFunctionTable, range: ns.Range) void {
+    pub fn setVisibleFunctionTables_withRange(self: *@This(), visible_function_tables: [*]?*const VisibleFunctionTable, range: ns.Range) void {
         return objc.msgSend(self, "setVisibleFunctionTables:withRange:", void, .{ visible_function_tables, range });
     }
     /// `-[MTLArgumentEncoder setIntersectionFunctionTable:atIndex:]
-    pub fn setIntersectionFunctionTable_atIndex_(self: *@This(), intersection_function_table: ?*IntersectionFunctionTable, index: usize) void {
+    pub fn setIntersectionFunctionTable_atIndex(self: *@This(), intersection_function_table: ?*IntersectionFunctionTable, index: usize) void {
         return objc.msgSend(self, "setIntersectionFunctionTable:atIndex:", void, .{ intersection_function_table, index });
     }
     /// `-[MTLArgumentEncoder setIntersectionFunctionTables:withRange:]
-    pub fn setIntersectionFunctionTables_withRange_(self: *@This(), intersection_function_tables: [*]?*const IntersectionFunctionTable, range: ns.Range) void {
+    pub fn setIntersectionFunctionTables_withRange(self: *@This(), intersection_function_tables: [*]?*const IntersectionFunctionTable, range: ns.Range) void {
         return objc.msgSend(self, "setIntersectionFunctionTables:withRange:", void, .{ intersection_function_tables, range });
     }
     /// `-[MTLArgumentEncoder device]
@@ -3498,7 +3579,7 @@ pub const ArgumentEncoder = opaque {
         return objc.msgSend(self, "label", ?*ns.String, .{});
     }
     /// `-[MTLArgumentEncoder setLabel:]
-    pub fn setLabel_(self: *@This(), str: ?*ns.String) void {
+    pub fn setLabel(self: *@This(), str: ?*ns.String) void {
         return objc.msgSend(self, "setLabel:", void, .{str});
     }
     /// `-[MTLArgumentEncoder encodedLength]
@@ -3513,7 +3594,10 @@ pub const ArgumentEncoder = opaque {
 
 /// `MTLBinaryArchiveDescriptor`
 pub const BinaryArchiveDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLBinaryArchiveDescriptor", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == ns.Copying) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -3529,33 +3613,36 @@ pub const BinaryArchiveDescriptor = opaque {
         return objc.msgSend(self, "url", ?*ns.Url, .{});
     }
     /// `-[MTLBinaryArchiveDescriptor setUrl:]
-    pub fn setUrl_(self: *@This(), value: ?*ns.Url) void {
+    pub fn setUrl(self: *@This(), value: ?*ns.Url) void {
         return objc.msgSend(self, "setUrl:", void, .{value});
     }
 };
 
 /// `MTLBinaryArchive`
 pub const BinaryArchive = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `-[MTLBinaryArchive addComputePipelineFunctionsWithDescriptor:error:]
-    pub fn addComputePipelineFunctionsWithDescriptor_error_(self: *@This(), descriptor: *ComputePipelineDescriptor, err: ?*?*ns.Error) bool {
+    pub fn addComputePipelineFunctionsWithDescriptor_error(self: *@This(), descriptor: *ComputePipelineDescriptor, err: ?*?*ns.Error) bool {
         return objc.msgSend(self, "addComputePipelineFunctionsWithDescriptor:error:", bool, .{ descriptor, err });
     }
     /// `-[MTLBinaryArchive addRenderPipelineFunctionsWithDescriptor:error:]
-    pub fn addRenderPipelineFunctionsWithDescriptor_error_(self: *@This(), descriptor: *RenderPipelineDescriptor, err: ?*?*ns.Error) bool {
+    pub fn addRenderPipelineFunctionsWithDescriptor_error(self: *@This(), descriptor: *RenderPipelineDescriptor, err: ?*?*ns.Error) bool {
         return objc.msgSend(self, "addRenderPipelineFunctionsWithDescriptor:error:", bool, .{ descriptor, err });
     }
     /// `-[MTLBinaryArchive addTileRenderPipelineFunctionsWithDescriptor:error:]
-    pub fn addTileRenderPipelineFunctionsWithDescriptor_error_(self: *@This(), descriptor: *TileRenderPipelineDescriptor, err: ?*?*ns.Error) bool {
+    pub fn addTileRenderPipelineFunctionsWithDescriptor_error(self: *@This(), descriptor: *TileRenderPipelineDescriptor, err: ?*?*ns.Error) bool {
         return objc.msgSend(self, "addTileRenderPipelineFunctionsWithDescriptor:error:", bool, .{ descriptor, err });
     }
     /// `-[MTLBinaryArchive serializeToURL:error:]
-    pub fn serializeToUrl_error_(self: *@This(), url: *ns.Url, err: ?*?*ns.Error) bool {
+    pub fn serializeToUrl_error(self: *@This(), url: *ns.Url, err: ?*?*ns.Error) bool {
         return objc.msgSend(self, "serializeToURL:error:", bool, .{ url, err });
     }
     /// `-[MTLBinaryArchive addFunctionWithDescriptor:library:error:]
-    pub fn addFunctionWithDescriptor_library_error_(self: *@This(), descriptor: *FunctionDescriptor, library: *Library, err: ?*?*ns.Error) bool {
+    pub fn addFunctionWithDescriptor_library_error(self: *@This(), descriptor: *FunctionDescriptor, library: *Library, err: ?*?*ns.Error) bool {
         return objc.msgSend(self, "addFunctionWithDescriptor:library:error:", bool, .{ descriptor, library, err });
     }
     /// `-[MTLBinaryArchive label]
@@ -3563,7 +3650,7 @@ pub const BinaryArchive = opaque {
         return objc.msgSend(self, "label", ?*ns.String, .{});
     }
     /// `-[MTLBinaryArchive setLabel:]
-    pub fn setLabel_(self: *@This(), str: ?*ns.String) void {
+    pub fn setLabel(self: *@This(), str: ?*ns.String) void {
         return objc.msgSend(self, "setLabel:", void, .{str});
     }
     /// `-[MTLBinaryArchive device]
@@ -3574,113 +3661,119 @@ pub const BinaryArchive = opaque {
 
 /// `MTLBlitCommandEncoder`
 pub const BlitCommandEncoder = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), CommandEncoder);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), CommandEncoder);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `-[MTLBlitCommandEncoder synchronizeResource:]
-    pub fn synchronizeResource_(self: *@This(), resource: *Resource) void {
+    pub fn synchronizeResource(self: *@This(), resource: *Resource) void {
         return objc.msgSend(self, "synchronizeResource:", void, .{resource});
     }
     /// `-[MTLBlitCommandEncoder synchronizeTexture:slice:level:]
-    pub fn synchronizeTexture_slice_level_(self: *@This(), texture: *Texture, slice: usize, level: usize) void {
+    pub fn synchronizeTexture_slice_level(self: *@This(), texture: *Texture, slice: usize, level: usize) void {
         return objc.msgSend(self, "synchronizeTexture:slice:level:", void, .{ texture, slice, level });
     }
     /// `-[MTLBlitCommandEncoder copyFromTexture:sourceSlice:sourceLevel:sourceOrigin:sourceSize:toTexture:destinationSlice:destinationLevel:destinationOrigin:]
-    pub fn copyFromTexture_sourceSlice_sourceLevel_sourceOrigin_sourceSize_toTexture_destinationSlice_destinationLevel_destinationOrigin_(self: *@This(), source_texture: *Texture, source_slice: usize, source_level: usize, source_origin: Origin, source_size: Size, destination_texture: *Texture, destination_slice: usize, destination_level: usize, destination_origin: Origin) void {
+    pub fn copyFromTexture_sourceSlice_sourceLevel_sourceOrigin_sourceSize_toTexture_destinationSlice_destinationLevel_destinationOrigin(self: *@This(), source_texture: *Texture, source_slice: usize, source_level: usize, source_origin: Origin, source_size: Size, destination_texture: *Texture, destination_slice: usize, destination_level: usize, destination_origin: Origin) void {
         return objc.msgSend(self, "copyFromTexture:sourceSlice:sourceLevel:sourceOrigin:sourceSize:toTexture:destinationSlice:destinationLevel:destinationOrigin:", void, .{ source_texture, source_slice, source_level, source_origin, source_size, destination_texture, destination_slice, destination_level, destination_origin });
     }
     /// `-[MTLBlitCommandEncoder copyFromBuffer:sourceOffset:sourceBytesPerRow:sourceBytesPerImage:sourceSize:toTexture:destinationSlice:destinationLevel:destinationOrigin:]
-    pub fn copyFromBuffer_sourceOffset_sourceBytesPerRow_sourceBytesPerImage_sourceSize_toTexture_destinationSlice_destinationLevel_destinationOrigin_(self: *@This(), source_buffer: *Buffer, source_offset: usize, source_bytes_per_row: usize, source_bytes_per_image: usize, source_size: Size, destination_texture: *Texture, destination_slice: usize, destination_level: usize, destination_origin: Origin) void {
+    pub fn copyFromBuffer_sourceOffset_sourceBytesPerRow_sourceBytesPerImage_sourceSize_toTexture_destinationSlice_destinationLevel_destinationOrigin(self: *@This(), source_buffer: *Buffer, source_offset: usize, source_bytes_per_row: usize, source_bytes_per_image: usize, source_size: Size, destination_texture: *Texture, destination_slice: usize, destination_level: usize, destination_origin: Origin) void {
         return objc.msgSend(self, "copyFromBuffer:sourceOffset:sourceBytesPerRow:sourceBytesPerImage:sourceSize:toTexture:destinationSlice:destinationLevel:destinationOrigin:", void, .{ source_buffer, source_offset, source_bytes_per_row, source_bytes_per_image, source_size, destination_texture, destination_slice, destination_level, destination_origin });
     }
     /// `-[MTLBlitCommandEncoder copyFromBuffer:sourceOffset:sourceBytesPerRow:sourceBytesPerImage:sourceSize:toTexture:destinationSlice:destinationLevel:destinationOrigin:options:]
-    pub fn copyFromBuffer_sourceOffset_sourceBytesPerRow_sourceBytesPerImage_sourceSize_toTexture_destinationSlice_destinationLevel_destinationOrigin_options_(self: *@This(), source_buffer: *Buffer, source_offset: usize, source_bytes_per_row: usize, source_bytes_per_image: usize, source_size: Size, destination_texture: *Texture, destination_slice: usize, destination_level: usize, destination_origin: Origin, options: BlitOption) void {
+    pub fn copyFromBuffer_sourceOffset_sourceBytesPerRow_sourceBytesPerImage_sourceSize_toTexture_destinationSlice_destinationLevel_destinationOrigin_options(self: *@This(), source_buffer: *Buffer, source_offset: usize, source_bytes_per_row: usize, source_bytes_per_image: usize, source_size: Size, destination_texture: *Texture, destination_slice: usize, destination_level: usize, destination_origin: Origin, options: BlitOption) void {
         return objc.msgSend(self, "copyFromBuffer:sourceOffset:sourceBytesPerRow:sourceBytesPerImage:sourceSize:toTexture:destinationSlice:destinationLevel:destinationOrigin:options:", void, .{ source_buffer, source_offset, source_bytes_per_row, source_bytes_per_image, source_size, destination_texture, destination_slice, destination_level, destination_origin, options });
     }
     /// `-[MTLBlitCommandEncoder copyFromTexture:sourceSlice:sourceLevel:sourceOrigin:sourceSize:toBuffer:destinationOffset:destinationBytesPerRow:destinationBytesPerImage:]
-    pub fn copyFromTexture_sourceSlice_sourceLevel_sourceOrigin_sourceSize_toBuffer_destinationOffset_destinationBytesPerRow_destinationBytesPerImage_(self: *@This(), source_texture: *Texture, source_slice: usize, source_level: usize, source_origin: Origin, source_size: Size, destination_buffer: *Buffer, destination_offset: usize, destination_bytes_per_row: usize, destination_bytes_per_image: usize) void {
+    pub fn copyFromTexture_sourceSlice_sourceLevel_sourceOrigin_sourceSize_toBuffer_destinationOffset_destinationBytesPerRow_destinationBytesPerImage(self: *@This(), source_texture: *Texture, source_slice: usize, source_level: usize, source_origin: Origin, source_size: Size, destination_buffer: *Buffer, destination_offset: usize, destination_bytes_per_row: usize, destination_bytes_per_image: usize) void {
         return objc.msgSend(self, "copyFromTexture:sourceSlice:sourceLevel:sourceOrigin:sourceSize:toBuffer:destinationOffset:destinationBytesPerRow:destinationBytesPerImage:", void, .{ source_texture, source_slice, source_level, source_origin, source_size, destination_buffer, destination_offset, destination_bytes_per_row, destination_bytes_per_image });
     }
     /// `-[MTLBlitCommandEncoder copyFromTexture:sourceSlice:sourceLevel:sourceOrigin:sourceSize:toBuffer:destinationOffset:destinationBytesPerRow:destinationBytesPerImage:options:]
-    pub fn copyFromTexture_sourceSlice_sourceLevel_sourceOrigin_sourceSize_toBuffer_destinationOffset_destinationBytesPerRow_destinationBytesPerImage_options_(self: *@This(), source_texture: *Texture, source_slice: usize, source_level: usize, source_origin: Origin, source_size: Size, destination_buffer: *Buffer, destination_offset: usize, destination_bytes_per_row: usize, destination_bytes_per_image: usize, options: BlitOption) void {
+    pub fn copyFromTexture_sourceSlice_sourceLevel_sourceOrigin_sourceSize_toBuffer_destinationOffset_destinationBytesPerRow_destinationBytesPerImage_options(self: *@This(), source_texture: *Texture, source_slice: usize, source_level: usize, source_origin: Origin, source_size: Size, destination_buffer: *Buffer, destination_offset: usize, destination_bytes_per_row: usize, destination_bytes_per_image: usize, options: BlitOption) void {
         return objc.msgSend(self, "copyFromTexture:sourceSlice:sourceLevel:sourceOrigin:sourceSize:toBuffer:destinationOffset:destinationBytesPerRow:destinationBytesPerImage:options:", void, .{ source_texture, source_slice, source_level, source_origin, source_size, destination_buffer, destination_offset, destination_bytes_per_row, destination_bytes_per_image, options });
     }
     /// `-[MTLBlitCommandEncoder generateMipmapsForTexture:]
-    pub fn generateMipmapsForTexture_(self: *@This(), texture: *Texture) void {
+    pub fn generateMipmapsForTexture(self: *@This(), texture: *Texture) void {
         return objc.msgSend(self, "generateMipmapsForTexture:", void, .{texture});
     }
     /// `-[MTLBlitCommandEncoder fillBuffer:range:value:]
-    pub fn fillBuffer_range_value_(self: *@This(), buffer: *Buffer, range: ns.Range, value: u8) void {
+    pub fn fillBuffer_range_value(self: *@This(), buffer: *Buffer, range: ns.Range, value: u8) void {
         return objc.msgSend(self, "fillBuffer:range:value:", void, .{ buffer, range, value });
     }
     /// `-[MTLBlitCommandEncoder copyFromTexture:sourceSlice:sourceLevel:toTexture:destinationSlice:destinationLevel:sliceCount:levelCount:]
-    pub fn copyFromTexture_sourceSlice_sourceLevel_toTexture_destinationSlice_destinationLevel_sliceCount_levelCount_(self: *@This(), source_texture: *Texture, source_slice: usize, source_level: usize, destination_texture: *Texture, destination_slice: usize, destination_level: usize, slice_count: usize, level_count: usize) void {
+    pub fn copyFromTexture_sourceSlice_sourceLevel_toTexture_destinationSlice_destinationLevel_sliceCount_levelCount(self: *@This(), source_texture: *Texture, source_slice: usize, source_level: usize, destination_texture: *Texture, destination_slice: usize, destination_level: usize, slice_count: usize, level_count: usize) void {
         return objc.msgSend(self, "copyFromTexture:sourceSlice:sourceLevel:toTexture:destinationSlice:destinationLevel:sliceCount:levelCount:", void, .{ source_texture, source_slice, source_level, destination_texture, destination_slice, destination_level, slice_count, level_count });
     }
     /// `-[MTLBlitCommandEncoder copyFromTexture:toTexture:]
-    pub fn copyFromTexture_toTexture_(self: *@This(), source_texture: *Texture, destination_texture: *Texture) void {
+    pub fn copyFromTexture_toTexture(self: *@This(), source_texture: *Texture, destination_texture: *Texture) void {
         return objc.msgSend(self, "copyFromTexture:toTexture:", void, .{ source_texture, destination_texture });
     }
     /// `-[MTLBlitCommandEncoder copyFromBuffer:sourceOffset:toBuffer:destinationOffset:size:]
-    pub fn copyFromBuffer_sourceOffset_toBuffer_destinationOffset_size_(self: *@This(), source_buffer: *Buffer, source_offset: usize, destination_buffer: *Buffer, destination_offset: usize, size: usize) void {
+    pub fn copyFromBuffer_sourceOffset_toBuffer_destinationOffset_size(self: *@This(), source_buffer: *Buffer, source_offset: usize, destination_buffer: *Buffer, destination_offset: usize, size: usize) void {
         return objc.msgSend(self, "copyFromBuffer:sourceOffset:toBuffer:destinationOffset:size:", void, .{ source_buffer, source_offset, destination_buffer, destination_offset, size });
     }
     /// `-[MTLBlitCommandEncoder updateFence:]
-    pub fn updateFence_(self: *@This(), fence: *Fence) void {
+    pub fn updateFence(self: *@This(), fence: *Fence) void {
         return objc.msgSend(self, "updateFence:", void, .{fence});
     }
     /// `-[MTLBlitCommandEncoder waitForFence:]
-    pub fn waitForFence_(self: *@This(), fence: *Fence) void {
+    pub fn waitForFence(self: *@This(), fence: *Fence) void {
         return objc.msgSend(self, "waitForFence:", void, .{fence});
     }
     /// `-[MTLBlitCommandEncoder getTextureAccessCounters:region:mipLevel:slice:resetCounters:countersBuffer:countersBufferOffset:]
-    pub fn getTextureAccessCounters_region_mipLevel_slice_resetCounters_countersBuffer_countersBufferOffset_(self: *@This(), texture: *Texture, region: Region, mip_level: usize, slice: usize, reset_counters: bool, counters_buffer: *Buffer, counters_buffer_offset: usize) void {
+    pub fn getTextureAccessCounters_region_mipLevel_slice_resetCounters_countersBuffer_countersBufferOffset(self: *@This(), texture: *Texture, region: Region, mip_level: usize, slice: usize, reset_counters: bool, counters_buffer: *Buffer, counters_buffer_offset: usize) void {
         return objc.msgSend(self, "getTextureAccessCounters:region:mipLevel:slice:resetCounters:countersBuffer:countersBufferOffset:", void, .{ texture, region, mip_level, slice, reset_counters, counters_buffer, counters_buffer_offset });
     }
     /// `-[MTLBlitCommandEncoder resetTextureAccessCounters:region:mipLevel:slice:]
-    pub fn resetTextureAccessCounters_region_mipLevel_slice_(self: *@This(), texture: *Texture, region: Region, mip_level: usize, slice: usize) void {
+    pub fn resetTextureAccessCounters_region_mipLevel_slice(self: *@This(), texture: *Texture, region: Region, mip_level: usize, slice: usize) void {
         return objc.msgSend(self, "resetTextureAccessCounters:region:mipLevel:slice:", void, .{ texture, region, mip_level, slice });
     }
     /// `-[MTLBlitCommandEncoder optimizeContentsForGPUAccess:]
-    pub fn optimizeContentsForGPUAccess_(self: *@This(), texture: *Texture) void {
+    pub fn optimizeContentsForGPUAccess(self: *@This(), texture: *Texture) void {
         return objc.msgSend(self, "optimizeContentsForGPUAccess:", void, .{texture});
     }
     /// `-[MTLBlitCommandEncoder optimizeContentsForGPUAccess:slice:level:]
-    pub fn optimizeContentsForGPUAccess_slice_level_(self: *@This(), texture: *Texture, slice: usize, level: usize) void {
+    pub fn optimizeContentsForGPUAccess_slice_level(self: *@This(), texture: *Texture, slice: usize, level: usize) void {
         return objc.msgSend(self, "optimizeContentsForGPUAccess:slice:level:", void, .{ texture, slice, level });
     }
     /// `-[MTLBlitCommandEncoder optimizeContentsForCPUAccess:]
-    pub fn optimizeContentsForCpuAccess_(self: *@This(), texture: *Texture) void {
+    pub fn optimizeContentsForCpuAccess(self: *@This(), texture: *Texture) void {
         return objc.msgSend(self, "optimizeContentsForCPUAccess:", void, .{texture});
     }
     /// `-[MTLBlitCommandEncoder optimizeContentsForCPUAccess:slice:level:]
-    pub fn optimizeContentsForCpuAccess_slice_level_(self: *@This(), texture: *Texture, slice: usize, level: usize) void {
+    pub fn optimizeContentsForCpuAccess_slice_level(self: *@This(), texture: *Texture, slice: usize, level: usize) void {
         return objc.msgSend(self, "optimizeContentsForCPUAccess:slice:level:", void, .{ texture, slice, level });
     }
     /// `-[MTLBlitCommandEncoder resetCommandsInBuffer:withRange:]
-    pub fn resetCommandsInBuffer_withRange_(self: *@This(), buffer: *IndirectCommandBuffer, range: ns.Range) void {
+    pub fn resetCommandsInBuffer_withRange(self: *@This(), buffer: *IndirectCommandBuffer, range: ns.Range) void {
         return objc.msgSend(self, "resetCommandsInBuffer:withRange:", void, .{ buffer, range });
     }
     /// `-[MTLBlitCommandEncoder copyIndirectCommandBuffer:sourceRange:destination:destinationIndex:]
-    pub fn copyIndirectCommandBuffer_sourceRange_destination_destinationIndex_(self: *@This(), source: *IndirectCommandBuffer, source_range: ns.Range, destination: *IndirectCommandBuffer, destination_index: usize) void {
+    pub fn copyIndirectCommandBuffer_sourceRange_destination_destinationIndex(self: *@This(), source: *IndirectCommandBuffer, source_range: ns.Range, destination: *IndirectCommandBuffer, destination_index: usize) void {
         return objc.msgSend(self, "copyIndirectCommandBuffer:sourceRange:destination:destinationIndex:", void, .{ source, source_range, destination, destination_index });
     }
     /// `-[MTLBlitCommandEncoder optimizeIndirectCommandBuffer:withRange:]
-    pub fn optimizeIndirectCommandBuffer_withRange_(self: *@This(), indirect_command_buffer: *IndirectCommandBuffer, range: ns.Range) void {
+    pub fn optimizeIndirectCommandBuffer_withRange(self: *@This(), indirect_command_buffer: *IndirectCommandBuffer, range: ns.Range) void {
         return objc.msgSend(self, "optimizeIndirectCommandBuffer:withRange:", void, .{ indirect_command_buffer, range });
     }
     /// `-[MTLBlitCommandEncoder sampleCountersInBuffer:atSampleIndex:withBarrier:]
-    pub fn sampleCountersInBuffer_atSampleIndex_withBarrier_(self: *@This(), sample_buffer: *CounterSampleBuffer, sample_index: usize, barrier: bool) void {
+    pub fn sampleCountersInBuffer_atSampleIndex_withBarrier(self: *@This(), sample_buffer: *CounterSampleBuffer, sample_index: usize, barrier: bool) void {
         return objc.msgSend(self, "sampleCountersInBuffer:atSampleIndex:withBarrier:", void, .{ sample_buffer, sample_index, barrier });
     }
     /// `-[MTLBlitCommandEncoder resolveCounters:inRange:destinationBuffer:destinationOffset:]
-    pub fn resolveCounters_inRange_destinationBuffer_destinationOffset_(self: *@This(), sample_buffer: *CounterSampleBuffer, range: ns.Range, destination_buffer: *Buffer, destination_offset: usize) void {
+    pub fn resolveCounters_inRange_destinationBuffer_destinationOffset(self: *@This(), sample_buffer: *CounterSampleBuffer, range: ns.Range, destination_buffer: *Buffer, destination_offset: usize) void {
         return objc.msgSend(self, "resolveCounters:inRange:destinationBuffer:destinationOffset:", void, .{ sample_buffer, range, destination_buffer, destination_offset });
     }
 };
 
 /// `MTLBlitPassSampleBufferAttachmentDescriptor`
 pub const BlitPassSampleBufferAttachmentDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLBlitPassSampleBufferAttachmentDescriptor", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == ns.Copying) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -3696,7 +3789,7 @@ pub const BlitPassSampleBufferAttachmentDescriptor = opaque {
         return objc.msgSend(self, "sampleBuffer", ?*CounterSampleBuffer, .{});
     }
     /// `-[MTLBlitPassSampleBufferAttachmentDescriptor setSampleBuffer:]
-    pub fn setSampleBuffer_(self: *@This(), sample_buffer: ?*CounterSampleBuffer) void {
+    pub fn setSampleBuffer(self: *@This(), sample_buffer: ?*CounterSampleBuffer) void {
         return objc.msgSend(self, "setSampleBuffer:", void, .{sample_buffer});
     }
     /// `-[MTLBlitPassSampleBufferAttachmentDescriptor startOfEncoderSampleIndex]
@@ -3704,7 +3797,7 @@ pub const BlitPassSampleBufferAttachmentDescriptor = opaque {
         return objc.msgSend(self, "startOfEncoderSampleIndex", usize, .{});
     }
     /// `-[MTLBlitPassSampleBufferAttachmentDescriptor setStartOfEncoderSampleIndex:]
-    pub fn setStartOfEncoderSampleIndex_(self: *@This(), start_of_encoder_sample_index: usize) void {
+    pub fn setStartOfEncoderSampleIndex(self: *@This(), start_of_encoder_sample_index: usize) void {
         return objc.msgSend(self, "setStartOfEncoderSampleIndex:", void, .{start_of_encoder_sample_index});
     }
     /// `-[MTLBlitPassSampleBufferAttachmentDescriptor endOfEncoderSampleIndex]
@@ -3712,15 +3805,18 @@ pub const BlitPassSampleBufferAttachmentDescriptor = opaque {
         return objc.msgSend(self, "endOfEncoderSampleIndex", usize, .{});
     }
     /// `-[MTLBlitPassSampleBufferAttachmentDescriptor setEndOfEncoderSampleIndex:]
-    pub fn setEndOfEncoderSampleIndex_(self: *@This(), end_of_encoder_sample_index: usize) void {
+    pub fn setEndOfEncoderSampleIndex(self: *@This(), end_of_encoder_sample_index: usize) void {
         return objc.msgSend(self, "setEndOfEncoderSampleIndex:", void, .{end_of_encoder_sample_index});
     }
 };
 
 /// `MTLBlitPassSampleBufferAttachmentDescriptorArray`
 pub const BlitPassSampleBufferAttachmentDescriptorArray = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternClass("MTLBlitPassSampleBufferAttachmentDescriptorArray", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `+[MTLBlitPassSampleBufferAttachmentDescriptorArray new]`
     pub const new = InternalInfo.new;
     /// `+[MTLBlitPassSampleBufferAttachmentDescriptorArray alloc]`
@@ -3728,18 +3824,21 @@ pub const BlitPassSampleBufferAttachmentDescriptorArray = opaque {
     /// `[[MTLBlitPassSampleBufferAttachmentDescriptorArray alloc] init]`
     pub const allocInit = InternalInfo.allocInit;
     /// `-[MTLBlitPassSampleBufferAttachmentDescriptorArray objectAtIndexedSubscript:]
-    pub fn objectAtIndexedSubscript_(self: *@This(), attachment_index: usize) *BlitPassSampleBufferAttachmentDescriptor {
+    pub fn objectAtIndexedSubscript(self: *@This(), attachment_index: usize) *BlitPassSampleBufferAttachmentDescriptor {
         return objc.msgSend(self, "objectAtIndexedSubscript:", *BlitPassSampleBufferAttachmentDescriptor, .{attachment_index});
     }
     /// `-[MTLBlitPassSampleBufferAttachmentDescriptorArray setObject:atIndexedSubscript:]
-    pub fn setObject_atIndexedSubscript_(self: *@This(), attachment: ?*BlitPassSampleBufferAttachmentDescriptor, attachment_index: usize) void {
+    pub fn setObject_atIndexedSubscript(self: *@This(), attachment: ?*BlitPassSampleBufferAttachmentDescriptor, attachment_index: usize) void {
         return objc.msgSend(self, "setObject:atIndexedSubscript:", void, .{ attachment, attachment_index });
     }
 };
 
 /// `MTLBlitPassDescriptor`
 pub const BlitPassDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLBlitPassDescriptor", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == ns.Copying) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -3762,22 +3861,25 @@ pub const BlitPassDescriptor = opaque {
 
 /// `MTLBuffer`
 pub const Buffer = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), Resource);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), Resource);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `-[MTLBuffer contents]
     pub fn contents(self: *@This()) *anyopaque {
         return objc.msgSend(self, "contents", *anyopaque, .{});
     }
     /// `-[MTLBuffer didModifyRange:]
-    pub fn didModifyRange_(self: *@This(), range: ns.Range) void {
+    pub fn didModifyRange(self: *@This(), range: ns.Range) void {
         return objc.msgSend(self, "didModifyRange:", void, .{range});
     }
     /// `-[MTLBuffer newTextureWithDescriptor:offset:bytesPerRow:]
-    pub fn newTextureWithDescriptor_offset_bytesPerRow_(self: *@This(), descriptor: *TextureDescriptor, offset: usize, bytes_per_row: usize) ?*Texture {
+    pub fn newTextureWithDescriptor_offset_bytesPerRow(self: *@This(), descriptor: *TextureDescriptor, offset: usize, bytes_per_row: usize) ?*Texture {
         return objc.msgSend(self, "newTextureWithDescriptor:offset:bytesPerRow:", ?*Texture, .{ descriptor, offset, bytes_per_row });
     }
     /// `-[MTLBuffer addDebugMarker:range:]
-    pub fn addDebugMarker_range_(self: *@This(), marker: *ns.String, range: ns.Range) void {
+    pub fn addDebugMarker_range(self: *@This(), marker: *ns.String, range: ns.Range) void {
         return objc.msgSend(self, "addDebugMarker:range:", void, .{ marker, range });
     }
     /// `-[MTLBuffer removeAllDebugMarkers]
@@ -3785,7 +3887,7 @@ pub const Buffer = opaque {
         return objc.msgSend(self, "removeAllDebugMarkers", void, .{});
     }
     /// `-[MTLBuffer newRemoteBufferViewForDevice:]
-    pub fn newRemoteBufferViewForDevice_(self: *@This(), device: *Device) ?*Buffer {
+    pub fn newRemoteBufferViewForDevice(self: *@This(), device: *Device) ?*Buffer {
         return objc.msgSend(self, "newRemoteBufferViewForDevice:", ?*Buffer, .{device});
     }
     /// `-[MTLBuffer length]
@@ -3804,7 +3906,10 @@ pub const Buffer = opaque {
 
 /// `MTLCaptureDescriptor`
 pub const CaptureDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLCaptureDescriptor", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == ns.Copying) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -3820,7 +3925,7 @@ pub const CaptureDescriptor = opaque {
         return objc.msgSend(self, "captureObject", ?*objc.Id, .{});
     }
     /// `-[MTLCaptureDescriptor setCaptureObject:]
-    pub fn setCaptureObject_(self: *@This(), capture_object: ?*objc.Id) void {
+    pub fn setCaptureObject(self: *@This(), capture_object: ?*objc.Id) void {
         return objc.msgSend(self, "setCaptureObject:", void, .{capture_object});
     }
     /// `-[MTLCaptureDescriptor destination]
@@ -3828,7 +3933,7 @@ pub const CaptureDescriptor = opaque {
         return objc.msgSend(self, "destination", CaptureDestination, .{});
     }
     /// `-[MTLCaptureDescriptor setDestination:]
-    pub fn setDestination_(self: *@This(), value: CaptureDestination) void {
+    pub fn setDestination(self: *@This(), value: CaptureDestination) void {
         return objc.msgSend(self, "setDestination:", void, .{value});
     }
     /// `-[MTLCaptureDescriptor outputURL]
@@ -3836,15 +3941,18 @@ pub const CaptureDescriptor = opaque {
         return objc.msgSend(self, "outputURL", ?*ns.Url, .{});
     }
     /// `-[MTLCaptureDescriptor setOutputURL:]
-    pub fn setOutputUrl_(self: *@This(), output_url: ?*ns.Url) void {
+    pub fn setOutputUrl(self: *@This(), output_url: ?*ns.Url) void {
         return objc.msgSend(self, "setOutputURL:", void, .{output_url});
     }
 };
 
 /// `MTLCaptureManager`
 pub const CaptureManager = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternClass("MTLCaptureManager", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `+[MTLCaptureManager new]`
     pub const new = InternalInfo.new;
     /// `+[MTLCaptureManager alloc]`
@@ -3856,31 +3964,31 @@ pub const CaptureManager = opaque {
         return objc.msgSend(InternalInfo.class(), "sharedCaptureManager", *CaptureManager, .{});
     }
     /// `-[MTLCaptureManager newCaptureScopeWithDevice:]
-    pub fn newCaptureScopeWithDevice_(self: *@This(), device: *Device) *CaptureScope {
+    pub fn newCaptureScopeWithDevice(self: *@This(), device: *Device) *CaptureScope {
         return objc.msgSend(self, "newCaptureScopeWithDevice:", *CaptureScope, .{device});
     }
     /// `-[MTLCaptureManager newCaptureScopeWithCommandQueue:]
-    pub fn newCaptureScopeWithCommandQueue_(self: *@This(), command_queue: *CommandQueue) *CaptureScope {
+    pub fn newCaptureScopeWithCommandQueue(self: *@This(), command_queue: *CommandQueue) *CaptureScope {
         return objc.msgSend(self, "newCaptureScopeWithCommandQueue:", *CaptureScope, .{command_queue});
     }
     /// `-[MTLCaptureManager supportsDestination:]
-    pub fn supportsDestination_(self: *@This(), destination: CaptureDestination) bool {
+    pub fn supportsDestination(self: *@This(), destination: CaptureDestination) bool {
         return objc.msgSend(self, "supportsDestination:", bool, .{destination});
     }
     /// `-[MTLCaptureManager startCaptureWithDescriptor:error:]
-    pub fn startCaptureWithDescriptor_error_(self: *@This(), descriptor: *CaptureDescriptor, err: ?*?*ns.Error) bool {
+    pub fn startCaptureWithDescriptor_error(self: *@This(), descriptor: *CaptureDescriptor, err: ?*?*ns.Error) bool {
         return objc.msgSend(self, "startCaptureWithDescriptor:error:", bool, .{ descriptor, err });
     }
     /// `-[MTLCaptureManager startCaptureWithDevice:]
-    pub fn startCaptureWithDevice_(self: *@This(), device: *Device) void {
+    pub fn startCaptureWithDevice(self: *@This(), device: *Device) void {
         return objc.msgSend(self, "startCaptureWithDevice:", void, .{device});
     }
     /// `-[MTLCaptureManager startCaptureWithCommandQueue:]
-    pub fn startCaptureWithCommandQueue_(self: *@This(), command_queue: *CommandQueue) void {
+    pub fn startCaptureWithCommandQueue(self: *@This(), command_queue: *CommandQueue) void {
         return objc.msgSend(self, "startCaptureWithCommandQueue:", void, .{command_queue});
     }
     /// `-[MTLCaptureManager startCaptureWithScope:]
-    pub fn startCaptureWithScope_(self: *@This(), capture_scope: *CaptureScope) void {
+    pub fn startCaptureWithScope(self: *@This(), capture_scope: *CaptureScope) void {
         return objc.msgSend(self, "startCaptureWithScope:", void, .{capture_scope});
     }
     /// `-[MTLCaptureManager stopCapture]
@@ -3892,7 +4000,7 @@ pub const CaptureManager = opaque {
         return objc.msgSend(self, "defaultCaptureScope", ?*CaptureScope, .{});
     }
     /// `-[MTLCaptureManager setDefaultCaptureScope:]
-    pub fn setDefaultCaptureScope_(self: *@This(), default_capture_scope: ?*CaptureScope) void {
+    pub fn setDefaultCaptureScope(self: *@This(), default_capture_scope: ?*CaptureScope) void {
         return objc.msgSend(self, "setDefaultCaptureScope:", void, .{default_capture_scope});
     }
     /// `-[MTLCaptureManager isCapturing]
@@ -3903,8 +4011,11 @@ pub const CaptureManager = opaque {
 
 /// `MTLCaptureScope`
 pub const CaptureScope = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `-[MTLCaptureScope beginScope]
     pub fn beginScope(self: *@This()) void {
         return objc.msgSend(self, "beginScope", void, .{});
@@ -3918,7 +4029,7 @@ pub const CaptureScope = opaque {
         return objc.msgSend(self, "label", ?*ns.String, .{});
     }
     /// `-[MTLCaptureScope setLabel:]
-    pub fn setLabel_(self: *@This(), str: ?*ns.String) void {
+    pub fn setLabel(self: *@This(), str: ?*ns.String) void {
         return objc.msgSend(self, "setLabel:", void, .{str});
     }
     /// `-[MTLCaptureScope device]
@@ -3933,7 +4044,10 @@ pub const CaptureScope = opaque {
 
 /// `MTLCommandBufferDescriptor`
 pub const CommandBufferDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLCommandBufferDescriptor", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == ns.Copying) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -3949,7 +4063,7 @@ pub const CommandBufferDescriptor = opaque {
         return objc.msgSend(self, "retainedReferences", bool, .{});
     }
     /// `-[MTLCommandBufferDescriptor setRetainedReferences:]
-    pub fn setRetainedReferences_(self: *@This(), retained_references: bool) void {
+    pub fn setRetainedReferences(self: *@This(), retained_references: bool) void {
         return objc.msgSend(self, "setRetainedReferences:", void, .{retained_references});
     }
     /// `-[MTLCommandBufferDescriptor errorOptions]
@@ -3957,15 +4071,18 @@ pub const CommandBufferDescriptor = opaque {
         return objc.msgSend(self, "errorOptions", CommandBufferErrorOption, .{});
     }
     /// `-[MTLCommandBufferDescriptor setErrorOptions:]
-    pub fn setErrorOptions_(self: *@This(), error_options: CommandBufferErrorOption) void {
+    pub fn setErrorOptions(self: *@This(), error_options: CommandBufferErrorOption) void {
         return objc.msgSend(self, "setErrorOptions:", void, .{error_options});
     }
 };
 
 /// `MTLCommandBufferEncoderInfo`
 pub const CommandBufferEncoderInfo = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `-[MTLCommandBufferEncoderInfo label]
     pub fn label(self: *@This()) *ns.String {
         return objc.msgSend(self, "label", *ns.String, .{});
@@ -3982,8 +4099,11 @@ pub const CommandBufferEncoderInfo = opaque {
 
 /// `MTLCommandBuffer`
 pub const CommandBuffer = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `-[MTLCommandBuffer enqueue]
     pub fn enqueue(self: *@This()) void {
         return objc.msgSend(self, "enqueue", void, .{});
@@ -3993,19 +4113,19 @@ pub const CommandBuffer = opaque {
         return objc.msgSend(self, "commit", void, .{});
     }
     /// `-[MTLCommandBuffer addScheduledHandler:]
-    pub fn addScheduledHandler_(self: *@This(), block: *ns.Block(fn (*CommandBuffer) void)) void {
+    pub fn addScheduledHandler(self: *@This(), block: *ns.Block(fn (*CommandBuffer) void)) void {
         return objc.msgSend(self, "addScheduledHandler:", void, .{block});
     }
     /// `-[MTLCommandBuffer presentDrawable:]
-    pub fn presentDrawable_(self: *@This(), drawable: *Drawable) void {
+    pub fn presentDrawable(self: *@This(), drawable: *Drawable) void {
         return objc.msgSend(self, "presentDrawable:", void, .{drawable});
     }
     /// `-[MTLCommandBuffer presentDrawable:atTime:]
-    pub fn presentDrawable_atTime_(self: *@This(), drawable: *Drawable, presentation_time: cf.TimeInterval) void {
+    pub fn presentDrawable_atTime(self: *@This(), drawable: *Drawable, presentation_time: cf.TimeInterval) void {
         return objc.msgSend(self, "presentDrawable:atTime:", void, .{ drawable, presentation_time });
     }
     /// `-[MTLCommandBuffer presentDrawable:afterMinimumDuration:]
-    pub fn presentDrawable_afterMinimumDuration_(self: *@This(), drawable: *Drawable, duration: cf.TimeInterval) void {
+    pub fn presentDrawable_afterMinimumDuration(self: *@This(), drawable: *Drawable, duration: cf.TimeInterval) void {
         return objc.msgSend(self, "presentDrawable:afterMinimumDuration:", void, .{ drawable, duration });
     }
     /// `-[MTLCommandBuffer waitUntilScheduled]
@@ -4013,7 +4133,7 @@ pub const CommandBuffer = opaque {
         return objc.msgSend(self, "waitUntilScheduled", void, .{});
     }
     /// `-[MTLCommandBuffer addCompletedHandler:]
-    pub fn addCompletedHandler_(self: *@This(), block: *ns.Block(fn (*CommandBuffer) void)) void {
+    pub fn addCompletedHandler(self: *@This(), block: *ns.Block(fn (*CommandBuffer) void)) void {
         return objc.msgSend(self, "addCompletedHandler:", void, .{block});
     }
     /// `-[MTLCommandBuffer waitUntilCompleted]
@@ -4025,15 +4145,15 @@ pub const CommandBuffer = opaque {
         return objc.msgSend(self, "blitCommandEncoder", ?*BlitCommandEncoder, .{});
     }
     /// `-[MTLCommandBuffer renderCommandEncoderWithDescriptor:]
-    pub fn renderCommandEncoderWithDescriptor_(self: *@This(), render_pass_descriptor: *RenderPassDescriptor) ?*RenderCommandEncoder {
+    pub fn renderCommandEncoderWithDescriptor(self: *@This(), render_pass_descriptor: *RenderPassDescriptor) ?*RenderCommandEncoder {
         return objc.msgSend(self, "renderCommandEncoderWithDescriptor:", ?*RenderCommandEncoder, .{render_pass_descriptor});
     }
     /// `-[MTLCommandBuffer computeCommandEncoderWithDescriptor:]
-    pub fn computeCommandEncoderWithDescriptor_(self: *@This(), compute_pass_descriptor: *ComputePassDescriptor) ?*ComputeCommandEncoder {
+    pub fn computeCommandEncoderWithDescriptor(self: *@This(), compute_pass_descriptor: *ComputePassDescriptor) ?*ComputeCommandEncoder {
         return objc.msgSend(self, "computeCommandEncoderWithDescriptor:", ?*ComputeCommandEncoder, .{compute_pass_descriptor});
     }
     /// `-[MTLCommandBuffer blitCommandEncoderWithDescriptor:]
-    pub fn blitCommandEncoderWithDescriptor_(self: *@This(), blit_pass_descriptor: *BlitPassDescriptor) ?*BlitCommandEncoder {
+    pub fn blitCommandEncoderWithDescriptor(self: *@This(), blit_pass_descriptor: *BlitPassDescriptor) ?*BlitCommandEncoder {
         return objc.msgSend(self, "blitCommandEncoderWithDescriptor:", ?*BlitCommandEncoder, .{blit_pass_descriptor});
     }
     /// `-[MTLCommandBuffer computeCommandEncoder]
@@ -4041,19 +4161,19 @@ pub const CommandBuffer = opaque {
         return objc.msgSend(self, "computeCommandEncoder", ?*ComputeCommandEncoder, .{});
     }
     /// `-[MTLCommandBuffer computeCommandEncoderWithDispatchType:]
-    pub fn computeCommandEncoderWithDispatchType_(self: *@This(), dispatch_type: DispatchType) ?*ComputeCommandEncoder {
+    pub fn computeCommandEncoderWithDispatchType(self: *@This(), dispatch_type: DispatchType) ?*ComputeCommandEncoder {
         return objc.msgSend(self, "computeCommandEncoderWithDispatchType:", ?*ComputeCommandEncoder, .{dispatch_type});
     }
     /// `-[MTLCommandBuffer encodeWaitForEvent:value:]
-    pub fn encodeWaitForEvent_value_(self: *@This(), event: *Event, value: u64) void {
+    pub fn encodeWaitForEvent_value(self: *@This(), event: *Event, value: u64) void {
         return objc.msgSend(self, "encodeWaitForEvent:value:", void, .{ event, value });
     }
     /// `-[MTLCommandBuffer encodeSignalEvent:value:]
-    pub fn encodeSignalEvent_value_(self: *@This(), event: *Event, value: u64) void {
+    pub fn encodeSignalEvent_value(self: *@This(), event: *Event, value: u64) void {
         return objc.msgSend(self, "encodeSignalEvent:value:", void, .{ event, value });
     }
     /// `-[MTLCommandBuffer parallelRenderCommandEncoderWithDescriptor:]
-    pub fn parallelRenderCommandEncoderWithDescriptor_(self: *@This(), render_pass_descriptor: *RenderPassDescriptor) ?*ParallelRenderCommandEncoder {
+    pub fn parallelRenderCommandEncoderWithDescriptor(self: *@This(), render_pass_descriptor: *RenderPassDescriptor) ?*ParallelRenderCommandEncoder {
         return objc.msgSend(self, "parallelRenderCommandEncoderWithDescriptor:", ?*ParallelRenderCommandEncoder, .{render_pass_descriptor});
     }
     /// `-[MTLCommandBuffer resourceStateCommandEncoder]
@@ -4061,7 +4181,7 @@ pub const CommandBuffer = opaque {
         return objc.msgSend(self, "resourceStateCommandEncoder", ?*ResourceStateCommandEncoder, .{});
     }
     /// `-[MTLCommandBuffer resourceStateCommandEncoderWithDescriptor:]
-    pub fn resourceStateCommandEncoderWithDescriptor_(self: *@This(), resource_state_pass_descriptor: *ResourceStatePassDescriptor) ?*ResourceStateCommandEncoder {
+    pub fn resourceStateCommandEncoderWithDescriptor(self: *@This(), resource_state_pass_descriptor: *ResourceStatePassDescriptor) ?*ResourceStateCommandEncoder {
         return objc.msgSend(self, "resourceStateCommandEncoderWithDescriptor:", ?*ResourceStateCommandEncoder, .{resource_state_pass_descriptor});
     }
     /// `-[MTLCommandBuffer accelerationStructureCommandEncoder]
@@ -4069,11 +4189,11 @@ pub const CommandBuffer = opaque {
         return objc.msgSend(self, "accelerationStructureCommandEncoder", ?*AccelerationStructureCommandEncoder, .{});
     }
     /// `-[MTLCommandBuffer accelerationStructureCommandEncoderWithDescriptor:]
-    pub fn accelerationStructureCommandEncoderWithDescriptor_(self: *@This(), descriptor: *AccelerationStructurePassDescriptor) *AccelerationStructureCommandEncoder {
+    pub fn accelerationStructureCommandEncoderWithDescriptor(self: *@This(), descriptor: *AccelerationStructurePassDescriptor) *AccelerationStructureCommandEncoder {
         return objc.msgSend(self, "accelerationStructureCommandEncoderWithDescriptor:", *AccelerationStructureCommandEncoder, .{descriptor});
     }
     /// `-[MTLCommandBuffer pushDebugGroup:]
-    pub fn pushDebugGroup_(self: *@This(), string: *ns.String) void {
+    pub fn pushDebugGroup(self: *@This(), string: *ns.String) void {
         return objc.msgSend(self, "pushDebugGroup:", void, .{string});
     }
     /// `-[MTLCommandBuffer popDebugGroup]
@@ -4101,7 +4221,7 @@ pub const CommandBuffer = opaque {
         return objc.msgSend(self, "label", ?*ns.String, .{});
     }
     /// `-[MTLCommandBuffer setLabel:]
-    pub fn setLabel_(self: *@This(), str: ?*ns.String) void {
+    pub fn setLabel(self: *@This(), str: ?*ns.String) void {
         return objc.msgSend(self, "setLabel:", void, .{str});
     }
     /// `-[MTLCommandBuffer kernelStartTime]
@@ -4136,18 +4256,21 @@ pub const CommandBuffer = opaque {
 
 /// `MTLCommandEncoder`
 pub const CommandEncoder = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `-[MTLCommandEncoder endEncoding]
     pub fn endEncoding(self: *@This()) void {
         return objc.msgSend(self, "endEncoding", void, .{});
     }
     /// `-[MTLCommandEncoder insertDebugSignpost:]
-    pub fn insertDebugSignpost_(self: *@This(), string: *ns.String) void {
+    pub fn insertDebugSignpost(self: *@This(), string: *ns.String) void {
         return objc.msgSend(self, "insertDebugSignpost:", void, .{string});
     }
     /// `-[MTLCommandEncoder pushDebugGroup:]
-    pub fn pushDebugGroup_(self: *@This(), string: *ns.String) void {
+    pub fn pushDebugGroup(self: *@This(), string: *ns.String) void {
         return objc.msgSend(self, "pushDebugGroup:", void, .{string});
     }
     /// `-[MTLCommandEncoder popDebugGroup]
@@ -4163,21 +4286,24 @@ pub const CommandEncoder = opaque {
         return objc.msgSend(self, "label", ?*ns.String, .{});
     }
     /// `-[MTLCommandEncoder setLabel:]
-    pub fn setLabel_(self: *@This(), str: ?*ns.String) void {
+    pub fn setLabel(self: *@This(), str: ?*ns.String) void {
         return objc.msgSend(self, "setLabel:", void, .{str});
     }
 };
 
 /// `MTLCommandQueue`
 pub const CommandQueue = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `-[MTLCommandQueue commandBuffer]
     pub fn commandBuffer(self: *@This()) ?*CommandBuffer {
         return objc.msgSend(self, "commandBuffer", ?*CommandBuffer, .{});
     }
     /// `-[MTLCommandQueue commandBufferWithDescriptor:]
-    pub fn commandBufferWithDescriptor_(self: *@This(), descriptor: *CommandBufferDescriptor) ?*CommandBuffer {
+    pub fn commandBufferWithDescriptor(self: *@This(), descriptor: *CommandBufferDescriptor) ?*CommandBuffer {
         return objc.msgSend(self, "commandBufferWithDescriptor:", ?*CommandBuffer, .{descriptor});
     }
     /// `-[MTLCommandQueue commandBufferWithUnretainedReferences]
@@ -4193,7 +4319,7 @@ pub const CommandQueue = opaque {
         return objc.msgSend(self, "label", ?*ns.String, .{});
     }
     /// `-[MTLCommandQueue setLabel:]
-    pub fn setLabel_(self: *@This(), str: ?*ns.String) void {
+    pub fn setLabel(self: *@This(), str: ?*ns.String) void {
         return objc.msgSend(self, "setLabel:", void, .{str});
     }
     /// `-[MTLCommandQueue device]
@@ -4204,158 +4330,161 @@ pub const CommandQueue = opaque {
 
 /// `MTLComputeCommandEncoder`
 pub const ComputeCommandEncoder = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), CommandEncoder);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), CommandEncoder);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `-[MTLComputeCommandEncoder setComputePipelineState:]
-    pub fn setComputePipelineState_(self: *@This(), state: *ComputePipelineState) void {
+    pub fn setComputePipelineState(self: *@This(), state: *ComputePipelineState) void {
         return objc.msgSend(self, "setComputePipelineState:", void, .{state});
     }
     /// `-[MTLComputeCommandEncoder setBytes:length:atIndex:]
-    pub fn setBytes_length_atIndex_(self: *@This(), bytes: *const anyopaque, length: usize, index: usize) void {
+    pub fn setBytes_length_atIndex(self: *@This(), bytes: *const anyopaque, length: usize, index: usize) void {
         return objc.msgSend(self, "setBytes:length:atIndex:", void, .{ bytes, length, index });
     }
     /// `-[MTLComputeCommandEncoder setBuffer:offset:atIndex:]
-    pub fn setBuffer_offset_atIndex_(self: *@This(), buffer: ?*Buffer, offset: usize, index: usize) void {
+    pub fn setBuffer_offset_atIndex(self: *@This(), buffer: ?*Buffer, offset: usize, index: usize) void {
         return objc.msgSend(self, "setBuffer:offset:atIndex:", void, .{ buffer, offset, index });
     }
     /// `-[MTLComputeCommandEncoder setBufferOffset:atIndex:]
-    pub fn setBufferOffset_atIndex_(self: *@This(), offset: usize, index: usize) void {
+    pub fn setBufferOffset_atIndex(self: *@This(), offset: usize, index: usize) void {
         return objc.msgSend(self, "setBufferOffset:atIndex:", void, .{ offset, index });
     }
     /// `-[MTLComputeCommandEncoder setBuffers:offsets:withRange:]
-    pub fn setBuffers_offsets_withRange_(self: *@This(), buffers: [*]?*const Buffer, offsets: *const usize, range: ns.Range) void {
+    pub fn setBuffers_offsets_withRange(self: *@This(), buffers: [*]?*const Buffer, offsets: *const usize, range: ns.Range) void {
         return objc.msgSend(self, "setBuffers:offsets:withRange:", void, .{ buffers, offsets, range });
     }
     /// `-[MTLComputeCommandEncoder setBuffer:offset:attributeStride:atIndex:]
-    pub fn setBuffer_offset_attributeStride_atIndex_(self: *@This(), buffer: *Buffer, offset: usize, stride: usize, index: usize) void {
+    pub fn setBuffer_offset_attributeStride_atIndex(self: *@This(), buffer: *Buffer, offset: usize, stride: usize, index: usize) void {
         return objc.msgSend(self, "setBuffer:offset:attributeStride:atIndex:", void, .{ buffer, offset, stride, index });
     }
     /// `-[MTLComputeCommandEncoder setBuffers:offsets:attributeStrides:withRange:]
-    pub fn setBuffers_offsets_attributeStrides_withRange_(self: *@This(), buffers: [*]?*const Buffer, offsets: *const usize, strides: *const usize, range: ns.Range) void {
+    pub fn setBuffers_offsets_attributeStrides_withRange(self: *@This(), buffers: [*]?*const Buffer, offsets: *const usize, strides: *const usize, range: ns.Range) void {
         return objc.msgSend(self, "setBuffers:offsets:attributeStrides:withRange:", void, .{ buffers, offsets, strides, range });
     }
     /// `-[MTLComputeCommandEncoder setBufferOffset:attributeStride:atIndex:]
-    pub fn setBufferOffset_attributeStride_atIndex_(self: *@This(), offset: usize, stride: usize, index: usize) void {
+    pub fn setBufferOffset_attributeStride_atIndex(self: *@This(), offset: usize, stride: usize, index: usize) void {
         return objc.msgSend(self, "setBufferOffset:attributeStride:atIndex:", void, .{ offset, stride, index });
     }
     /// `-[MTLComputeCommandEncoder setBytes:length:attributeStride:atIndex:]
-    pub fn setBytes_length_attributeStride_atIndex_(self: *@This(), bytes: *const anyopaque, length: usize, stride: usize, index: usize) void {
+    pub fn setBytes_length_attributeStride_atIndex(self: *@This(), bytes: *const anyopaque, length: usize, stride: usize, index: usize) void {
         return objc.msgSend(self, "setBytes:length:attributeStride:atIndex:", void, .{ bytes, length, stride, index });
     }
     /// `-[MTLComputeCommandEncoder setVisibleFunctionTable:atBufferIndex:]
-    pub fn setVisibleFunctionTable_atBufferIndex_(self: *@This(), visible_function_table: ?*VisibleFunctionTable, buffer_index: usize) void {
+    pub fn setVisibleFunctionTable_atBufferIndex(self: *@This(), visible_function_table: ?*VisibleFunctionTable, buffer_index: usize) void {
         return objc.msgSend(self, "setVisibleFunctionTable:atBufferIndex:", void, .{ visible_function_table, buffer_index });
     }
     /// `-[MTLComputeCommandEncoder setVisibleFunctionTables:withBufferRange:]
-    pub fn setVisibleFunctionTables_withBufferRange_(self: *@This(), visible_function_tables: [*]?*const VisibleFunctionTable, range: ns.Range) void {
+    pub fn setVisibleFunctionTables_withBufferRange(self: *@This(), visible_function_tables: [*]?*const VisibleFunctionTable, range: ns.Range) void {
         return objc.msgSend(self, "setVisibleFunctionTables:withBufferRange:", void, .{ visible_function_tables, range });
     }
     /// `-[MTLComputeCommandEncoder setIntersectionFunctionTable:atBufferIndex:]
-    pub fn setIntersectionFunctionTable_atBufferIndex_(self: *@This(), intersection_function_table: ?*IntersectionFunctionTable, buffer_index: usize) void {
+    pub fn setIntersectionFunctionTable_atBufferIndex(self: *@This(), intersection_function_table: ?*IntersectionFunctionTable, buffer_index: usize) void {
         return objc.msgSend(self, "setIntersectionFunctionTable:atBufferIndex:", void, .{ intersection_function_table, buffer_index });
     }
     /// `-[MTLComputeCommandEncoder setIntersectionFunctionTables:withBufferRange:]
-    pub fn setIntersectionFunctionTables_withBufferRange_(self: *@This(), intersection_function_tables: [*]?*const IntersectionFunctionTable, range: ns.Range) void {
+    pub fn setIntersectionFunctionTables_withBufferRange(self: *@This(), intersection_function_tables: [*]?*const IntersectionFunctionTable, range: ns.Range) void {
         return objc.msgSend(self, "setIntersectionFunctionTables:withBufferRange:", void, .{ intersection_function_tables, range });
     }
     /// `-[MTLComputeCommandEncoder setAccelerationStructure:atBufferIndex:]
-    pub fn setAccelerationStructure_atBufferIndex_(self: *@This(), acceleration_structure: ?*AccelerationStructure, buffer_index: usize) void {
+    pub fn setAccelerationStructure_atBufferIndex(self: *@This(), acceleration_structure: ?*AccelerationStructure, buffer_index: usize) void {
         return objc.msgSend(self, "setAccelerationStructure:atBufferIndex:", void, .{ acceleration_structure, buffer_index });
     }
     /// `-[MTLComputeCommandEncoder setTexture:atIndex:]
-    pub fn setTexture_atIndex_(self: *@This(), texture: ?*Texture, index: usize) void {
+    pub fn setTexture_atIndex(self: *@This(), texture: ?*Texture, index: usize) void {
         return objc.msgSend(self, "setTexture:atIndex:", void, .{ texture, index });
     }
     /// `-[MTLComputeCommandEncoder setTextures:withRange:]
-    pub fn setTextures_withRange_(self: *@This(), textures: [*]?*const Texture, range: ns.Range) void {
+    pub fn setTextures_withRange(self: *@This(), textures: [*]?*const Texture, range: ns.Range) void {
         return objc.msgSend(self, "setTextures:withRange:", void, .{ textures, range });
     }
     /// `-[MTLComputeCommandEncoder setSamplerState:atIndex:]
-    pub fn setSamplerState_atIndex_(self: *@This(), sampler: ?*SamplerState, index: usize) void {
+    pub fn setSamplerState_atIndex(self: *@This(), sampler: ?*SamplerState, index: usize) void {
         return objc.msgSend(self, "setSamplerState:atIndex:", void, .{ sampler, index });
     }
     /// `-[MTLComputeCommandEncoder setSamplerStates:withRange:]
-    pub fn setSamplerStates_withRange_(self: *@This(), samplers: [*]?*const SamplerState, range: ns.Range) void {
+    pub fn setSamplerStates_withRange(self: *@This(), samplers: [*]?*const SamplerState, range: ns.Range) void {
         return objc.msgSend(self, "setSamplerStates:withRange:", void, .{ samplers, range });
     }
     /// `-[MTLComputeCommandEncoder setSamplerState:lodMinClamp:lodMaxClamp:atIndex:]
-    pub fn setSamplerState_lodMinClamp_lodMaxClamp_atIndex_(self: *@This(), sampler: ?*SamplerState, lod_min_clamp: f32, lod_max_clamp: f32, index: usize) void {
+    pub fn setSamplerState_lodMinClamp_lodMaxClamp_atIndex(self: *@This(), sampler: ?*SamplerState, lod_min_clamp: f32, lod_max_clamp: f32, index: usize) void {
         return objc.msgSend(self, "setSamplerState:lodMinClamp:lodMaxClamp:atIndex:", void, .{ sampler, lod_min_clamp, lod_max_clamp, index });
     }
     /// `-[MTLComputeCommandEncoder setSamplerStates:lodMinClamps:lodMaxClamps:withRange:]
-    pub fn setSamplerStates_lodMinClamps_lodMaxClamps_withRange_(self: *@This(), samplers: [*]?*const SamplerState, lod_min_clamps: *const f32, lod_max_clamps: *const f32, range: ns.Range) void {
+    pub fn setSamplerStates_lodMinClamps_lodMaxClamps_withRange(self: *@This(), samplers: [*]?*const SamplerState, lod_min_clamps: *const f32, lod_max_clamps: *const f32, range: ns.Range) void {
         return objc.msgSend(self, "setSamplerStates:lodMinClamps:lodMaxClamps:withRange:", void, .{ samplers, lod_min_clamps, lod_max_clamps, range });
     }
     /// `-[MTLComputeCommandEncoder setThreadgroupMemoryLength:atIndex:]
-    pub fn setThreadgroupMemoryLength_atIndex_(self: *@This(), length: usize, index: usize) void {
+    pub fn setThreadgroupMemoryLength_atIndex(self: *@This(), length: usize, index: usize) void {
         return objc.msgSend(self, "setThreadgroupMemoryLength:atIndex:", void, .{ length, index });
     }
     /// `-[MTLComputeCommandEncoder setImageblockWidth:height:]
-    pub fn setImageblockWidth_height_(self: *@This(), width: usize, height: usize) void {
+    pub fn setImageblockWidth_height(self: *@This(), width: usize, height: usize) void {
         return objc.msgSend(self, "setImageblockWidth:height:", void, .{ width, height });
     }
     /// `-[MTLComputeCommandEncoder setStageInRegion:]
-    pub fn setStageInRegion_(self: *@This(), region: Region) void {
+    pub fn setStageInRegion(self: *@This(), region: Region) void {
         return objc.msgSend(self, "setStageInRegion:", void, .{region});
     }
     /// `-[MTLComputeCommandEncoder setStageInRegionWithIndirectBuffer:indirectBufferOffset:]
-    pub fn setStageInRegionWithIndirectBuffer_indirectBufferOffset_(self: *@This(), indirect_buffer: *Buffer, indirect_buffer_offset: usize) void {
+    pub fn setStageInRegionWithIndirectBuffer_indirectBufferOffset(self: *@This(), indirect_buffer: *Buffer, indirect_buffer_offset: usize) void {
         return objc.msgSend(self, "setStageInRegionWithIndirectBuffer:indirectBufferOffset:", void, .{ indirect_buffer, indirect_buffer_offset });
     }
     /// `-[MTLComputeCommandEncoder dispatchThreadgroups:threadsPerThreadgroup:]
-    pub fn dispatchThreadgroups_threadsPerThreadgroup_(self: *@This(), threadgroups_per_grid: Size, threads_per_threadgroup: Size) void {
+    pub fn dispatchThreadgroups_threadsPerThreadgroup(self: *@This(), threadgroups_per_grid: Size, threads_per_threadgroup: Size) void {
         return objc.msgSend(self, "dispatchThreadgroups:threadsPerThreadgroup:", void, .{ threadgroups_per_grid, threads_per_threadgroup });
     }
     /// `-[MTLComputeCommandEncoder dispatchThreadgroupsWithIndirectBuffer:indirectBufferOffset:threadsPerThreadgroup:]
-    pub fn dispatchThreadgroupsWithIndirectBuffer_indirectBufferOffset_threadsPerThreadgroup_(self: *@This(), indirect_buffer: *Buffer, indirect_buffer_offset: usize, threads_per_threadgroup: Size) void {
+    pub fn dispatchThreadgroupsWithIndirectBuffer_indirectBufferOffset_threadsPerThreadgroup(self: *@This(), indirect_buffer: *Buffer, indirect_buffer_offset: usize, threads_per_threadgroup: Size) void {
         return objc.msgSend(self, "dispatchThreadgroupsWithIndirectBuffer:indirectBufferOffset:threadsPerThreadgroup:", void, .{ indirect_buffer, indirect_buffer_offset, threads_per_threadgroup });
     }
     /// `-[MTLComputeCommandEncoder dispatchThreads:threadsPerThreadgroup:]
-    pub fn dispatchThreads_threadsPerThreadgroup_(self: *@This(), threads_per_grid: Size, threads_per_threadgroup: Size) void {
+    pub fn dispatchThreads_threadsPerThreadgroup(self: *@This(), threads_per_grid: Size, threads_per_threadgroup: Size) void {
         return objc.msgSend(self, "dispatchThreads:threadsPerThreadgroup:", void, .{ threads_per_grid, threads_per_threadgroup });
     }
     /// `-[MTLComputeCommandEncoder updateFence:]
-    pub fn updateFence_(self: *@This(), fence: *Fence) void {
+    pub fn updateFence(self: *@This(), fence: *Fence) void {
         return objc.msgSend(self, "updateFence:", void, .{fence});
     }
     /// `-[MTLComputeCommandEncoder waitForFence:]
-    pub fn waitForFence_(self: *@This(), fence: *Fence) void {
+    pub fn waitForFence(self: *@This(), fence: *Fence) void {
         return objc.msgSend(self, "waitForFence:", void, .{fence});
     }
     /// `-[MTLComputeCommandEncoder useResource:usage:]
-    pub fn useResource_usage_(self: *@This(), resource: *Resource, usage: ResourceUsage) void {
+    pub fn useResource_usage(self: *@This(), resource: *Resource, usage: ResourceUsage) void {
         return objc.msgSend(self, "useResource:usage:", void, .{ resource, usage });
     }
     /// `-[MTLComputeCommandEncoder useResources:count:usage:]
-    pub fn useResources_count_usage_(self: *@This(), resources: [*]*const Resource, count: usize, usage: ResourceUsage) void {
+    pub fn useResources_count_usage(self: *@This(), resources: [*]*const Resource, count: usize, usage: ResourceUsage) void {
         return objc.msgSend(self, "useResources:count:usage:", void, .{ resources, count, usage });
     }
     /// `-[MTLComputeCommandEncoder useHeap:]
-    pub fn useHeap_(self: *@This(), heap: *Heap) void {
+    pub fn useHeap(self: *@This(), heap: *Heap) void {
         return objc.msgSend(self, "useHeap:", void, .{heap});
     }
     /// `-[MTLComputeCommandEncoder useHeaps:count:]
-    pub fn useHeaps_count_(self: *@This(), heaps: [*]*const Heap, count: usize) void {
+    pub fn useHeaps_count(self: *@This(), heaps: [*]*const Heap, count: usize) void {
         return objc.msgSend(self, "useHeaps:count:", void, .{ heaps, count });
     }
     /// `-[MTLComputeCommandEncoder executeCommandsInBuffer:withRange:]
-    pub fn executeCommandsInBuffer_withRange_(self: *@This(), indirect_command_buffer: *IndirectCommandBuffer, execution_range: ns.Range) void {
+    pub fn executeCommandsInBuffer_withRange(self: *@This(), indirect_command_buffer: *IndirectCommandBuffer, execution_range: ns.Range) void {
         return objc.msgSend(self, "executeCommandsInBuffer:withRange:", void, .{ indirect_command_buffer, execution_range });
     }
     /// `-[MTLComputeCommandEncoder executeCommandsInBuffer:indirectBuffer:indirectBufferOffset:]
-    pub fn executeCommandsInBuffer_indirectBuffer_indirectBufferOffset_(self: *@This(), indirect_commandbuffer: *IndirectCommandBuffer, indirect_range_buffer: *Buffer, indirect_buffer_offset: usize) void {
+    pub fn executeCommandsInBuffer_indirectBuffer_indirectBufferOffset(self: *@This(), indirect_commandbuffer: *IndirectCommandBuffer, indirect_range_buffer: *Buffer, indirect_buffer_offset: usize) void {
         return objc.msgSend(self, "executeCommandsInBuffer:indirectBuffer:indirectBufferOffset:", void, .{ indirect_commandbuffer, indirect_range_buffer, indirect_buffer_offset });
     }
     /// `-[MTLComputeCommandEncoder memoryBarrierWithScope:]
-    pub fn memoryBarrierWithScope_(self: *@This(), scope: BarrierScope) void {
+    pub fn memoryBarrierWithScope(self: *@This(), scope: BarrierScope) void {
         return objc.msgSend(self, "memoryBarrierWithScope:", void, .{scope});
     }
     /// `-[MTLComputeCommandEncoder memoryBarrierWithResources:count:]
-    pub fn memoryBarrierWithResources_count_(self: *@This(), resources: [*]*const Resource, count: usize) void {
+    pub fn memoryBarrierWithResources_count(self: *@This(), resources: [*]*const Resource, count: usize) void {
         return objc.msgSend(self, "memoryBarrierWithResources:count:", void, .{ resources, count });
     }
     /// `-[MTLComputeCommandEncoder sampleCountersInBuffer:atSampleIndex:withBarrier:]
-    pub fn sampleCountersInBuffer_atSampleIndex_withBarrier_(self: *@This(), sample_buffer: *CounterSampleBuffer, sample_index: usize, barrier: bool) void {
+    pub fn sampleCountersInBuffer_atSampleIndex_withBarrier(self: *@This(), sample_buffer: *CounterSampleBuffer, sample_index: usize, barrier: bool) void {
         return objc.msgSend(self, "sampleCountersInBuffer:atSampleIndex:withBarrier:", void, .{ sample_buffer, sample_index, barrier });
     }
     /// `-[MTLComputeCommandEncoder dispatchType]
@@ -4366,7 +4495,10 @@ pub const ComputeCommandEncoder = opaque {
 
 /// `MTLComputePassSampleBufferAttachmentDescriptor`
 pub const ComputePassSampleBufferAttachmentDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLComputePassSampleBufferAttachmentDescriptor", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == ns.Copying) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -4382,7 +4514,7 @@ pub const ComputePassSampleBufferAttachmentDescriptor = opaque {
         return objc.msgSend(self, "sampleBuffer", ?*CounterSampleBuffer, .{});
     }
     /// `-[MTLComputePassSampleBufferAttachmentDescriptor setSampleBuffer:]
-    pub fn setSampleBuffer_(self: *@This(), sample_buffer: ?*CounterSampleBuffer) void {
+    pub fn setSampleBuffer(self: *@This(), sample_buffer: ?*CounterSampleBuffer) void {
         return objc.msgSend(self, "setSampleBuffer:", void, .{sample_buffer});
     }
     /// `-[MTLComputePassSampleBufferAttachmentDescriptor startOfEncoderSampleIndex]
@@ -4390,7 +4522,7 @@ pub const ComputePassSampleBufferAttachmentDescriptor = opaque {
         return objc.msgSend(self, "startOfEncoderSampleIndex", usize, .{});
     }
     /// `-[MTLComputePassSampleBufferAttachmentDescriptor setStartOfEncoderSampleIndex:]
-    pub fn setStartOfEncoderSampleIndex_(self: *@This(), start_of_encoder_sample_index: usize) void {
+    pub fn setStartOfEncoderSampleIndex(self: *@This(), start_of_encoder_sample_index: usize) void {
         return objc.msgSend(self, "setStartOfEncoderSampleIndex:", void, .{start_of_encoder_sample_index});
     }
     /// `-[MTLComputePassSampleBufferAttachmentDescriptor endOfEncoderSampleIndex]
@@ -4398,15 +4530,18 @@ pub const ComputePassSampleBufferAttachmentDescriptor = opaque {
         return objc.msgSend(self, "endOfEncoderSampleIndex", usize, .{});
     }
     /// `-[MTLComputePassSampleBufferAttachmentDescriptor setEndOfEncoderSampleIndex:]
-    pub fn setEndOfEncoderSampleIndex_(self: *@This(), end_of_encoder_sample_index: usize) void {
+    pub fn setEndOfEncoderSampleIndex(self: *@This(), end_of_encoder_sample_index: usize) void {
         return objc.msgSend(self, "setEndOfEncoderSampleIndex:", void, .{end_of_encoder_sample_index});
     }
 };
 
 /// `MTLComputePassSampleBufferAttachmentDescriptorArray`
 pub const ComputePassSampleBufferAttachmentDescriptorArray = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternClass("MTLComputePassSampleBufferAttachmentDescriptorArray", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `+[MTLComputePassSampleBufferAttachmentDescriptorArray new]`
     pub const new = InternalInfo.new;
     /// `+[MTLComputePassSampleBufferAttachmentDescriptorArray alloc]`
@@ -4414,18 +4549,21 @@ pub const ComputePassSampleBufferAttachmentDescriptorArray = opaque {
     /// `[[MTLComputePassSampleBufferAttachmentDescriptorArray alloc] init]`
     pub const allocInit = InternalInfo.allocInit;
     /// `-[MTLComputePassSampleBufferAttachmentDescriptorArray objectAtIndexedSubscript:]
-    pub fn objectAtIndexedSubscript_(self: *@This(), attachment_index: usize) *ComputePassSampleBufferAttachmentDescriptor {
+    pub fn objectAtIndexedSubscript(self: *@This(), attachment_index: usize) *ComputePassSampleBufferAttachmentDescriptor {
         return objc.msgSend(self, "objectAtIndexedSubscript:", *ComputePassSampleBufferAttachmentDescriptor, .{attachment_index});
     }
     /// `-[MTLComputePassSampleBufferAttachmentDescriptorArray setObject:atIndexedSubscript:]
-    pub fn setObject_atIndexedSubscript_(self: *@This(), attachment: ?*ComputePassSampleBufferAttachmentDescriptor, attachment_index: usize) void {
+    pub fn setObject_atIndexedSubscript(self: *@This(), attachment: ?*ComputePassSampleBufferAttachmentDescriptor, attachment_index: usize) void {
         return objc.msgSend(self, "setObject:atIndexedSubscript:", void, .{ attachment, attachment_index });
     }
 };
 
 /// `MTLComputePassDescriptor`
 pub const ComputePassDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLComputePassDescriptor", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == ns.Copying) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -4445,7 +4583,7 @@ pub const ComputePassDescriptor = opaque {
         return objc.msgSend(self, "dispatchType", DispatchType, .{});
     }
     /// `-[MTLComputePassDescriptor setDispatchType:]
-    pub fn setDispatchType_(self: *@This(), dispatch_type: DispatchType) void {
+    pub fn setDispatchType(self: *@This(), dispatch_type: DispatchType) void {
         return objc.msgSend(self, "setDispatchType:", void, .{dispatch_type});
     }
     /// `-[MTLComputePassDescriptor sampleBufferAttachments]
@@ -4456,8 +4594,11 @@ pub const ComputePassDescriptor = opaque {
 
 /// `MTLComputePipelineReflection`
 pub const ComputePipelineReflection = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternClass("MTLComputePipelineReflection", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `+[MTLComputePipelineReflection new]`
     pub const new = InternalInfo.new;
     /// `+[MTLComputePipelineReflection alloc]`
@@ -4476,7 +4617,10 @@ pub const ComputePipelineReflection = opaque {
 
 /// `MTLComputePipelineDescriptor`
 pub const ComputePipelineDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLComputePipelineDescriptor", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == ns.Copying) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -4496,7 +4640,7 @@ pub const ComputePipelineDescriptor = opaque {
         return objc.msgSend(self, "label", ?*ns.String, .{});
     }
     /// `-[MTLComputePipelineDescriptor setLabel:]
-    pub fn setLabel_(self: *@This(), str: ?*ns.String) void {
+    pub fn setLabel(self: *@This(), str: ?*ns.String) void {
         return objc.msgSend(self, "setLabel:", void, .{str});
     }
     /// `-[MTLComputePipelineDescriptor computeFunction]
@@ -4504,7 +4648,7 @@ pub const ComputePipelineDescriptor = opaque {
         return objc.msgSend(self, "computeFunction", ?*Function, .{});
     }
     /// `-[MTLComputePipelineDescriptor setComputeFunction:]
-    pub fn setComputeFunction_(self: *@This(), compute_function: ?*Function) void {
+    pub fn setComputeFunction(self: *@This(), compute_function: ?*Function) void {
         return objc.msgSend(self, "setComputeFunction:", void, .{compute_function});
     }
     /// `-[MTLComputePipelineDescriptor threadGroupSizeIsMultipleOfThreadExecutionWidth]
@@ -4512,7 +4656,7 @@ pub const ComputePipelineDescriptor = opaque {
         return objc.msgSend(self, "threadGroupSizeIsMultipleOfThreadExecutionWidth", bool, .{});
     }
     /// `-[MTLComputePipelineDescriptor setThreadGroupSizeIsMultipleOfThreadExecutionWidth:]
-    pub fn setThreadGroupSizeIsMultipleOfThreadExecutionWidth_(self: *@This(), thread_group_size_is_multiple_of_thread_execution_width: bool) void {
+    pub fn setThreadGroupSizeIsMultipleOfThreadExecutionWidth(self: *@This(), thread_group_size_is_multiple_of_thread_execution_width: bool) void {
         return objc.msgSend(self, "setThreadGroupSizeIsMultipleOfThreadExecutionWidth:", void, .{thread_group_size_is_multiple_of_thread_execution_width});
     }
     /// `-[MTLComputePipelineDescriptor maxTotalThreadsPerThreadgroup]
@@ -4520,7 +4664,7 @@ pub const ComputePipelineDescriptor = opaque {
         return objc.msgSend(self, "maxTotalThreadsPerThreadgroup", usize, .{});
     }
     /// `-[MTLComputePipelineDescriptor setMaxTotalThreadsPerThreadgroup:]
-    pub fn setMaxTotalThreadsPerThreadgroup_(self: *@This(), max_total_threads_per_threadgroup: usize) void {
+    pub fn setMaxTotalThreadsPerThreadgroup(self: *@This(), max_total_threads_per_threadgroup: usize) void {
         return objc.msgSend(self, "setMaxTotalThreadsPerThreadgroup:", void, .{max_total_threads_per_threadgroup});
     }
     /// `-[MTLComputePipelineDescriptor stageInputDescriptor]
@@ -4528,7 +4672,7 @@ pub const ComputePipelineDescriptor = opaque {
         return objc.msgSend(self, "stageInputDescriptor", ?*StageInputOutputDescriptor, .{});
     }
     /// `-[MTLComputePipelineDescriptor setStageInputDescriptor:]
-    pub fn setStageInputDescriptor_(self: *@This(), stage_input_descriptor: ?*StageInputOutputDescriptor) void {
+    pub fn setStageInputDescriptor(self: *@This(), stage_input_descriptor: ?*StageInputOutputDescriptor) void {
         return objc.msgSend(self, "setStageInputDescriptor:", void, .{stage_input_descriptor});
     }
     /// `-[MTLComputePipelineDescriptor buffers]
@@ -4540,7 +4684,7 @@ pub const ComputePipelineDescriptor = opaque {
         return objc.msgSend(self, "supportIndirectCommandBuffers", bool, .{});
     }
     /// `-[MTLComputePipelineDescriptor setSupportIndirectCommandBuffers:]
-    pub fn setSupportIndirectCommandBuffers_(self: *@This(), support_indirect_command_buffers: bool) void {
+    pub fn setSupportIndirectCommandBuffers(self: *@This(), support_indirect_command_buffers: bool) void {
         return objc.msgSend(self, "setSupportIndirectCommandBuffers:", void, .{support_indirect_command_buffers});
     }
     /// `-[MTLComputePipelineDescriptor insertLibraries]
@@ -4548,7 +4692,7 @@ pub const ComputePipelineDescriptor = opaque {
         return objc.msgSend(self, "insertLibraries", ?*ns.Array(*DynamicLibrary), .{});
     }
     /// `-[MTLComputePipelineDescriptor setInsertLibraries:]
-    pub fn setInsertLibraries_(self: *@This(), insert_libraries: ?*ns.Array(*DynamicLibrary)) void {
+    pub fn setInsertLibraries(self: *@This(), insert_libraries: ?*ns.Array(*DynamicLibrary)) void {
         return objc.msgSend(self, "setInsertLibraries:", void, .{insert_libraries});
     }
     /// `-[MTLComputePipelineDescriptor preloadedLibraries]
@@ -4556,7 +4700,7 @@ pub const ComputePipelineDescriptor = opaque {
         return objc.msgSend(self, "preloadedLibraries", *ns.Array(*DynamicLibrary), .{});
     }
     /// `-[MTLComputePipelineDescriptor setPreloadedLibraries:]
-    pub fn setPreloadedLibraries_(self: *@This(), preloaded_libraries: *ns.Array(*DynamicLibrary)) void {
+    pub fn setPreloadedLibraries(self: *@This(), preloaded_libraries: *ns.Array(*DynamicLibrary)) void {
         return objc.msgSend(self, "setPreloadedLibraries:", void, .{preloaded_libraries});
     }
     /// `-[MTLComputePipelineDescriptor binaryArchives]
@@ -4564,7 +4708,7 @@ pub const ComputePipelineDescriptor = opaque {
         return objc.msgSend(self, "binaryArchives", ?*ns.Array(*BinaryArchive), .{});
     }
     /// `-[MTLComputePipelineDescriptor setBinaryArchives:]
-    pub fn setBinaryArchives_(self: *@This(), binary_archives: ?*ns.Array(*BinaryArchive)) void {
+    pub fn setBinaryArchives(self: *@This(), binary_archives: ?*ns.Array(*BinaryArchive)) void {
         return objc.msgSend(self, "setBinaryArchives:", void, .{binary_archives});
     }
     /// `-[MTLComputePipelineDescriptor linkedFunctions]
@@ -4572,7 +4716,7 @@ pub const ComputePipelineDescriptor = opaque {
         return objc.msgSend(self, "linkedFunctions", ?*LinkedFunctions, .{});
     }
     /// `-[MTLComputePipelineDescriptor setLinkedFunctions:]
-    pub fn setLinkedFunctions_(self: *@This(), linked_functions: ?*LinkedFunctions) void {
+    pub fn setLinkedFunctions(self: *@This(), linked_functions: ?*LinkedFunctions) void {
         return objc.msgSend(self, "setLinkedFunctions:", void, .{linked_functions});
     }
     /// `-[MTLComputePipelineDescriptor supportAddingBinaryFunctions]
@@ -4580,7 +4724,7 @@ pub const ComputePipelineDescriptor = opaque {
         return objc.msgSend(self, "supportAddingBinaryFunctions", bool, .{});
     }
     /// `-[MTLComputePipelineDescriptor setSupportAddingBinaryFunctions:]
-    pub fn setSupportAddingBinaryFunctions_(self: *@This(), support_adding_binary_functions: bool) void {
+    pub fn setSupportAddingBinaryFunctions(self: *@This(), support_adding_binary_functions: bool) void {
         return objc.msgSend(self, "setSupportAddingBinaryFunctions:", void, .{support_adding_binary_functions});
     }
     /// `-[MTLComputePipelineDescriptor maxCallStackDepth]
@@ -4588,33 +4732,36 @@ pub const ComputePipelineDescriptor = opaque {
         return objc.msgSend(self, "maxCallStackDepth", usize, .{});
     }
     /// `-[MTLComputePipelineDescriptor setMaxCallStackDepth:]
-    pub fn setMaxCallStackDepth_(self: *@This(), max_call_stack_depth: usize) void {
+    pub fn setMaxCallStackDepth(self: *@This(), max_call_stack_depth: usize) void {
         return objc.msgSend(self, "setMaxCallStackDepth:", void, .{max_call_stack_depth});
     }
 };
 
 /// `MTLComputePipelineState`
 pub const ComputePipelineState = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `-[MTLComputePipelineState imageblockMemoryLengthForDimensions:]
-    pub fn imageblockMemoryLengthForDimensions_(self: *@This(), imageblock_dimensions: Size) usize {
+    pub fn imageblockMemoryLengthForDimensions(self: *@This(), imageblock_dimensions: Size) usize {
         return objc.msgSend(self, "imageblockMemoryLengthForDimensions:", usize, .{imageblock_dimensions});
     }
     /// `-[MTLComputePipelineState functionHandleWithFunction:]
-    pub fn functionHandleWithFunction_(self: *@This(), function: *Function) ?*FunctionHandle {
+    pub fn functionHandleWithFunction(self: *@This(), function: *Function) ?*FunctionHandle {
         return objc.msgSend(self, "functionHandleWithFunction:", ?*FunctionHandle, .{function});
     }
     /// `-[MTLComputePipelineState newComputePipelineStateWithAdditionalBinaryFunctions:error:]
-    pub fn newComputePipelineStateWithAdditionalBinaryFunctions_error_(self: *@This(), functions: *ns.Array(*Function), err: ?*?*ns.Error) ?*ComputePipelineState {
+    pub fn newComputePipelineStateWithAdditionalBinaryFunctions_error(self: *@This(), functions: *ns.Array(*Function), err: ?*?*ns.Error) ?*ComputePipelineState {
         return objc.msgSend(self, "newComputePipelineStateWithAdditionalBinaryFunctions:error:", ?*ComputePipelineState, .{ functions, err });
     }
     /// `-[MTLComputePipelineState newVisibleFunctionTableWithDescriptor:]
-    pub fn newVisibleFunctionTableWithDescriptor_(self: *@This(), descriptor: *VisibleFunctionTableDescriptor) ?*VisibleFunctionTable {
+    pub fn newVisibleFunctionTableWithDescriptor(self: *@This(), descriptor: *VisibleFunctionTableDescriptor) ?*VisibleFunctionTable {
         return objc.msgSend(self, "newVisibleFunctionTableWithDescriptor:", ?*VisibleFunctionTable, .{descriptor});
     }
     /// `-[MTLComputePipelineState newIntersectionFunctionTableWithDescriptor:]
-    pub fn newIntersectionFunctionTableWithDescriptor_(self: *@This(), descriptor: *IntersectionFunctionTableDescriptor) ?*IntersectionFunctionTable {
+    pub fn newIntersectionFunctionTableWithDescriptor(self: *@This(), descriptor: *IntersectionFunctionTableDescriptor) ?*IntersectionFunctionTable {
         return objc.msgSend(self, "newIntersectionFunctionTableWithDescriptor:", ?*IntersectionFunctionTable, .{descriptor});
     }
     /// `-[MTLComputePipelineState label]
@@ -4649,8 +4796,11 @@ pub const ComputePipelineState = opaque {
 
 /// `MTLCounter`
 pub const Counter = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `-[MTLCounter name]
     pub fn name(self: *@This()) *ns.String {
         return objc.msgSend(self, "name", *ns.String, .{});
@@ -4659,8 +4809,11 @@ pub const Counter = opaque {
 
 /// `MTLCounterSet`
 pub const CounterSet = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `-[MTLCounterSet name]
     pub fn name(self: *@This()) *ns.String {
         return objc.msgSend(self, "name", *ns.String, .{});
@@ -4673,7 +4826,10 @@ pub const CounterSet = opaque {
 
 /// `MTLCounterSampleBufferDescriptor`
 pub const CounterSampleBufferDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLCounterSampleBufferDescriptor", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == ns.Copying) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -4689,7 +4845,7 @@ pub const CounterSampleBufferDescriptor = opaque {
         return objc.msgSend(self, "counterSet", ?*CounterSet, .{});
     }
     /// `-[MTLCounterSampleBufferDescriptor setCounterSet:]
-    pub fn setCounterSet_(self: *@This(), counter_set: ?*CounterSet) void {
+    pub fn setCounterSet(self: *@This(), counter_set: ?*CounterSet) void {
         return objc.msgSend(self, "setCounterSet:", void, .{counter_set});
     }
     /// `-[MTLCounterSampleBufferDescriptor label]
@@ -4697,7 +4853,7 @@ pub const CounterSampleBufferDescriptor = opaque {
         return objc.msgSend(self, "label", *ns.String, .{});
     }
     /// `-[MTLCounterSampleBufferDescriptor setLabel:]
-    pub fn setLabel_(self: *@This(), str: *ns.String) void {
+    pub fn setLabel(self: *@This(), str: *ns.String) void {
         return objc.msgSend(self, "setLabel:", void, .{str});
     }
     /// `-[MTLCounterSampleBufferDescriptor storageMode]
@@ -4705,7 +4861,7 @@ pub const CounterSampleBufferDescriptor = opaque {
         return objc.msgSend(self, "storageMode", StorageMode, .{});
     }
     /// `-[MTLCounterSampleBufferDescriptor setStorageMode:]
-    pub fn setStorageMode_(self: *@This(), storage_mode: StorageMode) void {
+    pub fn setStorageMode(self: *@This(), storage_mode: StorageMode) void {
         return objc.msgSend(self, "setStorageMode:", void, .{storage_mode});
     }
     /// `-[MTLCounterSampleBufferDescriptor sampleCount]
@@ -4713,17 +4869,20 @@ pub const CounterSampleBufferDescriptor = opaque {
         return objc.msgSend(self, "sampleCount", usize, .{});
     }
     /// `-[MTLCounterSampleBufferDescriptor setSampleCount:]
-    pub fn setSampleCount_(self: *@This(), sample_count: usize) void {
+    pub fn setSampleCount(self: *@This(), sample_count: usize) void {
         return objc.msgSend(self, "setSampleCount:", void, .{sample_count});
     }
 };
 
 /// `MTLCounterSampleBuffer`
 pub const CounterSampleBuffer = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `-[MTLCounterSampleBuffer resolveCounterRange:]
-    pub fn resolveCounterRange_(self: *@This(), range: ns.Range) ?*ns.Data {
+    pub fn resolveCounterRange(self: *@This(), range: ns.Range) ?*ns.Data {
         return objc.msgSend(self, "resolveCounterRange:", ?*ns.Data, .{range});
     }
     /// `-[MTLCounterSampleBuffer device]
@@ -4742,7 +4901,10 @@ pub const CounterSampleBuffer = opaque {
 
 /// `MTLStencilDescriptor`
 pub const StencilDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLStencilDescriptor", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == ns.Copying) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -4758,7 +4920,7 @@ pub const StencilDescriptor = opaque {
         return objc.msgSend(self, "stencilCompareFunction", CompareFunction, .{});
     }
     /// `-[MTLStencilDescriptor setStencilCompareFunction:]
-    pub fn setStencilCompareFunction_(self: *@This(), stencil_compare_function: CompareFunction) void {
+    pub fn setStencilCompareFunction(self: *@This(), stencil_compare_function: CompareFunction) void {
         return objc.msgSend(self, "setStencilCompareFunction:", void, .{stencil_compare_function});
     }
     /// `-[MTLStencilDescriptor stencilFailureOperation]
@@ -4766,7 +4928,7 @@ pub const StencilDescriptor = opaque {
         return objc.msgSend(self, "stencilFailureOperation", StencilOperation, .{});
     }
     /// `-[MTLStencilDescriptor setStencilFailureOperation:]
-    pub fn setStencilFailureOperation_(self: *@This(), stencil_failure_operation: StencilOperation) void {
+    pub fn setStencilFailureOperation(self: *@This(), stencil_failure_operation: StencilOperation) void {
         return objc.msgSend(self, "setStencilFailureOperation:", void, .{stencil_failure_operation});
     }
     /// `-[MTLStencilDescriptor depthFailureOperation]
@@ -4774,7 +4936,7 @@ pub const StencilDescriptor = opaque {
         return objc.msgSend(self, "depthFailureOperation", StencilOperation, .{});
     }
     /// `-[MTLStencilDescriptor setDepthFailureOperation:]
-    pub fn setDepthFailureOperation_(self: *@This(), depth_failure_operation: StencilOperation) void {
+    pub fn setDepthFailureOperation(self: *@This(), depth_failure_operation: StencilOperation) void {
         return objc.msgSend(self, "setDepthFailureOperation:", void, .{depth_failure_operation});
     }
     /// `-[MTLStencilDescriptor depthStencilPassOperation]
@@ -4782,7 +4944,7 @@ pub const StencilDescriptor = opaque {
         return objc.msgSend(self, "depthStencilPassOperation", StencilOperation, .{});
     }
     /// `-[MTLStencilDescriptor setDepthStencilPassOperation:]
-    pub fn setDepthStencilPassOperation_(self: *@This(), depth_stencil_pass_operation: StencilOperation) void {
+    pub fn setDepthStencilPassOperation(self: *@This(), depth_stencil_pass_operation: StencilOperation) void {
         return objc.msgSend(self, "setDepthStencilPassOperation:", void, .{depth_stencil_pass_operation});
     }
     /// `-[MTLStencilDescriptor readMask]
@@ -4790,7 +4952,7 @@ pub const StencilDescriptor = opaque {
         return objc.msgSend(self, "readMask", u32, .{});
     }
     /// `-[MTLStencilDescriptor setReadMask:]
-    pub fn setReadMask_(self: *@This(), read_mask: u32) void {
+    pub fn setReadMask(self: *@This(), read_mask: u32) void {
         return objc.msgSend(self, "setReadMask:", void, .{read_mask});
     }
     /// `-[MTLStencilDescriptor writeMask]
@@ -4798,14 +4960,17 @@ pub const StencilDescriptor = opaque {
         return objc.msgSend(self, "writeMask", u32, .{});
     }
     /// `-[MTLStencilDescriptor setWriteMask:]
-    pub fn setWriteMask_(self: *@This(), write_mask: u32) void {
+    pub fn setWriteMask(self: *@This(), write_mask: u32) void {
         return objc.msgSend(self, "setWriteMask:", void, .{write_mask});
     }
 };
 
 /// `MTLDepthStencilDescriptor`
 pub const DepthStencilDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLDepthStencilDescriptor", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == ns.Copying) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -4821,7 +4986,7 @@ pub const DepthStencilDescriptor = opaque {
         return objc.msgSend(self, "depthCompareFunction", CompareFunction, .{});
     }
     /// `-[MTLDepthStencilDescriptor setDepthCompareFunction:]
-    pub fn setDepthCompareFunction_(self: *@This(), depth_compare_function: CompareFunction) void {
+    pub fn setDepthCompareFunction(self: *@This(), depth_compare_function: CompareFunction) void {
         return objc.msgSend(self, "setDepthCompareFunction:", void, .{depth_compare_function});
     }
     /// `-[MTLDepthStencilDescriptor isDepthWriteEnabled]
@@ -4829,7 +4994,7 @@ pub const DepthStencilDescriptor = opaque {
         return objc.msgSend(self, "isDepthWriteEnabled", bool, .{});
     }
     /// `-[MTLDepthStencilDescriptor setDepthWriteEnabled:]
-    pub fn setDepthWriteEnabled_(self: *@This(), depth_write_enabled: bool) void {
+    pub fn setDepthWriteEnabled(self: *@This(), depth_write_enabled: bool) void {
         return objc.msgSend(self, "setDepthWriteEnabled:", void, .{depth_write_enabled});
     }
     /// `-[MTLDepthStencilDescriptor frontFaceStencil]
@@ -4837,7 +5002,7 @@ pub const DepthStencilDescriptor = opaque {
         return objc.msgSend(self, "frontFaceStencil", *StencilDescriptor, .{});
     }
     /// `-[MTLDepthStencilDescriptor setFrontFaceStencil:]
-    pub fn setFrontFaceStencil_(self: *@This(), front_face_stencil: ?*StencilDescriptor) void {
+    pub fn setFrontFaceStencil(self: *@This(), front_face_stencil: ?*StencilDescriptor) void {
         return objc.msgSend(self, "setFrontFaceStencil:", void, .{front_face_stencil});
     }
     /// `-[MTLDepthStencilDescriptor backFaceStencil]
@@ -4845,7 +5010,7 @@ pub const DepthStencilDescriptor = opaque {
         return objc.msgSend(self, "backFaceStencil", *StencilDescriptor, .{});
     }
     /// `-[MTLDepthStencilDescriptor setBackFaceStencil:]
-    pub fn setBackFaceStencil_(self: *@This(), back_face_stencil: ?*StencilDescriptor) void {
+    pub fn setBackFaceStencil(self: *@This(), back_face_stencil: ?*StencilDescriptor) void {
         return objc.msgSend(self, "setBackFaceStencil:", void, .{back_face_stencil});
     }
     /// `-[MTLDepthStencilDescriptor label]
@@ -4853,15 +5018,18 @@ pub const DepthStencilDescriptor = opaque {
         return objc.msgSend(self, "label", ?*ns.String, .{});
     }
     /// `-[MTLDepthStencilDescriptor setLabel:]
-    pub fn setLabel_(self: *@This(), str: ?*ns.String) void {
+    pub fn setLabel(self: *@This(), str: ?*ns.String) void {
         return objc.msgSend(self, "setLabel:", void, .{str});
     }
 };
 
 /// `MTLDepthStencilState`
 pub const DepthStencilState = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `-[MTLDepthStencilState label]
     pub fn label(self: *@This()) ?*ns.String {
         return objc.msgSend(self, "label", ?*ns.String, .{});
@@ -4874,7 +5042,10 @@ pub const DepthStencilState = opaque {
 
 /// `MTLArchitecture`
 pub const Architecture = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLArchitecture", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == ns.Copying) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -4893,7 +5064,10 @@ pub const Architecture = opaque {
 
 /// `MTLArgumentDescriptor`
 pub const ArgumentDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLArgumentDescriptor", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == ns.Copying) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -4913,7 +5087,7 @@ pub const ArgumentDescriptor = opaque {
         return objc.msgSend(self, "dataType", DataType, .{});
     }
     /// `-[MTLArgumentDescriptor setDataType:]
-    pub fn setDataType_(self: *@This(), data_type: DataType) void {
+    pub fn setDataType(self: *@This(), data_type: DataType) void {
         return objc.msgSend(self, "setDataType:", void, .{data_type});
     }
     /// `-[MTLArgumentDescriptor index]
@@ -4921,7 +5095,7 @@ pub const ArgumentDescriptor = opaque {
         return objc.msgSend(self, "index", usize, .{});
     }
     /// `-[MTLArgumentDescriptor setIndex:]
-    pub fn setIndex_(self: *@This(), value: usize) void {
+    pub fn setIndex(self: *@This(), value: usize) void {
         return objc.msgSend(self, "setIndex:", void, .{value});
     }
     /// `-[MTLArgumentDescriptor arrayLength]
@@ -4929,7 +5103,7 @@ pub const ArgumentDescriptor = opaque {
         return objc.msgSend(self, "arrayLength", usize, .{});
     }
     /// `-[MTLArgumentDescriptor setArrayLength:]
-    pub fn setArrayLength_(self: *@This(), array_length: usize) void {
+    pub fn setArrayLength(self: *@This(), array_length: usize) void {
         return objc.msgSend(self, "setArrayLength:", void, .{array_length});
     }
     /// `-[MTLArgumentDescriptor access]
@@ -4937,7 +5111,7 @@ pub const ArgumentDescriptor = opaque {
         return objc.msgSend(self, "access", BindingAccess, .{});
     }
     /// `-[MTLArgumentDescriptor setAccess:]
-    pub fn setAccess_(self: *@This(), value: BindingAccess) void {
+    pub fn setAccess(self: *@This(), value: BindingAccess) void {
         return objc.msgSend(self, "setAccess:", void, .{value});
     }
     /// `-[MTLArgumentDescriptor textureType]
@@ -4945,7 +5119,7 @@ pub const ArgumentDescriptor = opaque {
         return objc.msgSend(self, "textureType", TextureType, .{});
     }
     /// `-[MTLArgumentDescriptor setTextureType:]
-    pub fn setTextureType_(self: *@This(), texture_type: TextureType) void {
+    pub fn setTextureType(self: *@This(), texture_type: TextureType) void {
         return objc.msgSend(self, "setTextureType:", void, .{texture_type});
     }
     /// `-[MTLArgumentDescriptor constantBlockAlignment]
@@ -4953,69 +5127,72 @@ pub const ArgumentDescriptor = opaque {
         return objc.msgSend(self, "constantBlockAlignment", usize, .{});
     }
     /// `-[MTLArgumentDescriptor setConstantBlockAlignment:]
-    pub fn setConstantBlockAlignment_(self: *@This(), constant_block_alignment: usize) void {
+    pub fn setConstantBlockAlignment(self: *@This(), constant_block_alignment: usize) void {
         return objc.msgSend(self, "setConstantBlockAlignment:", void, .{constant_block_alignment});
     }
 };
 
 /// `MTLDevice`
 pub const Device = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `-[MTLDevice newCommandQueue]
     pub fn newCommandQueue(self: *@This()) ?*CommandQueue {
         return objc.msgSend(self, "newCommandQueue", ?*CommandQueue, .{});
     }
     /// `-[MTLDevice newCommandQueueWithMaxCommandBufferCount:]
-    pub fn newCommandQueueWithMaxCommandBufferCount_(self: *@This(), max_command_buffer_count: usize) ?*CommandQueue {
+    pub fn newCommandQueueWithMaxCommandBufferCount(self: *@This(), max_command_buffer_count: usize) ?*CommandQueue {
         return objc.msgSend(self, "newCommandQueueWithMaxCommandBufferCount:", ?*CommandQueue, .{max_command_buffer_count});
     }
     /// `-[MTLDevice heapTextureSizeAndAlignWithDescriptor:]
-    pub fn heapTextureSizeAndAlignWithDescriptor_(self: *@This(), desc: *TextureDescriptor) SizeAndAlign {
+    pub fn heapTextureSizeAndAlignWithDescriptor(self: *@This(), desc: *TextureDescriptor) SizeAndAlign {
         return objc.msgSend(self, "heapTextureSizeAndAlignWithDescriptor:", SizeAndAlign, .{desc});
     }
     /// `-[MTLDevice heapBufferSizeAndAlignWithLength:options:]
-    pub fn heapBufferSizeAndAlignWithLength_options_(self: *@This(), length: usize, options: ResourceOptions) SizeAndAlign {
+    pub fn heapBufferSizeAndAlignWithLength_options(self: *@This(), length: usize, options: ResourceOptions) SizeAndAlign {
         return objc.msgSend(self, "heapBufferSizeAndAlignWithLength:options:", SizeAndAlign, .{ length, options });
     }
     /// `-[MTLDevice newHeapWithDescriptor:]
-    pub fn newHeapWithDescriptor_(self: *@This(), descriptor: *HeapDescriptor) ?*Heap {
+    pub fn newHeapWithDescriptor(self: *@This(), descriptor: *HeapDescriptor) ?*Heap {
         return objc.msgSend(self, "newHeapWithDescriptor:", ?*Heap, .{descriptor});
     }
     /// `-[MTLDevice newBufferWithLength:options:]
-    pub fn newBufferWithLength_options_(self: *@This(), length: usize, options: ResourceOptions) ?*Buffer {
+    pub fn newBufferWithLength_options(self: *@This(), length: usize, options: ResourceOptions) ?*Buffer {
         return objc.msgSend(self, "newBufferWithLength:options:", ?*Buffer, .{ length, options });
     }
     /// `-[MTLDevice newBufferWithBytes:length:options:]
-    pub fn newBufferWithBytes_length_options_(self: *@This(), pointer: *const anyopaque, length: usize, options: ResourceOptions) ?*Buffer {
+    pub fn newBufferWithBytes_length_options(self: *@This(), pointer: *const anyopaque, length: usize, options: ResourceOptions) ?*Buffer {
         return objc.msgSend(self, "newBufferWithBytes:length:options:", ?*Buffer, .{ pointer, length, options });
     }
     /// `-[MTLDevice newBufferWithBytesNoCopy:length:options:deallocator:]
-    pub fn newBufferWithBytesNoCopy_length_options_deallocator_(self: *@This(), pointer: *anyopaque, length: usize, options: ResourceOptions, deallocator: *ns.Block(fn (*anyopaque, usize) void)) ?*Buffer {
+    pub fn newBufferWithBytesNoCopy_length_options_deallocator(self: *@This(), pointer: *anyopaque, length: usize, options: ResourceOptions, deallocator: *ns.Block(fn (*anyopaque, usize) void)) ?*Buffer {
         return objc.msgSend(self, "newBufferWithBytesNoCopy:length:options:deallocator:", ?*Buffer, .{ pointer, length, options, deallocator });
     }
     /// `-[MTLDevice newDepthStencilStateWithDescriptor:]
-    pub fn newDepthStencilStateWithDescriptor_(self: *@This(), descriptor: *DepthStencilDescriptor) ?*DepthStencilState {
+    pub fn newDepthStencilStateWithDescriptor(self: *@This(), descriptor: *DepthStencilDescriptor) ?*DepthStencilState {
         return objc.msgSend(self, "newDepthStencilStateWithDescriptor:", ?*DepthStencilState, .{descriptor});
     }
     /// `-[MTLDevice newTextureWithDescriptor:]
-    pub fn newTextureWithDescriptor_(self: *@This(), descriptor: *TextureDescriptor) ?*Texture {
+    pub fn newTextureWithDescriptor(self: *@This(), descriptor: *TextureDescriptor) ?*Texture {
         return objc.msgSend(self, "newTextureWithDescriptor:", ?*Texture, .{descriptor});
     }
     /// `-[MTLDevice newTextureWithDescriptor:iosurface:plane:]
-    pub fn newTextureWithDescriptor_iosurface_plane_(self: *@This(), descriptor: *TextureDescriptor, iosurface: *io.Surface, plane: usize) ?*Texture {
+    pub fn newTextureWithDescriptor_iosurface_plane(self: *@This(), descriptor: *TextureDescriptor, iosurface: *io.Surface, plane: usize) ?*Texture {
         return objc.msgSend(self, "newTextureWithDescriptor:iosurface:plane:", ?*Texture, .{ descriptor, iosurface, plane });
     }
     /// `-[MTLDevice newSharedTextureWithDescriptor:]
-    pub fn newSharedTextureWithDescriptor_(self: *@This(), descriptor: *TextureDescriptor) ?*Texture {
+    pub fn newSharedTextureWithDescriptor(self: *@This(), descriptor: *TextureDescriptor) ?*Texture {
         return objc.msgSend(self, "newSharedTextureWithDescriptor:", ?*Texture, .{descriptor});
     }
     /// `-[MTLDevice newSharedTextureWithHandle:]
-    pub fn newSharedTextureWithHandle_(self: *@This(), shared_handle: *SharedTextureHandle) ?*Texture {
+    pub fn newSharedTextureWithHandle(self: *@This(), shared_handle: *SharedTextureHandle) ?*Texture {
         return objc.msgSend(self, "newSharedTextureWithHandle:", ?*Texture, .{shared_handle});
     }
     /// `-[MTLDevice newSamplerStateWithDescriptor:]
-    pub fn newSamplerStateWithDescriptor_(self: *@This(), descriptor: *SamplerDescriptor) ?*SamplerState {
+    pub fn newSamplerStateWithDescriptor(self: *@This(), descriptor: *SamplerDescriptor) ?*SamplerState {
         return objc.msgSend(self, "newSamplerStateWithDescriptor:", ?*SamplerState, .{descriptor});
     }
     /// `-[MTLDevice newDefaultLibrary]
@@ -5023,75 +5200,75 @@ pub const Device = opaque {
         return objc.msgSend(self, "newDefaultLibrary", ?*Library, .{});
     }
     /// `-[MTLDevice newDefaultLibraryWithBundle:error:]
-    pub fn newDefaultLibraryWithBundle_error_(self: *@This(), bundle: *ns.Bundle, err: ?*?*ns.Error) ?*Library {
+    pub fn newDefaultLibraryWithBundle_error(self: *@This(), bundle: *ns.Bundle, err: ?*?*ns.Error) ?*Library {
         return objc.msgSend(self, "newDefaultLibraryWithBundle:error:", ?*Library, .{ bundle, err });
     }
     /// `-[MTLDevice newLibraryWithFile:error:]
-    pub fn newLibraryWithFile_error_(self: *@This(), filepath: *ns.String, err: ?*?*ns.Error) ?*Library {
+    pub fn newLibraryWithFile_error(self: *@This(), filepath: *ns.String, err: ?*?*ns.Error) ?*Library {
         return objc.msgSend(self, "newLibraryWithFile:error:", ?*Library, .{ filepath, err });
     }
     /// `-[MTLDevice newLibraryWithURL:error:]
-    pub fn newLibraryWithUrl_error_(self: *@This(), url: *ns.Url, err: ?*?*ns.Error) ?*Library {
+    pub fn newLibraryWithUrl_error(self: *@This(), url: *ns.Url, err: ?*?*ns.Error) ?*Library {
         return objc.msgSend(self, "newLibraryWithURL:error:", ?*Library, .{ url, err });
     }
     /// `-[MTLDevice newLibraryWithData:error:]
-    pub fn newLibraryWithData_error_(self: *@This(), data: *const dispatch.Data, err: ?*?*ns.Error) ?*Library {
+    pub fn newLibraryWithData_error(self: *@This(), data: *const dispatch.Data, err: ?*?*ns.Error) ?*Library {
         return objc.msgSend(self, "newLibraryWithData:error:", ?*Library, .{ data, err });
     }
     /// `-[MTLDevice newLibraryWithSource:options:error:]
-    pub fn newLibraryWithSource_options_error_(self: *@This(), source: *ns.String, options: ?*CompileOptions, err: ?*?*ns.Error) ?*Library {
+    pub fn newLibraryWithSource_options_error(self: *@This(), source: *ns.String, options: ?*CompileOptions, err: ?*?*ns.Error) ?*Library {
         return objc.msgSend(self, "newLibraryWithSource:options:error:", ?*Library, .{ source, options, err });
     }
     /// `-[MTLDevice newLibraryWithSource:options:completionHandler:]
-    pub fn newLibraryWithSource_options_completionHandler_(self: *@This(), source: *ns.String, options: ?*CompileOptions, completion_handler: *ns.Block(fn (?*Library, ?*ns.Error) void)) void {
+    pub fn newLibraryWithSource_options_completionHandler(self: *@This(), source: *ns.String, options: ?*CompileOptions, completion_handler: *ns.Block(fn (?*Library, ?*ns.Error) void)) void {
         return objc.msgSend(self, "newLibraryWithSource:options:completionHandler:", void, .{ source, options, completion_handler });
     }
     /// `-[MTLDevice newLibraryWithStitchedDescriptor:error:]
-    pub fn newLibraryWithStitchedDescriptor_error_(self: *@This(), descriptor: *StitchedLibraryDescriptor, err: ?*?*ns.Error) ?*Library {
+    pub fn newLibraryWithStitchedDescriptor_error(self: *@This(), descriptor: *StitchedLibraryDescriptor, err: ?*?*ns.Error) ?*Library {
         return objc.msgSend(self, "newLibraryWithStitchedDescriptor:error:", ?*Library, .{ descriptor, err });
     }
     /// `-[MTLDevice newLibraryWithStitchedDescriptor:completionHandler:]
-    pub fn newLibraryWithStitchedDescriptor_completionHandler_(self: *@This(), descriptor: *StitchedLibraryDescriptor, completion_handler: *ns.Block(fn (?*Library, ?*ns.Error) void)) void {
+    pub fn newLibraryWithStitchedDescriptor_completionHandler(self: *@This(), descriptor: *StitchedLibraryDescriptor, completion_handler: *ns.Block(fn (?*Library, ?*ns.Error) void)) void {
         return objc.msgSend(self, "newLibraryWithStitchedDescriptor:completionHandler:", void, .{ descriptor, completion_handler });
     }
     /// `-[MTLDevice newRenderPipelineStateWithDescriptor:error:]
-    pub fn newRenderPipelineStateWithDescriptor_error_(self: *@This(), descriptor: *RenderPipelineDescriptor, err: ?*?*ns.Error) ?*RenderPipelineState {
+    pub fn newRenderPipelineStateWithDescriptor_error(self: *@This(), descriptor: *RenderPipelineDescriptor, err: ?*?*ns.Error) ?*RenderPipelineState {
         return objc.msgSend(self, "newRenderPipelineStateWithDescriptor:error:", ?*RenderPipelineState, .{ descriptor, err });
     }
     /// `-[MTLDevice newRenderPipelineStateWithDescriptor:options:reflection:error:]
-    pub fn newRenderPipelineStateWithDescriptor_options_reflection_error_(self: *@This(), descriptor: *RenderPipelineDescriptor, options: PipelineOption, reflection: ?*AutoreleasedRenderPipelineReflection, err: ?*?*ns.Error) ?*RenderPipelineState {
+    pub fn newRenderPipelineStateWithDescriptor_options_reflection_error(self: *@This(), descriptor: *RenderPipelineDescriptor, options: PipelineOption, reflection: ?*AutoreleasedRenderPipelineReflection, err: ?*?*ns.Error) ?*RenderPipelineState {
         return objc.msgSend(self, "newRenderPipelineStateWithDescriptor:options:reflection:error:", ?*RenderPipelineState, .{ descriptor, options, reflection, err });
     }
     /// `-[MTLDevice newRenderPipelineStateWithDescriptor:completionHandler:]
-    pub fn newRenderPipelineStateWithDescriptor_completionHandler_(self: *@This(), descriptor: *RenderPipelineDescriptor, completion_handler: *ns.Block(fn (?*RenderPipelineState, ?*ns.Error) void)) void {
+    pub fn newRenderPipelineStateWithDescriptor_completionHandler(self: *@This(), descriptor: *RenderPipelineDescriptor, completion_handler: *ns.Block(fn (?*RenderPipelineState, ?*ns.Error) void)) void {
         return objc.msgSend(self, "newRenderPipelineStateWithDescriptor:completionHandler:", void, .{ descriptor, completion_handler });
     }
     /// `-[MTLDevice newRenderPipelineStateWithDescriptor:options:completionHandler:]
-    pub fn newRenderPipelineStateWithDescriptor_options_completionHandler_(self: *@This(), descriptor: *RenderPipelineDescriptor, options: PipelineOption, completion_handler: *ns.Block(fn (?*RenderPipelineState, *RenderPipelineReflection, ?*ns.Error) void)) void {
+    pub fn newRenderPipelineStateWithDescriptor_options_completionHandler(self: *@This(), descriptor: *RenderPipelineDescriptor, options: PipelineOption, completion_handler: *ns.Block(fn (?*RenderPipelineState, *RenderPipelineReflection, ?*ns.Error) void)) void {
         return objc.msgSend(self, "newRenderPipelineStateWithDescriptor:options:completionHandler:", void, .{ descriptor, options, completion_handler });
     }
     /// `-[MTLDevice newComputePipelineStateWithFunction:error:]
-    pub fn newComputePipelineStateWithFunction_error_(self: *@This(), compute_function: *Function, err: ?*?*ns.Error) ?*ComputePipelineState {
+    pub fn newComputePipelineStateWithFunction_error(self: *@This(), compute_function: *Function, err: ?*?*ns.Error) ?*ComputePipelineState {
         return objc.msgSend(self, "newComputePipelineStateWithFunction:error:", ?*ComputePipelineState, .{ compute_function, err });
     }
     /// `-[MTLDevice newComputePipelineStateWithFunction:options:reflection:error:]
-    pub fn newComputePipelineStateWithFunction_options_reflection_error_(self: *@This(), compute_function: *Function, options: PipelineOption, reflection: ?*AutoreleasedComputePipelineReflection, err: ?*?*ns.Error) ?*ComputePipelineState {
+    pub fn newComputePipelineStateWithFunction_options_reflection_error(self: *@This(), compute_function: *Function, options: PipelineOption, reflection: ?*AutoreleasedComputePipelineReflection, err: ?*?*ns.Error) ?*ComputePipelineState {
         return objc.msgSend(self, "newComputePipelineStateWithFunction:options:reflection:error:", ?*ComputePipelineState, .{ compute_function, options, reflection, err });
     }
     /// `-[MTLDevice newComputePipelineStateWithFunction:completionHandler:]
-    pub fn newComputePipelineStateWithFunction_completionHandler_(self: *@This(), compute_function: *Function, completion_handler: *ns.Block(fn (?*ComputePipelineState, ?*ns.Error) void)) void {
+    pub fn newComputePipelineStateWithFunction_completionHandler(self: *@This(), compute_function: *Function, completion_handler: *ns.Block(fn (?*ComputePipelineState, ?*ns.Error) void)) void {
         return objc.msgSend(self, "newComputePipelineStateWithFunction:completionHandler:", void, .{ compute_function, completion_handler });
     }
     /// `-[MTLDevice newComputePipelineStateWithFunction:options:completionHandler:]
-    pub fn newComputePipelineStateWithFunction_options_completionHandler_(self: *@This(), compute_function: *Function, options: PipelineOption, completion_handler: *ns.Block(fn (?*ComputePipelineState, *ComputePipelineReflection, ?*ns.Error) void)) void {
+    pub fn newComputePipelineStateWithFunction_options_completionHandler(self: *@This(), compute_function: *Function, options: PipelineOption, completion_handler: *ns.Block(fn (?*ComputePipelineState, *ComputePipelineReflection, ?*ns.Error) void)) void {
         return objc.msgSend(self, "newComputePipelineStateWithFunction:options:completionHandler:", void, .{ compute_function, options, completion_handler });
     }
     /// `-[MTLDevice newComputePipelineStateWithDescriptor:options:reflection:error:]
-    pub fn newComputePipelineStateWithDescriptor_options_reflection_error_(self: *@This(), descriptor: *ComputePipelineDescriptor, options: PipelineOption, reflection: ?*AutoreleasedComputePipelineReflection, err: ?*?*ns.Error) ?*ComputePipelineState {
+    pub fn newComputePipelineStateWithDescriptor_options_reflection_error(self: *@This(), descriptor: *ComputePipelineDescriptor, options: PipelineOption, reflection: ?*AutoreleasedComputePipelineReflection, err: ?*?*ns.Error) ?*ComputePipelineState {
         return objc.msgSend(self, "newComputePipelineStateWithDescriptor:options:reflection:error:", ?*ComputePipelineState, .{ descriptor, options, reflection, err });
     }
     /// `-[MTLDevice newComputePipelineStateWithDescriptor:options:completionHandler:]
-    pub fn newComputePipelineStateWithDescriptor_options_completionHandler_(self: *@This(), descriptor: *ComputePipelineDescriptor, options: PipelineOption, completion_handler: *ns.Block(fn (?*ComputePipelineState, *ComputePipelineReflection, ?*ns.Error) void)) void {
+    pub fn newComputePipelineStateWithDescriptor_options_completionHandler(self: *@This(), descriptor: *ComputePipelineDescriptor, options: PipelineOption, completion_handler: *ns.Block(fn (?*ComputePipelineState, *ComputePipelineReflection, ?*ns.Error) void)) void {
         return objc.msgSend(self, "newComputePipelineStateWithDescriptor:options:completionHandler:", void, .{ descriptor, options, completion_handler });
     }
     /// `-[MTLDevice newFence]
@@ -5099,59 +5276,59 @@ pub const Device = opaque {
         return objc.msgSend(self, "newFence", ?*Fence, .{});
     }
     /// `-[MTLDevice supportsFeatureSet:]
-    pub fn supportsFeatureSet_(self: *@This(), feature_set: FeatureSet) bool {
+    pub fn supportsFeatureSet(self: *@This(), feature_set: FeatureSet) bool {
         return objc.msgSend(self, "supportsFeatureSet:", bool, .{feature_set});
     }
     /// `-[MTLDevice supportsFamily:]
-    pub fn supportsFamily_(self: *@This(), gpu_family: GPUFamily) bool {
+    pub fn supportsFamily(self: *@This(), gpu_family: GPUFamily) bool {
         return objc.msgSend(self, "supportsFamily:", bool, .{gpu_family});
     }
     /// `-[MTLDevice supportsTextureSampleCount:]
-    pub fn supportsTextureSampleCount_(self: *@This(), sample_count: usize) bool {
+    pub fn supportsTextureSampleCount(self: *@This(), sample_count: usize) bool {
         return objc.msgSend(self, "supportsTextureSampleCount:", bool, .{sample_count});
     }
     /// `-[MTLDevice minimumLinearTextureAlignmentForPixelFormat:]
-    pub fn minimumLinearTextureAlignmentForPixelFormat_(self: *@This(), format: PixelFormat) usize {
+    pub fn minimumLinearTextureAlignmentForPixelFormat(self: *@This(), format: PixelFormat) usize {
         return objc.msgSend(self, "minimumLinearTextureAlignmentForPixelFormat:", usize, .{format});
     }
     /// `-[MTLDevice minimumTextureBufferAlignmentForPixelFormat:]
-    pub fn minimumTextureBufferAlignmentForPixelFormat_(self: *@This(), format: PixelFormat) usize {
+    pub fn minimumTextureBufferAlignmentForPixelFormat(self: *@This(), format: PixelFormat) usize {
         return objc.msgSend(self, "minimumTextureBufferAlignmentForPixelFormat:", usize, .{format});
     }
     /// `-[MTLDevice newRenderPipelineStateWithTileDescriptor:options:reflection:error:]
-    pub fn newRenderPipelineStateWithTileDescriptor_options_reflection_error_(self: *@This(), descriptor: *TileRenderPipelineDescriptor, options: PipelineOption, reflection: ?*AutoreleasedRenderPipelineReflection, err: ?*?*ns.Error) ?*RenderPipelineState {
+    pub fn newRenderPipelineStateWithTileDescriptor_options_reflection_error(self: *@This(), descriptor: *TileRenderPipelineDescriptor, options: PipelineOption, reflection: ?*AutoreleasedRenderPipelineReflection, err: ?*?*ns.Error) ?*RenderPipelineState {
         return objc.msgSend(self, "newRenderPipelineStateWithTileDescriptor:options:reflection:error:", ?*RenderPipelineState, .{ descriptor, options, reflection, err });
     }
     /// `-[MTLDevice newRenderPipelineStateWithTileDescriptor:options:completionHandler:]
-    pub fn newRenderPipelineStateWithTileDescriptor_options_completionHandler_(self: *@This(), descriptor: *TileRenderPipelineDescriptor, options: PipelineOption, completion_handler: *ns.Block(fn (?*RenderPipelineState, *RenderPipelineReflection, ?*ns.Error) void)) void {
+    pub fn newRenderPipelineStateWithTileDescriptor_options_completionHandler(self: *@This(), descriptor: *TileRenderPipelineDescriptor, options: PipelineOption, completion_handler: *ns.Block(fn (?*RenderPipelineState, *RenderPipelineReflection, ?*ns.Error) void)) void {
         return objc.msgSend(self, "newRenderPipelineStateWithTileDescriptor:options:completionHandler:", void, .{ descriptor, options, completion_handler });
     }
     /// `-[MTLDevice newRenderPipelineStateWithMeshDescriptor:options:reflection:error:]
-    pub fn newRenderPipelineStateWithMeshDescriptor_options_reflection_error_(self: *@This(), descriptor: *MeshRenderPipelineDescriptor, options: PipelineOption, reflection: ?*AutoreleasedRenderPipelineReflection, err: ?*?*ns.Error) ?*RenderPipelineState {
+    pub fn newRenderPipelineStateWithMeshDescriptor_options_reflection_error(self: *@This(), descriptor: *MeshRenderPipelineDescriptor, options: PipelineOption, reflection: ?*AutoreleasedRenderPipelineReflection, err: ?*?*ns.Error) ?*RenderPipelineState {
         return objc.msgSend(self, "newRenderPipelineStateWithMeshDescriptor:options:reflection:error:", ?*RenderPipelineState, .{ descriptor, options, reflection, err });
     }
     /// `-[MTLDevice newRenderPipelineStateWithMeshDescriptor:options:completionHandler:]
-    pub fn newRenderPipelineStateWithMeshDescriptor_options_completionHandler_(self: *@This(), descriptor: *MeshRenderPipelineDescriptor, options: PipelineOption, completion_handler: *ns.Block(fn (?*RenderPipelineState, *RenderPipelineReflection, ?*ns.Error) void)) void {
+    pub fn newRenderPipelineStateWithMeshDescriptor_options_completionHandler(self: *@This(), descriptor: *MeshRenderPipelineDescriptor, options: PipelineOption, completion_handler: *ns.Block(fn (?*RenderPipelineState, *RenderPipelineReflection, ?*ns.Error) void)) void {
         return objc.msgSend(self, "newRenderPipelineStateWithMeshDescriptor:options:completionHandler:", void, .{ descriptor, options, completion_handler });
     }
     /// `-[MTLDevice getDefaultSamplePositions:count:]
-    pub fn getDefaultSamplePositions_count_(self: *@This(), positions: *SamplePosition, count: usize) void {
+    pub fn getDefaultSamplePositions_count(self: *@This(), positions: *SamplePosition, count: usize) void {
         return objc.msgSend(self, "getDefaultSamplePositions:count:", void, .{ positions, count });
     }
     /// `-[MTLDevice newArgumentEncoderWithArguments:]
-    pub fn newArgumentEncoderWithArguments_(self: *@This(), arguments: *ns.Array(*ArgumentDescriptor)) ?*ArgumentEncoder {
+    pub fn newArgumentEncoderWithArguments(self: *@This(), arguments: *ns.Array(*ArgumentDescriptor)) ?*ArgumentEncoder {
         return objc.msgSend(self, "newArgumentEncoderWithArguments:", ?*ArgumentEncoder, .{arguments});
     }
     /// `-[MTLDevice supportsRasterizationRateMapWithLayerCount:]
-    pub fn supportsRasterizationRateMapWithLayerCount_(self: *@This(), layer_count: usize) bool {
+    pub fn supportsRasterizationRateMapWithLayerCount(self: *@This(), layer_count: usize) bool {
         return objc.msgSend(self, "supportsRasterizationRateMapWithLayerCount:", bool, .{layer_count});
     }
     /// `-[MTLDevice newRasterizationRateMapWithDescriptor:]
-    pub fn newRasterizationRateMapWithDescriptor_(self: *@This(), descriptor: *RasterizationRateMapDescriptor) ?*RasterizationRateMap {
+    pub fn newRasterizationRateMapWithDescriptor(self: *@This(), descriptor: *RasterizationRateMapDescriptor) ?*RasterizationRateMap {
         return objc.msgSend(self, "newRasterizationRateMapWithDescriptor:", ?*RasterizationRateMap, .{descriptor});
     }
     /// `-[MTLDevice newIndirectCommandBufferWithDescriptor:maxCommandCount:options:]
-    pub fn newIndirectCommandBufferWithDescriptor_maxCommandCount_options_(self: *@This(), descriptor: *IndirectCommandBufferDescriptor, max_count: usize, options: ResourceOptions) ?*IndirectCommandBuffer {
+    pub fn newIndirectCommandBufferWithDescriptor_maxCommandCount_options(self: *@This(), descriptor: *IndirectCommandBufferDescriptor, max_count: usize, options: ResourceOptions) ?*IndirectCommandBuffer {
         return objc.msgSend(self, "newIndirectCommandBufferWithDescriptor:maxCommandCount:options:", ?*IndirectCommandBuffer, .{ descriptor, max_count, options });
     }
     /// `-[MTLDevice newEvent]
@@ -5163,99 +5340,99 @@ pub const Device = opaque {
         return objc.msgSend(self, "newSharedEvent", ?*SharedEvent, .{});
     }
     /// `-[MTLDevice newSharedEventWithHandle:]
-    pub fn newSharedEventWithHandle_(self: *@This(), shared_event_handle: *SharedEventHandle) ?*SharedEvent {
+    pub fn newSharedEventWithHandle(self: *@This(), shared_event_handle: *SharedEventHandle) ?*SharedEvent {
         return objc.msgSend(self, "newSharedEventWithHandle:", ?*SharedEvent, .{shared_event_handle});
     }
     /// `-[MTLDevice newIOHandleWithURL:error:]
-    pub fn newIOHandleWithUrl_error_(self: *@This(), url: *ns.Url, err: ?*?*ns.Error) ?*IoFileHandle {
+    pub fn newIOHandleWithUrl_error(self: *@This(), url: *ns.Url, err: ?*?*ns.Error) ?*IoFileHandle {
         return objc.msgSend(self, "newIOHandleWithURL:error:", ?*IoFileHandle, .{ url, err });
     }
     /// `-[MTLDevice newIOCommandQueueWithDescriptor:error:]
-    pub fn newIOCommandQueueWithDescriptor_error_(self: *@This(), descriptor: *IoCommandQueueDescriptor, err: ?*?*ns.Error) ?*IoCommandQueue {
+    pub fn newIOCommandQueueWithDescriptor_error(self: *@This(), descriptor: *IoCommandQueueDescriptor, err: ?*?*ns.Error) ?*IoCommandQueue {
         return objc.msgSend(self, "newIOCommandQueueWithDescriptor:error:", ?*IoCommandQueue, .{ descriptor, err });
     }
     /// `-[MTLDevice newIOHandleWithURL:compressionMethod:error:]
-    pub fn newIOHandleWithUrl_compressionMethod_error_(self: *@This(), url: *ns.Url, compression_method: IoCompressionMethod, err: ?*?*ns.Error) ?*IoFileHandle {
+    pub fn newIOHandleWithUrl_compressionMethod_error(self: *@This(), url: *ns.Url, compression_method: IoCompressionMethod, err: ?*?*ns.Error) ?*IoFileHandle {
         return objc.msgSend(self, "newIOHandleWithURL:compressionMethod:error:", ?*IoFileHandle, .{ url, compression_method, err });
     }
     /// `-[MTLDevice newIOFileHandleWithURL:error:]
-    pub fn newIOFileHandleWithUrl_error_(self: *@This(), url: *ns.Url, err: ?*?*ns.Error) ?*IoFileHandle {
+    pub fn newIOFileHandleWithUrl_error(self: *@This(), url: *ns.Url, err: ?*?*ns.Error) ?*IoFileHandle {
         return objc.msgSend(self, "newIOFileHandleWithURL:error:", ?*IoFileHandle, .{ url, err });
     }
     /// `-[MTLDevice newIOFileHandleWithURL:compressionMethod:error:]
-    pub fn newIOFileHandleWithUrl_compressionMethod_error_(self: *@This(), url: *ns.Url, compression_method: IoCompressionMethod, err: ?*?*ns.Error) ?*IoFileHandle {
+    pub fn newIOFileHandleWithUrl_compressionMethod_error(self: *@This(), url: *ns.Url, compression_method: IoCompressionMethod, err: ?*?*ns.Error) ?*IoFileHandle {
         return objc.msgSend(self, "newIOFileHandleWithURL:compressionMethod:error:", ?*IoFileHandle, .{ url, compression_method, err });
     }
     /// `-[MTLDevice sparseTileSizeWithTextureType:pixelFormat:sampleCount:]
-    pub fn sparseTileSizeWithTextureType_pixelFormat_sampleCount_(self: *@This(), texture_type: TextureType, pixel_format: PixelFormat, sample_count: usize) Size {
+    pub fn sparseTileSizeWithTextureType_pixelFormat_sampleCount(self: *@This(), texture_type: TextureType, pixel_format: PixelFormat, sample_count: usize) Size {
         return objc.msgSend(self, "sparseTileSizeWithTextureType:pixelFormat:sampleCount:", Size, .{ texture_type, pixel_format, sample_count });
     }
     /// `-[MTLDevice convertSparsePixelRegions:toTileRegions:withTileSize:alignmentMode:numRegions:]
-    pub fn convertSparsePixelRegions_toTileRegions_withTileSize_alignmentMode_numRegions_(self: *@This(), pixel_regions: *const Region, tile_regions: *Region, tile_size: Size, mode: SparseTextureRegionAlignmentMode, num_regions: usize) void {
+    pub fn convertSparsePixelRegions_toTileRegions_withTileSize_alignmentMode_numRegions(self: *@This(), pixel_regions: *const Region, tile_regions: *Region, tile_size: Size, mode: SparseTextureRegionAlignmentMode, num_regions: usize) void {
         return objc.msgSend(self, "convertSparsePixelRegions:toTileRegions:withTileSize:alignmentMode:numRegions:", void, .{ pixel_regions, tile_regions, tile_size, mode, num_regions });
     }
     /// `-[MTLDevice convertSparseTileRegions:toPixelRegions:withTileSize:numRegions:]
-    pub fn convertSparseTileRegions_toPixelRegions_withTileSize_numRegions_(self: *@This(), tile_regions: *const Region, pixel_regions: *Region, tile_size: Size, num_regions: usize) void {
+    pub fn convertSparseTileRegions_toPixelRegions_withTileSize_numRegions(self: *@This(), tile_regions: *const Region, pixel_regions: *Region, tile_size: Size, num_regions: usize) void {
         return objc.msgSend(self, "convertSparseTileRegions:toPixelRegions:withTileSize:numRegions:", void, .{ tile_regions, pixel_regions, tile_size, num_regions });
     }
     /// `-[MTLDevice sparseTileSizeInBytesForSparsePageSize:]
-    pub fn sparseTileSizeInBytesForSparsePageSize_(self: *@This(), sparse_page_size: SparsePageSize) usize {
+    pub fn sparseTileSizeInBytesForSparsePageSize(self: *@This(), sparse_page_size: SparsePageSize) usize {
         return objc.msgSend(self, "sparseTileSizeInBytesForSparsePageSize:", usize, .{sparse_page_size});
     }
     /// `-[MTLDevice sparseTileSizeWithTextureType:pixelFormat:sampleCount:sparsePageSize:]
-    pub fn sparseTileSizeWithTextureType_pixelFormat_sampleCount_sparsePageSize_(self: *@This(), texture_type: TextureType, pixel_format: PixelFormat, sample_count: usize, sparse_page_size: SparsePageSize) Size {
+    pub fn sparseTileSizeWithTextureType_pixelFormat_sampleCount_sparsePageSize(self: *@This(), texture_type: TextureType, pixel_format: PixelFormat, sample_count: usize, sparse_page_size: SparsePageSize) Size {
         return objc.msgSend(self, "sparseTileSizeWithTextureType:pixelFormat:sampleCount:sparsePageSize:", Size, .{ texture_type, pixel_format, sample_count, sparse_page_size });
     }
     /// `-[MTLDevice newCounterSampleBufferWithDescriptor:error:]
-    pub fn newCounterSampleBufferWithDescriptor_error_(self: *@This(), descriptor: *CounterSampleBufferDescriptor, err: ?*?*ns.Error) ?*CounterSampleBuffer {
+    pub fn newCounterSampleBufferWithDescriptor_error(self: *@This(), descriptor: *CounterSampleBufferDescriptor, err: ?*?*ns.Error) ?*CounterSampleBuffer {
         return objc.msgSend(self, "newCounterSampleBufferWithDescriptor:error:", ?*CounterSampleBuffer, .{ descriptor, err });
     }
     /// `-[MTLDevice sampleTimestamps:gpuTimestamp:]
-    pub fn sampleTimestamps_gpuTimestamp_(self: *@This(), cpu_timestamp: *Timestamp, gpu_timestamp: *Timestamp) void {
+    pub fn sampleTimestamps_gpuTimestamp(self: *@This(), cpu_timestamp: *Timestamp, gpu_timestamp: *Timestamp) void {
         return objc.msgSend(self, "sampleTimestamps:gpuTimestamp:", void, .{ cpu_timestamp, gpu_timestamp });
     }
     /// `-[MTLDevice newArgumentEncoderWithBufferBinding:]
-    pub fn newArgumentEncoderWithBufferBinding_(self: *@This(), buffer_binding: *BufferBinding) *ArgumentEncoder {
+    pub fn newArgumentEncoderWithBufferBinding(self: *@This(), buffer_binding: *BufferBinding) *ArgumentEncoder {
         return objc.msgSend(self, "newArgumentEncoderWithBufferBinding:", *ArgumentEncoder, .{buffer_binding});
     }
     /// `-[MTLDevice supportsCounterSampling:]
-    pub fn supportsCounterSampling_(self: *@This(), sampling_point: CounterSamplingPoint) bool {
+    pub fn supportsCounterSampling(self: *@This(), sampling_point: CounterSamplingPoint) bool {
         return objc.msgSend(self, "supportsCounterSampling:", bool, .{sampling_point});
     }
     /// `-[MTLDevice supportsVertexAmplificationCount:]
-    pub fn supportsVertexAmplificationCount_(self: *@This(), count: usize) bool {
+    pub fn supportsVertexAmplificationCount(self: *@This(), count: usize) bool {
         return objc.msgSend(self, "supportsVertexAmplificationCount:", bool, .{count});
     }
     /// `-[MTLDevice newDynamicLibrary:error:]
-    pub fn newDynamicLibrary_error_(self: *@This(), library: *Library, err: ?*?*ns.Error) ?*DynamicLibrary {
+    pub fn newDynamicLibrary_error(self: *@This(), library: *Library, err: ?*?*ns.Error) ?*DynamicLibrary {
         return objc.msgSend(self, "newDynamicLibrary:error:", ?*DynamicLibrary, .{ library, err });
     }
     /// `-[MTLDevice newDynamicLibraryWithURL:error:]
-    pub fn newDynamicLibraryWithUrl_error_(self: *@This(), url: *ns.Url, err: ?*?*ns.Error) ?*DynamicLibrary {
+    pub fn newDynamicLibraryWithUrl_error(self: *@This(), url: *ns.Url, err: ?*?*ns.Error) ?*DynamicLibrary {
         return objc.msgSend(self, "newDynamicLibraryWithURL:error:", ?*DynamicLibrary, .{ url, err });
     }
     /// `-[MTLDevice newBinaryArchiveWithDescriptor:error:]
-    pub fn newBinaryArchiveWithDescriptor_error_(self: *@This(), descriptor: *BinaryArchiveDescriptor, err: ?*?*ns.Error) ?*BinaryArchive {
+    pub fn newBinaryArchiveWithDescriptor_error(self: *@This(), descriptor: *BinaryArchiveDescriptor, err: ?*?*ns.Error) ?*BinaryArchive {
         return objc.msgSend(self, "newBinaryArchiveWithDescriptor:error:", ?*BinaryArchive, .{ descriptor, err });
     }
     /// `-[MTLDevice accelerationStructureSizesWithDescriptor:]
-    pub fn accelerationStructureSizesWithDescriptor_(self: *@This(), descriptor: *AccelerationStructureDescriptor) AccelerationStructureSizes {
+    pub fn accelerationStructureSizesWithDescriptor(self: *@This(), descriptor: *AccelerationStructureDescriptor) AccelerationStructureSizes {
         return objc.msgSend(self, "accelerationStructureSizesWithDescriptor:", AccelerationStructureSizes, .{descriptor});
     }
     /// `-[MTLDevice newAccelerationStructureWithSize:]
-    pub fn newAccelerationStructureWithSize_(self: *@This(), size: usize) ?*AccelerationStructure {
+    pub fn newAccelerationStructureWithSize(self: *@This(), size: usize) ?*AccelerationStructure {
         return objc.msgSend(self, "newAccelerationStructureWithSize:", ?*AccelerationStructure, .{size});
     }
     /// `-[MTLDevice newAccelerationStructureWithDescriptor:]
-    pub fn newAccelerationStructureWithDescriptor_(self: *@This(), descriptor: *AccelerationStructureDescriptor) ?*AccelerationStructure {
+    pub fn newAccelerationStructureWithDescriptor(self: *@This(), descriptor: *AccelerationStructureDescriptor) ?*AccelerationStructure {
         return objc.msgSend(self, "newAccelerationStructureWithDescriptor:", ?*AccelerationStructure, .{descriptor});
     }
     /// `-[MTLDevice heapAccelerationStructureSizeAndAlignWithSize:]
-    pub fn heapAccelerationStructureSizeAndAlignWithSize_(self: *@This(), size: usize) SizeAndAlign {
+    pub fn heapAccelerationStructureSizeAndAlignWithSize(self: *@This(), size: usize) SizeAndAlign {
         return objc.msgSend(self, "heapAccelerationStructureSizeAndAlignWithSize:", SizeAndAlign, .{size});
     }
     /// `-[MTLDevice heapAccelerationStructureSizeAndAlignWithDescriptor:]
-    pub fn heapAccelerationStructureSizeAndAlignWithDescriptor_(self: *@This(), descriptor: *AccelerationStructureDescriptor) SizeAndAlign {
+    pub fn heapAccelerationStructureSizeAndAlignWithDescriptor(self: *@This(), descriptor: *AccelerationStructureDescriptor) SizeAndAlign {
         return objc.msgSend(self, "heapAccelerationStructureSizeAndAlignWithDescriptor:", SizeAndAlign, .{descriptor});
     }
     /// `-[MTLDevice name]
@@ -5423,7 +5600,7 @@ pub const Device = opaque {
         return objc.msgSend(self, "shouldMaximizeConcurrentCompilation", bool, .{});
     }
     /// `-[MTLDevice setShouldMaximizeConcurrentCompilation:]
-    pub fn setShouldMaximizeConcurrentCompilation_(self: *@This(), should_maximize_concurrent_compilation: bool) void {
+    pub fn setShouldMaximizeConcurrentCompilation(self: *@This(), should_maximize_concurrent_compilation: bool) void {
         return objc.msgSend(self, "setShouldMaximizeConcurrentCompilation:", void, .{should_maximize_concurrent_compilation});
     }
     /// `-[MTLDevice maximumConcurrentCompilationTaskCount]
@@ -5434,22 +5611,25 @@ pub const Device = opaque {
 
 /// `MTLDrawable`
 pub const Drawable = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `-[MTLDrawable present]
     pub fn present(self: *@This()) void {
         return objc.msgSend(self, "present", void, .{});
     }
     /// `-[MTLDrawable presentAtTime:]
-    pub fn presentAtTime_(self: *@This(), presentation_time: cf.TimeInterval) void {
+    pub fn presentAtTime(self: *@This(), presentation_time: cf.TimeInterval) void {
         return objc.msgSend(self, "presentAtTime:", void, .{presentation_time});
     }
     /// `-[MTLDrawable presentAfterMinimumDuration:]
-    pub fn presentAfterMinimumDuration_(self: *@This(), duration: cf.TimeInterval) void {
+    pub fn presentAfterMinimumDuration(self: *@This(), duration: cf.TimeInterval) void {
         return objc.msgSend(self, "presentAfterMinimumDuration:", void, .{duration});
     }
     /// `-[MTLDrawable addPresentedHandler:]
-    pub fn addPresentedHandler_(self: *@This(), block: *ns.Block(fn (*Drawable) void)) void {
+    pub fn addPresentedHandler(self: *@This(), block: *ns.Block(fn (*Drawable) void)) void {
         return objc.msgSend(self, "addPresentedHandler:", void, .{block});
     }
     /// `-[MTLDrawable presentedTime]
@@ -5464,10 +5644,13 @@ pub const Drawable = opaque {
 
 /// `MTLDynamicLibrary`
 pub const DynamicLibrary = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `-[MTLDynamicLibrary serializeToURL:error:]
-    pub fn serializeToUrl_error_(self: *@This(), url: *ns.Url, err: ?*?*ns.Error) bool {
+    pub fn serializeToUrl_error(self: *@This(), url: *ns.Url, err: ?*?*ns.Error) bool {
         return objc.msgSend(self, "serializeToURL:error:", bool, .{ url, err });
     }
     /// `-[MTLDynamicLibrary label]
@@ -5475,7 +5658,7 @@ pub const DynamicLibrary = opaque {
         return objc.msgSend(self, "label", ?*ns.String, .{});
     }
     /// `-[MTLDynamicLibrary setLabel:]
-    pub fn setLabel_(self: *@This(), str: ?*ns.String) void {
+    pub fn setLabel(self: *@This(), str: ?*ns.String) void {
         return objc.msgSend(self, "setLabel:", void, .{str});
     }
     /// `-[MTLDynamicLibrary device]
@@ -5490,8 +5673,11 @@ pub const DynamicLibrary = opaque {
 
 /// `MTLEvent`
 pub const Event = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `-[MTLEvent device]
     pub fn device(self: *@This()) ?*Device {
         return objc.msgSend(self, "device", ?*Device, .{});
@@ -5501,15 +5687,18 @@ pub const Event = opaque {
         return objc.msgSend(self, "label", ?*ns.String, .{});
     }
     /// `-[MTLEvent setLabel:]
-    pub fn setLabel_(self: *@This(), str: ?*ns.String) void {
+    pub fn setLabel(self: *@This(), str: ?*ns.String) void {
         return objc.msgSend(self, "setLabel:", void, .{str});
     }
 };
 
 /// `MTLSharedEventListener`
 pub const SharedEventListener = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternClass("MTLSharedEventListener", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `+[MTLSharedEventListener new]`
     pub const new = InternalInfo.new;
     /// `+[MTLSharedEventListener alloc]`
@@ -5517,7 +5706,7 @@ pub const SharedEventListener = opaque {
     /// `[[MTLSharedEventListener alloc] init]`
     pub const allocInit = InternalInfo.allocInit;
     /// `-[MTLSharedEventListener initWithDispatchQueue:]
-    pub fn initWithDispatchQueue_(self: *@This(), dispatch_queue: *dispatch.Queue) *@This() {
+    pub fn initWithDispatchQueue(self: *@This(), dispatch_queue: *dispatch.Queue) *@This() {
         return objc.msgSend(self, "initWithDispatchQueue:", *@This(), .{dispatch_queue});
     }
     /// `-[MTLSharedEventListener dispatchQueue]
@@ -5528,10 +5717,13 @@ pub const SharedEventListener = opaque {
 
 /// `MTLSharedEvent`
 pub const SharedEvent = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), Event);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), Event);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `-[MTLSharedEvent notifyListener:atValue:block:]
-    pub fn notifyListener_atValue_block_(self: *@This(), listener: *SharedEventListener, value: u64, block: *ns.Block(fn (*SharedEvent, u64) void)) void {
+    pub fn notifyListener_atValue_block(self: *@This(), listener: *SharedEventListener, value: u64, block: *ns.Block(fn (*SharedEvent, u64) void)) void {
         return objc.msgSend(self, "notifyListener:atValue:block:", void, .{ listener, value, block });
     }
     /// `-[MTLSharedEvent newSharedEventHandle]
@@ -5543,14 +5735,17 @@ pub const SharedEvent = opaque {
         return objc.msgSend(self, "signaledValue", u64, .{});
     }
     /// `-[MTLSharedEvent setSignaledValue:]
-    pub fn setSignaledValue_(self: *@This(), signaled_value: u64) void {
+    pub fn setSignaledValue(self: *@This(), signaled_value: u64) void {
         return objc.msgSend(self, "setSignaledValue:", void, .{signaled_value});
     }
 };
 
 /// `MTLSharedEventHandle`
 pub const SharedEventHandle = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLSharedEventHandle", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == ns.SecureCoding) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -5569,8 +5764,11 @@ pub const SharedEventHandle = opaque {
 
 /// `MTLFence`
 pub const Fence = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `-[MTLFence device]
     pub fn device(self: *@This()) *Device {
         return objc.msgSend(self, "device", *Device, .{});
@@ -5580,14 +5778,17 @@ pub const Fence = opaque {
         return objc.msgSend(self, "label", ?*ns.String, .{});
     }
     /// `-[MTLFence setLabel:]
-    pub fn setLabel_(self: *@This(), str: ?*ns.String) void {
+    pub fn setLabel(self: *@This(), str: ?*ns.String) void {
         return objc.msgSend(self, "setLabel:", void, .{str});
     }
 };
 
 /// `MTLFunctionConstantValues`
 pub const FunctionConstantValues = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLFunctionConstantValues", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == ns.Copying) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -5599,15 +5800,15 @@ pub const FunctionConstantValues = opaque {
     /// `[[MTLFunctionConstantValues alloc] init]`
     pub const allocInit = InternalInfo.allocInit;
     /// `-[MTLFunctionConstantValues setConstantValue:type:atIndex:]
-    pub fn setConstantValue_type_atIndex_(self: *@This(), value: *const anyopaque, @"type": DataType, index: usize) void {
+    pub fn setConstantValue_type_atIndex(self: *@This(), value: *const anyopaque, @"type": DataType, index: usize) void {
         return objc.msgSend(self, "setConstantValue:type:atIndex:", void, .{ value, @"type", index });
     }
     /// `-[MTLFunctionConstantValues setConstantValues:type:withRange:]
-    pub fn setConstantValues_type_withRange_(self: *@This(), values: *const anyopaque, @"type": DataType, range: ns.Range) void {
+    pub fn setConstantValues_type_withRange(self: *@This(), values: *const anyopaque, @"type": DataType, range: ns.Range) void {
         return objc.msgSend(self, "setConstantValues:type:withRange:", void, .{ values, @"type", range });
     }
     /// `-[MTLFunctionConstantValues setConstantValue:type:withName:]
-    pub fn setConstantValue_type_withName_(self: *@This(), value: *const anyopaque, @"type": DataType, name: *ns.String) void {
+    pub fn setConstantValue_type_withName(self: *@This(), value: *const anyopaque, @"type": DataType, name: *ns.String) void {
         return objc.msgSend(self, "setConstantValue:type:withName:", void, .{ value, @"type", name });
     }
     /// `-[MTLFunctionConstantValues reset]
@@ -5618,7 +5819,10 @@ pub const FunctionConstantValues = opaque {
 
 /// `MTLFunctionDescriptor`
 pub const FunctionDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLFunctionDescriptor", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == ns.Copying) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -5638,7 +5842,7 @@ pub const FunctionDescriptor = opaque {
         return objc.msgSend(self, "name", ?*ns.String, .{});
     }
     /// `-[MTLFunctionDescriptor setName:]
-    pub fn setName_(self: *@This(), str: ?*ns.String) void {
+    pub fn setName(self: *@This(), str: ?*ns.String) void {
         return objc.msgSend(self, "setName:", void, .{str});
     }
     /// `-[MTLFunctionDescriptor specializedName]
@@ -5646,7 +5850,7 @@ pub const FunctionDescriptor = opaque {
         return objc.msgSend(self, "specializedName", ?*ns.String, .{});
     }
     /// `-[MTLFunctionDescriptor setSpecializedName:]
-    pub fn setSpecializedName_(self: *@This(), specialized_name: ?*ns.String) void {
+    pub fn setSpecializedName(self: *@This(), specialized_name: ?*ns.String) void {
         return objc.msgSend(self, "setSpecializedName:", void, .{specialized_name});
     }
     /// `-[MTLFunctionDescriptor constantValues]
@@ -5654,7 +5858,7 @@ pub const FunctionDescriptor = opaque {
         return objc.msgSend(self, "constantValues", ?*FunctionConstantValues, .{});
     }
     /// `-[MTLFunctionDescriptor setConstantValues:]
-    pub fn setConstantValues_(self: *@This(), constant_values: ?*FunctionConstantValues) void {
+    pub fn setConstantValues(self: *@This(), constant_values: ?*FunctionConstantValues) void {
         return objc.msgSend(self, "setConstantValues:", void, .{constant_values});
     }
     /// `-[MTLFunctionDescriptor options]
@@ -5662,7 +5866,7 @@ pub const FunctionDescriptor = opaque {
         return objc.msgSend(self, "options", FunctionOptions, .{});
     }
     /// `-[MTLFunctionDescriptor setOptions:]
-    pub fn setOptions_(self: *@This(), opts: FunctionOptions) void {
+    pub fn setOptions(self: *@This(), opts: FunctionOptions) void {
         return objc.msgSend(self, "setOptions:", void, .{opts});
     }
     /// `-[MTLFunctionDescriptor binaryArchives]
@@ -5670,14 +5874,17 @@ pub const FunctionDescriptor = opaque {
         return objc.msgSend(self, "binaryArchives", ?*ns.Array(*BinaryArchive), .{});
     }
     /// `-[MTLFunctionDescriptor setBinaryArchives:]
-    pub fn setBinaryArchives_(self: *@This(), binary_archives: ?*ns.Array(*BinaryArchive)) void {
+    pub fn setBinaryArchives(self: *@This(), binary_archives: ?*ns.Array(*BinaryArchive)) void {
         return objc.msgSend(self, "setBinaryArchives:", void, .{binary_archives});
     }
 };
 
 /// `MTLIntersectionFunctionDescriptor`
 pub const IntersectionFunctionDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), FunctionDescriptor);
+    pub const InternalInfo = objc.ExternClass("MTLIntersectionFunctionDescriptor", @This(), FunctionDescriptor);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == ns.Copying) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -5692,8 +5899,11 @@ pub const IntersectionFunctionDescriptor = opaque {
 
 /// `MTLFunctionHandle`
 pub const FunctionHandle = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `-[MTLFunctionHandle functionType]
     pub fn functionType(self: *@This()) FunctionType {
         return objc.msgSend(self, "functionType", FunctionType, .{});
@@ -5710,14 +5920,20 @@ pub const FunctionHandle = opaque {
 
 /// `MTLLogContainer`
 pub const LogContainer = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), ns.FastEnumeration);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), ns.FastEnumeration);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
 };
 
 /// `MTLFunctionLogDebugLocation`
 pub const FunctionLogDebugLocation = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `-[MTLFunctionLogDebugLocation functionName]
     pub fn functionName(self: *@This()) ?*ns.String {
         return objc.msgSend(self, "functionName", ?*ns.String, .{});
@@ -5738,8 +5954,11 @@ pub const FunctionLogDebugLocation = opaque {
 
 /// `MTLFunctionLog`
 pub const FunctionLog = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `-[MTLFunctionLog type]
     pub fn @"type"(self: *@This()) FunctionLogType {
         return objc.msgSend(self, "type", FunctionLogType, .{});
@@ -5760,13 +5979,19 @@ pub const FunctionLog = opaque {
 
 /// `MTLFunctionStitchingAttribute`
 pub const FunctionStitchingAttribute = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
 };
 
 /// `MTLFunctionStitchingAttributeAlwaysInline`
 pub const FunctionStitchingAttributeAlwaysInline = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLFunctionStitchingAttributeAlwaysInline", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == FunctionStitchingAttribute) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -5781,7 +6006,10 @@ pub const FunctionStitchingAttributeAlwaysInline = opaque {
 
 /// `MTLFunctionStitchingNode`
 pub const FunctionStitchingNode = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), objc.Id);
+    pub const InternalInfo = objc.ExternProtocol(@This(), objc.Id);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == ns.ObjectProtocol) return @ptrCast(self);
         if (Base == ns.Copying) return @ptrCast(self);
@@ -5791,7 +6019,10 @@ pub const FunctionStitchingNode = opaque {
 
 /// `MTLFunctionStitchingInputNode`
 pub const FunctionStitchingInputNode = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLFunctionStitchingInputNode", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == FunctionStitchingNode) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -5803,7 +6034,7 @@ pub const FunctionStitchingInputNode = opaque {
     /// `[[MTLFunctionStitchingInputNode alloc] init]`
     pub const allocInit = InternalInfo.allocInit;
     /// `-[MTLFunctionStitchingInputNode initWithArgumentIndex:]
-    pub fn initWithArgumentIndex_(self: *@This(), argument: usize) *@This() {
+    pub fn initWithArgumentIndex(self: *@This(), argument: usize) *@This() {
         return objc.msgSend(self, "initWithArgumentIndex:", *@This(), .{argument});
     }
     /// `-[MTLFunctionStitchingInputNode argumentIndex]
@@ -5811,14 +6042,17 @@ pub const FunctionStitchingInputNode = opaque {
         return objc.msgSend(self, "argumentIndex", usize, .{});
     }
     /// `-[MTLFunctionStitchingInputNode setArgumentIndex:]
-    pub fn setArgumentIndex_(self: *@This(), argument_index: usize) void {
+    pub fn setArgumentIndex(self: *@This(), argument_index: usize) void {
         return objc.msgSend(self, "setArgumentIndex:", void, .{argument_index});
     }
 };
 
 /// `MTLFunctionStitchingFunctionNode`
 pub const FunctionStitchingFunctionNode = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLFunctionStitchingFunctionNode", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == FunctionStitchingNode) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -5830,7 +6064,7 @@ pub const FunctionStitchingFunctionNode = opaque {
     /// `[[MTLFunctionStitchingFunctionNode alloc] init]`
     pub const allocInit = InternalInfo.allocInit;
     /// `-[MTLFunctionStitchingFunctionNode initWithName:arguments:controlDependencies:]
-    pub fn initWithName_arguments_controlDependencies_(self: *@This(), name_str: *ns.String, args: *ns.Array(*FunctionStitchingNode), control_dependencies: *ns.Array(*FunctionStitchingFunctionNode)) *@This() {
+    pub fn initWithName_arguments_controlDependencies(self: *@This(), name_str: *ns.String, args: *ns.Array(*FunctionStitchingNode), control_dependencies: *ns.Array(*FunctionStitchingFunctionNode)) *@This() {
         return objc.msgSend(self, "initWithName:arguments:controlDependencies:", *@This(), .{ name_str, args, control_dependencies });
     }
     /// `-[MTLFunctionStitchingFunctionNode name]
@@ -5838,7 +6072,7 @@ pub const FunctionStitchingFunctionNode = opaque {
         return objc.msgSend(self, "name", *ns.String, .{});
     }
     /// `-[MTLFunctionStitchingFunctionNode setName:]
-    pub fn setName_(self: *@This(), str: *ns.String) void {
+    pub fn setName(self: *@This(), str: *ns.String) void {
         return objc.msgSend(self, "setName:", void, .{str});
     }
     /// `-[MTLFunctionStitchingFunctionNode arguments]
@@ -5846,7 +6080,7 @@ pub const FunctionStitchingFunctionNode = opaque {
         return objc.msgSend(self, "arguments", *ns.Array(*FunctionStitchingNode), .{});
     }
     /// `-[MTLFunctionStitchingFunctionNode setArguments:]
-    pub fn setArguments_(self: *@This(), args: *ns.Array(*FunctionStitchingNode)) void {
+    pub fn setArguments(self: *@This(), args: *ns.Array(*FunctionStitchingNode)) void {
         return objc.msgSend(self, "setArguments:", void, .{args});
     }
     /// `-[MTLFunctionStitchingFunctionNode controlDependencies]
@@ -5854,14 +6088,17 @@ pub const FunctionStitchingFunctionNode = opaque {
         return objc.msgSend(self, "controlDependencies", *ns.Array(*FunctionStitchingFunctionNode), .{});
     }
     /// `-[MTLFunctionStitchingFunctionNode setControlDependencies:]
-    pub fn setControlDependencies_(self: *@This(), control_dependencies: *ns.Array(*FunctionStitchingFunctionNode)) void {
+    pub fn setControlDependencies(self: *@This(), control_dependencies: *ns.Array(*FunctionStitchingFunctionNode)) void {
         return objc.msgSend(self, "setControlDependencies:", void, .{control_dependencies});
     }
 };
 
 /// `MTLFunctionStitchingGraph`
 pub const FunctionStitchingGraph = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLFunctionStitchingGraph", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == ns.Copying) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -5873,7 +6110,7 @@ pub const FunctionStitchingGraph = opaque {
     /// `[[MTLFunctionStitchingGraph alloc] init]`
     pub const allocInit = InternalInfo.allocInit;
     /// `-[MTLFunctionStitchingGraph initWithFunctionName:nodes:outputNode:attributes:]
-    pub fn initWithFunctionName_nodes_outputNode_attributes_(self: *@This(), function_name: *ns.String, fn_nodes: *ns.Array(*FunctionStitchingFunctionNode), output_node: ?*FunctionStitchingFunctionNode, attrs: *ns.Array(*FunctionStitchingAttribute)) *@This() {
+    pub fn initWithFunctionName_nodes_outputNode_attributes(self: *@This(), function_name: *ns.String, fn_nodes: *ns.Array(*FunctionStitchingFunctionNode), output_node: ?*FunctionStitchingFunctionNode, attrs: *ns.Array(*FunctionStitchingAttribute)) *@This() {
         return objc.msgSend(self, "initWithFunctionName:nodes:outputNode:attributes:", *@This(), .{ function_name, fn_nodes, output_node, attrs });
     }
     /// `-[MTLFunctionStitchingGraph functionName]
@@ -5881,7 +6118,7 @@ pub const FunctionStitchingGraph = opaque {
         return objc.msgSend(self, "functionName", *ns.String, .{});
     }
     /// `-[MTLFunctionStitchingGraph setFunctionName:]
-    pub fn setFunctionName_(self: *@This(), function_name: *ns.String) void {
+    pub fn setFunctionName(self: *@This(), function_name: *ns.String) void {
         return objc.msgSend(self, "setFunctionName:", void, .{function_name});
     }
     /// `-[MTLFunctionStitchingGraph nodes]
@@ -5889,7 +6126,7 @@ pub const FunctionStitchingGraph = opaque {
         return objc.msgSend(self, "nodes", *ns.Array(*FunctionStitchingFunctionNode), .{});
     }
     /// `-[MTLFunctionStitchingGraph setNodes:]
-    pub fn setNodes_(self: *@This(), fn_nodes: *ns.Array(*FunctionStitchingFunctionNode)) void {
+    pub fn setNodes(self: *@This(), fn_nodes: *ns.Array(*FunctionStitchingFunctionNode)) void {
         return objc.msgSend(self, "setNodes:", void, .{fn_nodes});
     }
     /// `-[MTLFunctionStitchingGraph outputNode]
@@ -5897,7 +6134,7 @@ pub const FunctionStitchingGraph = opaque {
         return objc.msgSend(self, "outputNode", ?*FunctionStitchingFunctionNode, .{});
     }
     /// `-[MTLFunctionStitchingGraph setOutputNode:]
-    pub fn setOutputNode_(self: *@This(), output_node: ?*FunctionStitchingFunctionNode) void {
+    pub fn setOutputNode(self: *@This(), output_node: ?*FunctionStitchingFunctionNode) void {
         return objc.msgSend(self, "setOutputNode:", void, .{output_node});
     }
     /// `-[MTLFunctionStitchingGraph attributes]
@@ -5905,14 +6142,17 @@ pub const FunctionStitchingGraph = opaque {
         return objc.msgSend(self, "attributes", *ns.Array(*FunctionStitchingAttribute), .{});
     }
     /// `-[MTLFunctionStitchingGraph setAttributes:]
-    pub fn setAttributes_(self: *@This(), attrs: *ns.Array(*FunctionStitchingAttribute)) void {
+    pub fn setAttributes(self: *@This(), attrs: *ns.Array(*FunctionStitchingAttribute)) void {
         return objc.msgSend(self, "setAttributes:", void, .{attrs});
     }
 };
 
 /// `MTLStitchedLibraryDescriptor`
 pub const StitchedLibraryDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLStitchedLibraryDescriptor", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == ns.Copying) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -5928,7 +6168,7 @@ pub const StitchedLibraryDescriptor = opaque {
         return objc.msgSend(self, "functionGraphs", *ns.Array(*FunctionStitchingGraph), .{});
     }
     /// `-[MTLStitchedLibraryDescriptor setFunctionGraphs:]
-    pub fn setFunctionGraphs_(self: *@This(), function_graphs: *ns.Array(*FunctionStitchingGraph)) void {
+    pub fn setFunctionGraphs(self: *@This(), function_graphs: *ns.Array(*FunctionStitchingGraph)) void {
         return objc.msgSend(self, "setFunctionGraphs:", void, .{function_graphs});
     }
     /// `-[MTLStitchedLibraryDescriptor functions]
@@ -5936,14 +6176,17 @@ pub const StitchedLibraryDescriptor = opaque {
         return objc.msgSend(self, "functions", *ns.Array(*Function), .{});
     }
     /// `-[MTLStitchedLibraryDescriptor setFunctions:]
-    pub fn setFunctions_(self: *@This(), fns: *ns.Array(*Function)) void {
+    pub fn setFunctions(self: *@This(), fns: *ns.Array(*Function)) void {
         return objc.msgSend(self, "setFunctions:", void, .{fns});
     }
 };
 
 /// `MTLHeapDescriptor`
 pub const HeapDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLHeapDescriptor", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == ns.Copying) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -5959,7 +6202,7 @@ pub const HeapDescriptor = opaque {
         return objc.msgSend(self, "size", usize, .{});
     }
     /// `-[MTLHeapDescriptor setSize:]
-    pub fn setSize_(self: *@This(), value: usize) void {
+    pub fn setSize(self: *@This(), value: usize) void {
         return objc.msgSend(self, "setSize:", void, .{value});
     }
     /// `-[MTLHeapDescriptor storageMode]
@@ -5967,7 +6210,7 @@ pub const HeapDescriptor = opaque {
         return objc.msgSend(self, "storageMode", StorageMode, .{});
     }
     /// `-[MTLHeapDescriptor setStorageMode:]
-    pub fn setStorageMode_(self: *@This(), storage_mode: StorageMode) void {
+    pub fn setStorageMode(self: *@This(), storage_mode: StorageMode) void {
         return objc.msgSend(self, "setStorageMode:", void, .{storage_mode});
     }
     /// `-[MTLHeapDescriptor cpuCacheMode]
@@ -5975,7 +6218,7 @@ pub const HeapDescriptor = opaque {
         return objc.msgSend(self, "cpuCacheMode", CpuCacheMode, .{});
     }
     /// `-[MTLHeapDescriptor setCpuCacheMode:]
-    pub fn setCpuCacheMode_(self: *@This(), cpu_cache_mode: CpuCacheMode) void {
+    pub fn setCpuCacheMode(self: *@This(), cpu_cache_mode: CpuCacheMode) void {
         return objc.msgSend(self, "setCpuCacheMode:", void, .{cpu_cache_mode});
     }
     /// `-[MTLHeapDescriptor sparsePageSize]
@@ -5983,7 +6226,7 @@ pub const HeapDescriptor = opaque {
         return objc.msgSend(self, "sparsePageSize", SparsePageSize, .{});
     }
     /// `-[MTLHeapDescriptor setSparsePageSize:]
-    pub fn setSparsePageSize_(self: *@This(), sparse_page_size: SparsePageSize) void {
+    pub fn setSparsePageSize(self: *@This(), sparse_page_size: SparsePageSize) void {
         return objc.msgSend(self, "setSparsePageSize:", void, .{sparse_page_size});
     }
     /// `-[MTLHeapDescriptor hazardTrackingMode]
@@ -5991,7 +6234,7 @@ pub const HeapDescriptor = opaque {
         return objc.msgSend(self, "hazardTrackingMode", HazardTrackingMode, .{});
     }
     /// `-[MTLHeapDescriptor setHazardTrackingMode:]
-    pub fn setHazardTrackingMode_(self: *@This(), hazard_tracking_mode: HazardTrackingMode) void {
+    pub fn setHazardTrackingMode(self: *@This(), hazard_tracking_mode: HazardTrackingMode) void {
         return objc.msgSend(self, "setHazardTrackingMode:", void, .{hazard_tracking_mode});
     }
     /// `-[MTLHeapDescriptor resourceOptions]
@@ -5999,7 +6242,7 @@ pub const HeapDescriptor = opaque {
         return objc.msgSend(self, "resourceOptions", ResourceOptions, .{});
     }
     /// `-[MTLHeapDescriptor setResourceOptions:]
-    pub fn setResourceOptions_(self: *@This(), resource_options: ResourceOptions) void {
+    pub fn setResourceOptions(self: *@This(), resource_options: ResourceOptions) void {
         return objc.msgSend(self, "setResourceOptions:", void, .{resource_options});
     }
     /// `-[MTLHeapDescriptor type]
@@ -6007,53 +6250,56 @@ pub const HeapDescriptor = opaque {
         return objc.msgSend(self, "type", HeapType, .{});
     }
     /// `-[MTLHeapDescriptor setType:]
-    pub fn setType_(self: *@This(), value: HeapType) void {
+    pub fn setType(self: *@This(), value: HeapType) void {
         return objc.msgSend(self, "setType:", void, .{value});
     }
 };
 
 /// `MTLHeap`
 pub const Heap = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `-[MTLHeap maxAvailableSizeWithAlignment:]
-    pub fn maxAvailableSizeWithAlignment_(self: *@This(), alignment: usize) usize {
+    pub fn maxAvailableSizeWithAlignment(self: *@This(), alignment: usize) usize {
         return objc.msgSend(self, "maxAvailableSizeWithAlignment:", usize, .{alignment});
     }
     /// `-[MTLHeap newBufferWithLength:options:]
-    pub fn newBufferWithLength_options_(self: *@This(), length: usize, options: ResourceOptions) ?*Buffer {
+    pub fn newBufferWithLength_options(self: *@This(), length: usize, options: ResourceOptions) ?*Buffer {
         return objc.msgSend(self, "newBufferWithLength:options:", ?*Buffer, .{ length, options });
     }
     /// `-[MTLHeap newTextureWithDescriptor:]
-    pub fn newTextureWithDescriptor_(self: *@This(), descriptor: *TextureDescriptor) ?*Texture {
+    pub fn newTextureWithDescriptor(self: *@This(), descriptor: *TextureDescriptor) ?*Texture {
         return objc.msgSend(self, "newTextureWithDescriptor:", ?*Texture, .{descriptor});
     }
     /// `-[MTLHeap setPurgeableState:]
-    pub fn setPurgeableState_(self: *@This(), state: PurgeableState) PurgeableState {
+    pub fn setPurgeableState(self: *@This(), state: PurgeableState) PurgeableState {
         return objc.msgSend(self, "setPurgeableState:", PurgeableState, .{state});
     }
     /// `-[MTLHeap newBufferWithLength:options:offset:]
-    pub fn newBufferWithLength_options_offset_(self: *@This(), length: usize, options: ResourceOptions, offset: usize) ?*Buffer {
+    pub fn newBufferWithLength_options_offset(self: *@This(), length: usize, options: ResourceOptions, offset: usize) ?*Buffer {
         return objc.msgSend(self, "newBufferWithLength:options:offset:", ?*Buffer, .{ length, options, offset });
     }
     /// `-[MTLHeap newTextureWithDescriptor:offset:]
-    pub fn newTextureWithDescriptor_offset_(self: *@This(), descriptor: *TextureDescriptor, offset: usize) ?*Texture {
+    pub fn newTextureWithDescriptor_offset(self: *@This(), descriptor: *TextureDescriptor, offset: usize) ?*Texture {
         return objc.msgSend(self, "newTextureWithDescriptor:offset:", ?*Texture, .{ descriptor, offset });
     }
     /// `-[MTLHeap newAccelerationStructureWithSize:]
-    pub fn newAccelerationStructureWithSize_(self: *@This(), n_bytes: usize) ?*AccelerationStructure {
+    pub fn newAccelerationStructureWithSize(self: *@This(), n_bytes: usize) ?*AccelerationStructure {
         return objc.msgSend(self, "newAccelerationStructureWithSize:", ?*AccelerationStructure, .{n_bytes});
     }
     /// `-[MTLHeap newAccelerationStructureWithDescriptor:]
-    pub fn newAccelerationStructureWithDescriptor_(self: *@This(), descriptor: *AccelerationStructureDescriptor) ?*AccelerationStructure {
+    pub fn newAccelerationStructureWithDescriptor(self: *@This(), descriptor: *AccelerationStructureDescriptor) ?*AccelerationStructure {
         return objc.msgSend(self, "newAccelerationStructureWithDescriptor:", ?*AccelerationStructure, .{descriptor});
     }
     /// `-[MTLHeap newAccelerationStructureWithSize:offset:]
-    pub fn newAccelerationStructureWithSize_offset_(self: *@This(), n_bytes: usize, offset: usize) ?*AccelerationStructure {
+    pub fn newAccelerationStructureWithSize_offset(self: *@This(), n_bytes: usize, offset: usize) ?*AccelerationStructure {
         return objc.msgSend(self, "newAccelerationStructureWithSize:offset:", ?*AccelerationStructure, .{ n_bytes, offset });
     }
     /// `-[MTLHeap newAccelerationStructureWithDescriptor:offset:]
-    pub fn newAccelerationStructureWithDescriptor_offset_(self: *@This(), descriptor: *AccelerationStructureDescriptor, offset: usize) ?*AccelerationStructure {
+    pub fn newAccelerationStructureWithDescriptor_offset(self: *@This(), descriptor: *AccelerationStructureDescriptor, offset: usize) ?*AccelerationStructure {
         return objc.msgSend(self, "newAccelerationStructureWithDescriptor:offset:", ?*AccelerationStructure, .{ descriptor, offset });
     }
     /// `-[MTLHeap label]
@@ -6061,7 +6307,7 @@ pub const Heap = opaque {
         return objc.msgSend(self, "label", ?*ns.String, .{});
     }
     /// `-[MTLHeap setLabel:]
-    pub fn setLabel_(self: *@This(), str: ?*ns.String) void {
+    pub fn setLabel(self: *@This(), str: ?*ns.String) void {
         return objc.msgSend(self, "setLabel:", void, .{str});
     }
     /// `-[MTLHeap device]
@@ -6104,7 +6350,10 @@ pub const Heap = opaque {
 
 /// `MTLIndirectCommandBufferDescriptor`
 pub const IndirectCommandBufferDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLIndirectCommandBufferDescriptor", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == ns.Copying) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -6120,7 +6369,7 @@ pub const IndirectCommandBufferDescriptor = opaque {
         return objc.msgSend(self, "commandTypes", IndirectCommandType, .{});
     }
     /// `-[MTLIndirectCommandBufferDescriptor setCommandTypes:]
-    pub fn setCommandTypes_(self: *@This(), command_types: IndirectCommandType) void {
+    pub fn setCommandTypes(self: *@This(), command_types: IndirectCommandType) void {
         return objc.msgSend(self, "setCommandTypes:", void, .{command_types});
     }
     /// `-[MTLIndirectCommandBufferDescriptor inheritPipelineState]
@@ -6128,7 +6377,7 @@ pub const IndirectCommandBufferDescriptor = opaque {
         return objc.msgSend(self, "inheritPipelineState", bool, .{});
     }
     /// `-[MTLIndirectCommandBufferDescriptor setInheritPipelineState:]
-    pub fn setInheritPipelineState_(self: *@This(), inherit_pipeline_state: bool) void {
+    pub fn setInheritPipelineState(self: *@This(), inherit_pipeline_state: bool) void {
         return objc.msgSend(self, "setInheritPipelineState:", void, .{inherit_pipeline_state});
     }
     /// `-[MTLIndirectCommandBufferDescriptor inheritBuffers]
@@ -6136,7 +6385,7 @@ pub const IndirectCommandBufferDescriptor = opaque {
         return objc.msgSend(self, "inheritBuffers", bool, .{});
     }
     /// `-[MTLIndirectCommandBufferDescriptor setInheritBuffers:]
-    pub fn setInheritBuffers_(self: *@This(), inherit_buffers: bool) void {
+    pub fn setInheritBuffers(self: *@This(), inherit_buffers: bool) void {
         return objc.msgSend(self, "setInheritBuffers:", void, .{inherit_buffers});
     }
     /// `-[MTLIndirectCommandBufferDescriptor maxVertexBufferBindCount]
@@ -6144,7 +6393,7 @@ pub const IndirectCommandBufferDescriptor = opaque {
         return objc.msgSend(self, "maxVertexBufferBindCount", usize, .{});
     }
     /// `-[MTLIndirectCommandBufferDescriptor setMaxVertexBufferBindCount:]
-    pub fn setMaxVertexBufferBindCount_(self: *@This(), max_vertex_buffer_bind_count: usize) void {
+    pub fn setMaxVertexBufferBindCount(self: *@This(), max_vertex_buffer_bind_count: usize) void {
         return objc.msgSend(self, "setMaxVertexBufferBindCount:", void, .{max_vertex_buffer_bind_count});
     }
     /// `-[MTLIndirectCommandBufferDescriptor maxFragmentBufferBindCount]
@@ -6152,7 +6401,7 @@ pub const IndirectCommandBufferDescriptor = opaque {
         return objc.msgSend(self, "maxFragmentBufferBindCount", usize, .{});
     }
     /// `-[MTLIndirectCommandBufferDescriptor setMaxFragmentBufferBindCount:]
-    pub fn setMaxFragmentBufferBindCount_(self: *@This(), max_fragment_buffer_bind_count: usize) void {
+    pub fn setMaxFragmentBufferBindCount(self: *@This(), max_fragment_buffer_bind_count: usize) void {
         return objc.msgSend(self, "setMaxFragmentBufferBindCount:", void, .{max_fragment_buffer_bind_count});
     }
     /// `-[MTLIndirectCommandBufferDescriptor maxKernelBufferBindCount]
@@ -6160,7 +6409,7 @@ pub const IndirectCommandBufferDescriptor = opaque {
         return objc.msgSend(self, "maxKernelBufferBindCount", usize, .{});
     }
     /// `-[MTLIndirectCommandBufferDescriptor setMaxKernelBufferBindCount:]
-    pub fn setMaxKernelBufferBindCount_(self: *@This(), max_kernel_buffer_bind_count: usize) void {
+    pub fn setMaxKernelBufferBindCount(self: *@This(), max_kernel_buffer_bind_count: usize) void {
         return objc.msgSend(self, "setMaxKernelBufferBindCount:", void, .{max_kernel_buffer_bind_count});
     }
     /// `-[MTLIndirectCommandBufferDescriptor maxKernelThreadgroupMemoryBindCount]
@@ -6168,7 +6417,7 @@ pub const IndirectCommandBufferDescriptor = opaque {
         return objc.msgSend(self, "maxKernelThreadgroupMemoryBindCount", usize, .{});
     }
     /// `-[MTLIndirectCommandBufferDescriptor setMaxKernelThreadgroupMemoryBindCount:]
-    pub fn setMaxKernelThreadgroupMemoryBindCount_(self: *@This(), max_kernel_threadgroup_memory_bind_count: usize) void {
+    pub fn setMaxKernelThreadgroupMemoryBindCount(self: *@This(), max_kernel_threadgroup_memory_bind_count: usize) void {
         return objc.msgSend(self, "setMaxKernelThreadgroupMemoryBindCount:", void, .{max_kernel_threadgroup_memory_bind_count});
     }
     /// `-[MTLIndirectCommandBufferDescriptor maxObjectBufferBindCount]
@@ -6176,7 +6425,7 @@ pub const IndirectCommandBufferDescriptor = opaque {
         return objc.msgSend(self, "maxObjectBufferBindCount", usize, .{});
     }
     /// `-[MTLIndirectCommandBufferDescriptor setMaxObjectBufferBindCount:]
-    pub fn setMaxObjectBufferBindCount_(self: *@This(), max_object_buffer_bind_count: usize) void {
+    pub fn setMaxObjectBufferBindCount(self: *@This(), max_object_buffer_bind_count: usize) void {
         return objc.msgSend(self, "setMaxObjectBufferBindCount:", void, .{max_object_buffer_bind_count});
     }
     /// `-[MTLIndirectCommandBufferDescriptor maxMeshBufferBindCount]
@@ -6184,7 +6433,7 @@ pub const IndirectCommandBufferDescriptor = opaque {
         return objc.msgSend(self, "maxMeshBufferBindCount", usize, .{});
     }
     /// `-[MTLIndirectCommandBufferDescriptor setMaxMeshBufferBindCount:]
-    pub fn setMaxMeshBufferBindCount_(self: *@This(), max_mesh_buffer_bind_count: usize) void {
+    pub fn setMaxMeshBufferBindCount(self: *@This(), max_mesh_buffer_bind_count: usize) void {
         return objc.msgSend(self, "setMaxMeshBufferBindCount:", void, .{max_mesh_buffer_bind_count});
     }
     /// `-[MTLIndirectCommandBufferDescriptor maxObjectThreadgroupMemoryBindCount]
@@ -6192,7 +6441,7 @@ pub const IndirectCommandBufferDescriptor = opaque {
         return objc.msgSend(self, "maxObjectThreadgroupMemoryBindCount", usize, .{});
     }
     /// `-[MTLIndirectCommandBufferDescriptor setMaxObjectThreadgroupMemoryBindCount:]
-    pub fn setMaxObjectThreadgroupMemoryBindCount_(self: *@This(), max_object_threadgroup_memory_bind_count: usize) void {
+    pub fn setMaxObjectThreadgroupMemoryBindCount(self: *@This(), max_object_threadgroup_memory_bind_count: usize) void {
         return objc.msgSend(self, "setMaxObjectThreadgroupMemoryBindCount:", void, .{max_object_threadgroup_memory_bind_count});
     }
     /// `-[MTLIndirectCommandBufferDescriptor supportRayTracing]
@@ -6200,7 +6449,7 @@ pub const IndirectCommandBufferDescriptor = opaque {
         return objc.msgSend(self, "supportRayTracing", bool, .{});
     }
     /// `-[MTLIndirectCommandBufferDescriptor setSupportRayTracing:]
-    pub fn setSupportRayTracing_(self: *@This(), support_ray_tracing: bool) void {
+    pub fn setSupportRayTracing(self: *@This(), support_ray_tracing: bool) void {
         return objc.msgSend(self, "setSupportRayTracing:", void, .{support_ray_tracing});
     }
     /// `-[MTLIndirectCommandBufferDescriptor supportDynamicAttributeStride]
@@ -6208,25 +6457,28 @@ pub const IndirectCommandBufferDescriptor = opaque {
         return objc.msgSend(self, "supportDynamicAttributeStride", bool, .{});
     }
     /// `-[MTLIndirectCommandBufferDescriptor setSupportDynamicAttributeStride:]
-    pub fn setSupportDynamicAttributeStride_(self: *@This(), support_dynamic_attribute_stride: bool) void {
+    pub fn setSupportDynamicAttributeStride(self: *@This(), support_dynamic_attribute_stride: bool) void {
         return objc.msgSend(self, "setSupportDynamicAttributeStride:", void, .{support_dynamic_attribute_stride});
     }
 };
 
 /// `MTLIndirectCommandBuffer`
 pub const IndirectCommandBuffer = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), Resource);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), Resource);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `-[MTLIndirectCommandBuffer resetWithRange:]
-    pub fn resetWithRange_(self: *@This(), range: ns.Range) void {
+    pub fn resetWithRange(self: *@This(), range: ns.Range) void {
         return objc.msgSend(self, "resetWithRange:", void, .{range});
     }
     /// `-[MTLIndirectCommandBuffer indirectRenderCommandAtIndex:]
-    pub fn indirectRenderCommandAtIndex_(self: *@This(), command_index: usize) *IndirectRenderCommand {
+    pub fn indirectRenderCommandAtIndex(self: *@This(), command_index: usize) *IndirectRenderCommand {
         return objc.msgSend(self, "indirectRenderCommandAtIndex:", *IndirectRenderCommand, .{command_index});
     }
     /// `-[MTLIndirectCommandBuffer indirectComputeCommandAtIndex:]
-    pub fn indirectComputeCommandAtIndex_(self: *@This(), command_index: usize) *IndirectComputeCommand {
+    pub fn indirectComputeCommandAtIndex(self: *@This(), command_index: usize) *IndirectComputeCommand {
         return objc.msgSend(self, "indirectComputeCommandAtIndex:", *IndirectComputeCommand, .{command_index});
     }
     /// `-[MTLIndirectCommandBuffer size]
@@ -6241,58 +6493,61 @@ pub const IndirectCommandBuffer = opaque {
 
 /// `MTLIndirectRenderCommand`
 pub const IndirectRenderCommand = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `-[MTLIndirectRenderCommand setRenderPipelineState:]
-    pub fn setRenderPipelineState_(self: *@This(), pipeline_state: *RenderPipelineState) void {
+    pub fn setRenderPipelineState(self: *@This(), pipeline_state: *RenderPipelineState) void {
         return objc.msgSend(self, "setRenderPipelineState:", void, .{pipeline_state});
     }
     /// `-[MTLIndirectRenderCommand setVertexBuffer:offset:atIndex:]
-    pub fn setVertexBuffer_offset_atIndex_(self: *@This(), buffer: *Buffer, offset: usize, index: usize) void {
+    pub fn setVertexBuffer_offset_atIndex(self: *@This(), buffer: *Buffer, offset: usize, index: usize) void {
         return objc.msgSend(self, "setVertexBuffer:offset:atIndex:", void, .{ buffer, offset, index });
     }
     /// `-[MTLIndirectRenderCommand setFragmentBuffer:offset:atIndex:]
-    pub fn setFragmentBuffer_offset_atIndex_(self: *@This(), buffer: *Buffer, offset: usize, index: usize) void {
+    pub fn setFragmentBuffer_offset_atIndex(self: *@This(), buffer: *Buffer, offset: usize, index: usize) void {
         return objc.msgSend(self, "setFragmentBuffer:offset:atIndex:", void, .{ buffer, offset, index });
     }
     /// `-[MTLIndirectRenderCommand setVertexBuffer:offset:attributeStride:atIndex:]
-    pub fn setVertexBuffer_offset_attributeStride_atIndex_(self: *@This(), buffer: *Buffer, offset: usize, stride: usize, index: usize) void {
+    pub fn setVertexBuffer_offset_attributeStride_atIndex(self: *@This(), buffer: *Buffer, offset: usize, stride: usize, index: usize) void {
         return objc.msgSend(self, "setVertexBuffer:offset:attributeStride:atIndex:", void, .{ buffer, offset, stride, index });
     }
     /// `-[MTLIndirectRenderCommand drawPatches:patchStart:patchCount:patchIndexBuffer:patchIndexBufferOffset:instanceCount:baseInstance:tessellationFactorBuffer:tessellationFactorBufferOffset:tessellationFactorBufferInstanceStride:]
-    pub fn drawPatches_patchStart_patchCount_patchIndexBuffer_patchIndexBufferOffset_instanceCount_baseInstance_tessellationFactorBuffer_tessellationFactorBufferOffset_tessellationFactorBufferInstanceStride_(self: *@This(), number_of_patch_control_points: usize, patch_start: usize, patch_count: usize, patch_index_buffer: ?*Buffer, patch_index_buffer_offset: usize, instance_count: usize, base_instance: usize, buffer: *Buffer, offset: usize, instance_stride: usize) void {
+    pub fn drawPatches_patchStart_patchCount_patchIndexBuffer_patchIndexBufferOffset_instanceCount_baseInstance_tessellationFactorBuffer_tessellationFactorBufferOffset_tessellationFactorBufferInstanceStride(self: *@This(), number_of_patch_control_points: usize, patch_start: usize, patch_count: usize, patch_index_buffer: ?*Buffer, patch_index_buffer_offset: usize, instance_count: usize, base_instance: usize, buffer: *Buffer, offset: usize, instance_stride: usize) void {
         return objc.msgSend(self, "drawPatches:patchStart:patchCount:patchIndexBuffer:patchIndexBufferOffset:instanceCount:baseInstance:tessellationFactorBuffer:tessellationFactorBufferOffset:tessellationFactorBufferInstanceStride:", void, .{ number_of_patch_control_points, patch_start, patch_count, patch_index_buffer, patch_index_buffer_offset, instance_count, base_instance, buffer, offset, instance_stride });
     }
     /// `-[MTLIndirectRenderCommand drawIndexedPatches:patchStart:patchCount:patchIndexBuffer:patchIndexBufferOffset:controlPointIndexBuffer:controlPointIndexBufferOffset:instanceCount:baseInstance:tessellationFactorBuffer:tessellationFactorBufferOffset:tessellationFactorBufferInstanceStride:]
-    pub fn drawIndexedPatches_patchStart_patchCount_patchIndexBuffer_patchIndexBufferOffset_controlPointIndexBuffer_controlPointIndexBufferOffset_instanceCount_baseInstance_tessellationFactorBuffer_tessellationFactorBufferOffset_tessellationFactorBufferInstanceStride_(self: *@This(), number_of_patch_control_points: usize, patch_start: usize, patch_count: usize, patch_index_buffer: ?*Buffer, patch_index_buffer_offset: usize, control_point_index_buffer: *Buffer, control_point_index_buffer_offset: usize, instance_count: usize, base_instance: usize, buffer: *Buffer, offset: usize, instance_stride: usize) void {
+    pub fn drawIndexedPatches_patchStart_patchCount_patchIndexBuffer_patchIndexBufferOffset_controlPointIndexBuffer_controlPointIndexBufferOffset_instanceCount_baseInstance_tessellationFactorBuffer_tessellationFactorBufferOffset_tessellationFactorBufferInstanceStride(self: *@This(), number_of_patch_control_points: usize, patch_start: usize, patch_count: usize, patch_index_buffer: ?*Buffer, patch_index_buffer_offset: usize, control_point_index_buffer: *Buffer, control_point_index_buffer_offset: usize, instance_count: usize, base_instance: usize, buffer: *Buffer, offset: usize, instance_stride: usize) void {
         return objc.msgSend(self, "drawIndexedPatches:patchStart:patchCount:patchIndexBuffer:patchIndexBufferOffset:controlPointIndexBuffer:controlPointIndexBufferOffset:instanceCount:baseInstance:tessellationFactorBuffer:tessellationFactorBufferOffset:tessellationFactorBufferInstanceStride:", void, .{ number_of_patch_control_points, patch_start, patch_count, patch_index_buffer, patch_index_buffer_offset, control_point_index_buffer, control_point_index_buffer_offset, instance_count, base_instance, buffer, offset, instance_stride });
     }
     /// `-[MTLIndirectRenderCommand drawPrimitives:vertexStart:vertexCount:instanceCount:baseInstance:]
-    pub fn drawPrimitives_vertexStart_vertexCount_instanceCount_baseInstance_(self: *@This(), primitive_type: PrimitiveType, vertex_start: usize, vertex_count: usize, instance_count: usize, base_instance: usize) void {
+    pub fn drawPrimitives_vertexStart_vertexCount_instanceCount_baseInstance(self: *@This(), primitive_type: PrimitiveType, vertex_start: usize, vertex_count: usize, instance_count: usize, base_instance: usize) void {
         return objc.msgSend(self, "drawPrimitives:vertexStart:vertexCount:instanceCount:baseInstance:", void, .{ primitive_type, vertex_start, vertex_count, instance_count, base_instance });
     }
     /// `-[MTLIndirectRenderCommand drawIndexedPrimitives:indexCount:indexType:indexBuffer:indexBufferOffset:instanceCount:baseVertex:baseInstance:]
-    pub fn drawIndexedPrimitives_indexCount_indexType_indexBuffer_indexBufferOffset_instanceCount_baseVertex_baseInstance_(self: *@This(), primitive_type: PrimitiveType, index_count: usize, index_type: IndexType, index_buffer: *Buffer, index_buffer_offset: usize, instance_count: usize, base_vertex: isize, base_instance: usize) void {
+    pub fn drawIndexedPrimitives_indexCount_indexType_indexBuffer_indexBufferOffset_instanceCount_baseVertex_baseInstance(self: *@This(), primitive_type: PrimitiveType, index_count: usize, index_type: IndexType, index_buffer: *Buffer, index_buffer_offset: usize, instance_count: usize, base_vertex: isize, base_instance: usize) void {
         return objc.msgSend(self, "drawIndexedPrimitives:indexCount:indexType:indexBuffer:indexBufferOffset:instanceCount:baseVertex:baseInstance:", void, .{ primitive_type, index_count, index_type, index_buffer, index_buffer_offset, instance_count, base_vertex, base_instance });
     }
     /// `-[MTLIndirectRenderCommand setObjectThreadgroupMemoryLength:atIndex:]
-    pub fn setObjectThreadgroupMemoryLength_atIndex_(self: *@This(), length: usize, index: usize) void {
+    pub fn setObjectThreadgroupMemoryLength_atIndex(self: *@This(), length: usize, index: usize) void {
         return objc.msgSend(self, "setObjectThreadgroupMemoryLength:atIndex:", void, .{ length, index });
     }
     /// `-[MTLIndirectRenderCommand setObjectBuffer:offset:atIndex:]
-    pub fn setObjectBuffer_offset_atIndex_(self: *@This(), buffer: *Buffer, offset: usize, index: usize) void {
+    pub fn setObjectBuffer_offset_atIndex(self: *@This(), buffer: *Buffer, offset: usize, index: usize) void {
         return objc.msgSend(self, "setObjectBuffer:offset:atIndex:", void, .{ buffer, offset, index });
     }
     /// `-[MTLIndirectRenderCommand setMeshBuffer:offset:atIndex:]
-    pub fn setMeshBuffer_offset_atIndex_(self: *@This(), buffer: *Buffer, offset: usize, index: usize) void {
+    pub fn setMeshBuffer_offset_atIndex(self: *@This(), buffer: *Buffer, offset: usize, index: usize) void {
         return objc.msgSend(self, "setMeshBuffer:offset:atIndex:", void, .{ buffer, offset, index });
     }
     /// `-[MTLIndirectRenderCommand drawMeshThreadgroups:threadsPerObjectThreadgroup:threadsPerMeshThreadgroup:]
-    pub fn drawMeshThreadgroups_threadsPerObjectThreadgroup_threadsPerMeshThreadgroup_(self: *@This(), threadgroups_per_grid: Size, threads_per_object_threadgroup: Size, threads_per_mesh_threadgroup: Size) void {
+    pub fn drawMeshThreadgroups_threadsPerObjectThreadgroup_threadsPerMeshThreadgroup(self: *@This(), threadgroups_per_grid: Size, threads_per_object_threadgroup: Size, threads_per_mesh_threadgroup: Size) void {
         return objc.msgSend(self, "drawMeshThreadgroups:threadsPerObjectThreadgroup:threadsPerMeshThreadgroup:", void, .{ threadgroups_per_grid, threads_per_object_threadgroup, threads_per_mesh_threadgroup });
     }
     /// `-[MTLIndirectRenderCommand drawMeshThreads:threadsPerObjectThreadgroup:threadsPerMeshThreadgroup:]
-    pub fn drawMeshThreads_threadsPerObjectThreadgroup_threadsPerMeshThreadgroup_(self: *@This(), threads_per_grid: Size, threads_per_object_threadgroup: Size, threads_per_mesh_threadgroup: Size) void {
+    pub fn drawMeshThreads_threadsPerObjectThreadgroup_threadsPerMeshThreadgroup(self: *@This(), threads_per_grid: Size, threads_per_object_threadgroup: Size, threads_per_mesh_threadgroup: Size) void {
         return objc.msgSend(self, "drawMeshThreads:threadsPerObjectThreadgroup:threadsPerMeshThreadgroup:", void, .{ threads_per_grid, threads_per_object_threadgroup, threads_per_mesh_threadgroup });
     }
     /// `-[MTLIndirectRenderCommand setBarrier]
@@ -6311,26 +6566,29 @@ pub const IndirectRenderCommand = opaque {
 
 /// `MTLIndirectComputeCommand`
 pub const IndirectComputeCommand = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `-[MTLIndirectComputeCommand setComputePipelineState:]
-    pub fn setComputePipelineState_(self: *@This(), pipeline_state: *ComputePipelineState) void {
+    pub fn setComputePipelineState(self: *@This(), pipeline_state: *ComputePipelineState) void {
         return objc.msgSend(self, "setComputePipelineState:", void, .{pipeline_state});
     }
     /// `-[MTLIndirectComputeCommand setKernelBuffer:offset:atIndex:]
-    pub fn setKernelBuffer_offset_atIndex_(self: *@This(), buffer: *Buffer, offset: usize, index: usize) void {
+    pub fn setKernelBuffer_offset_atIndex(self: *@This(), buffer: *Buffer, offset: usize, index: usize) void {
         return objc.msgSend(self, "setKernelBuffer:offset:atIndex:", void, .{ buffer, offset, index });
     }
     /// `-[MTLIndirectComputeCommand setKernelBuffer:offset:attributeStride:atIndex:]
-    pub fn setKernelBuffer_offset_attributeStride_atIndex_(self: *@This(), buffer: *Buffer, offset: usize, stride: usize, index: usize) void {
+    pub fn setKernelBuffer_offset_attributeStride_atIndex(self: *@This(), buffer: *Buffer, offset: usize, stride: usize, index: usize) void {
         return objc.msgSend(self, "setKernelBuffer:offset:attributeStride:atIndex:", void, .{ buffer, offset, stride, index });
     }
     /// `-[MTLIndirectComputeCommand concurrentDispatchThreadgroups:threadsPerThreadgroup:]
-    pub fn concurrentDispatchThreadgroups_threadsPerThreadgroup_(self: *@This(), threadgroups_per_grid: Size, threads_per_threadgroup: Size) void {
+    pub fn concurrentDispatchThreadgroups_threadsPerThreadgroup(self: *@This(), threadgroups_per_grid: Size, threads_per_threadgroup: Size) void {
         return objc.msgSend(self, "concurrentDispatchThreadgroups:threadsPerThreadgroup:", void, .{ threadgroups_per_grid, threads_per_threadgroup });
     }
     /// `-[MTLIndirectComputeCommand concurrentDispatchThreads:threadsPerThreadgroup:]
-    pub fn concurrentDispatchThreads_threadsPerThreadgroup_(self: *@This(), threads_per_grid: Size, threads_per_threadgroup: Size) void {
+    pub fn concurrentDispatchThreads_threadsPerThreadgroup(self: *@This(), threads_per_grid: Size, threads_per_threadgroup: Size) void {
         return objc.msgSend(self, "concurrentDispatchThreads:threadsPerThreadgroup:", void, .{ threads_per_grid, threads_per_threadgroup });
     }
     /// `-[MTLIndirectComputeCommand setBarrier]
@@ -6342,7 +6600,7 @@ pub const IndirectComputeCommand = opaque {
         return objc.msgSend(self, "clearBarrier", void, .{});
     }
     /// `-[MTLIndirectComputeCommand setImageblockWidth:height:]
-    pub fn setImageblockWidth_height_(self: *@This(), width: usize, height: usize) void {
+    pub fn setImageblockWidth_height(self: *@This(), width: usize, height: usize) void {
         return objc.msgSend(self, "setImageblockWidth:height:", void, .{ width, height });
     }
     /// `-[MTLIndirectComputeCommand reset]
@@ -6350,18 +6608,21 @@ pub const IndirectComputeCommand = opaque {
         return objc.msgSend(self, "reset", void, .{});
     }
     /// `-[MTLIndirectComputeCommand setThreadgroupMemoryLength:atIndex:]
-    pub fn setThreadgroupMemoryLength_atIndex_(self: *@This(), length: usize, index: usize) void {
+    pub fn setThreadgroupMemoryLength_atIndex(self: *@This(), length: usize, index: usize) void {
         return objc.msgSend(self, "setThreadgroupMemoryLength:atIndex:", void, .{ length, index });
     }
     /// `-[MTLIndirectComputeCommand setStageInRegion:]
-    pub fn setStageInRegion_(self: *@This(), region: Region) void {
+    pub fn setStageInRegion(self: *@This(), region: Region) void {
         return objc.msgSend(self, "setStageInRegion:", void, .{region});
     }
 };
 
 /// `MTLIntersectionFunctionTableDescriptor`
 pub const IntersectionFunctionTableDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLIntersectionFunctionTableDescriptor", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == ns.Copying) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -6381,53 +6642,56 @@ pub const IntersectionFunctionTableDescriptor = opaque {
         return objc.msgSend(self, "functionCount", usize, .{});
     }
     /// `-[MTLIntersectionFunctionTableDescriptor setFunctionCount:]
-    pub fn setFunctionCount_(self: *@This(), function_count: usize) void {
+    pub fn setFunctionCount(self: *@This(), function_count: usize) void {
         return objc.msgSend(self, "setFunctionCount:", void, .{function_count});
     }
 };
 
 /// `MTLIntersectionFunctionTable`
 pub const IntersectionFunctionTable = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), Resource);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), Resource);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `-[MTLIntersectionFunctionTable setBuffer:offset:atIndex:]
-    pub fn setBuffer_offset_atIndex_(self: *@This(), buffer: ?*Buffer, offset: usize, index: usize) void {
+    pub fn setBuffer_offset_atIndex(self: *@This(), buffer: ?*Buffer, offset: usize, index: usize) void {
         return objc.msgSend(self, "setBuffer:offset:atIndex:", void, .{ buffer, offset, index });
     }
     /// `-[MTLIntersectionFunctionTable setBuffers:offsets:withRange:]
-    pub fn setBuffers_offsets_withRange_(self: *@This(), buffers: [*]?*const Buffer, offsets: *const usize, range: ns.Range) void {
+    pub fn setBuffers_offsets_withRange(self: *@This(), buffers: [*]?*const Buffer, offsets: *const usize, range: ns.Range) void {
         return objc.msgSend(self, "setBuffers:offsets:withRange:", void, .{ buffers, offsets, range });
     }
     /// `-[MTLIntersectionFunctionTable setFunction:atIndex:]
-    pub fn setFunction_atIndex_(self: *@This(), function: ?*FunctionHandle, index: usize) void {
+    pub fn setFunction_atIndex(self: *@This(), function: ?*FunctionHandle, index: usize) void {
         return objc.msgSend(self, "setFunction:atIndex:", void, .{ function, index });
     }
     /// `-[MTLIntersectionFunctionTable setFunctions:withRange:]
-    pub fn setFunctions_withRange_(self: *@This(), functions: [*]?*const FunctionHandle, range: ns.Range) void {
+    pub fn setFunctions_withRange(self: *@This(), functions: [*]?*const FunctionHandle, range: ns.Range) void {
         return objc.msgSend(self, "setFunctions:withRange:", void, .{ functions, range });
     }
     /// `-[MTLIntersectionFunctionTable setOpaqueTriangleIntersectionFunctionWithSignature:atIndex:]
-    pub fn setOpaqueTriangleIntersectionFunctionWithSignature_atIndex_(self: *@This(), signature: IntersectionFunctionSignature, index: usize) void {
+    pub fn setOpaqueTriangleIntersectionFunctionWithSignature_atIndex(self: *@This(), signature: IntersectionFunctionSignature, index: usize) void {
         return objc.msgSend(self, "setOpaqueTriangleIntersectionFunctionWithSignature:atIndex:", void, .{ signature, index });
     }
     /// `-[MTLIntersectionFunctionTable setOpaqueTriangleIntersectionFunctionWithSignature:withRange:]
-    pub fn setOpaqueTriangleIntersectionFunctionWithSignature_withRange_(self: *@This(), signature: IntersectionFunctionSignature, range: ns.Range) void {
+    pub fn setOpaqueTriangleIntersectionFunctionWithSignature_withRange(self: *@This(), signature: IntersectionFunctionSignature, range: ns.Range) void {
         return objc.msgSend(self, "setOpaqueTriangleIntersectionFunctionWithSignature:withRange:", void, .{ signature, range });
     }
     /// `-[MTLIntersectionFunctionTable setOpaqueCurveIntersectionFunctionWithSignature:atIndex:]
-    pub fn setOpaqueCurveIntersectionFunctionWithSignature_atIndex_(self: *@This(), signature: IntersectionFunctionSignature, index: usize) void {
+    pub fn setOpaqueCurveIntersectionFunctionWithSignature_atIndex(self: *@This(), signature: IntersectionFunctionSignature, index: usize) void {
         return objc.msgSend(self, "setOpaqueCurveIntersectionFunctionWithSignature:atIndex:", void, .{ signature, index });
     }
     /// `-[MTLIntersectionFunctionTable setOpaqueCurveIntersectionFunctionWithSignature:withRange:]
-    pub fn setOpaqueCurveIntersectionFunctionWithSignature_withRange_(self: *@This(), signature: IntersectionFunctionSignature, range: ns.Range) void {
+    pub fn setOpaqueCurveIntersectionFunctionWithSignature_withRange(self: *@This(), signature: IntersectionFunctionSignature, range: ns.Range) void {
         return objc.msgSend(self, "setOpaqueCurveIntersectionFunctionWithSignature:withRange:", void, .{ signature, range });
     }
     /// `-[MTLIntersectionFunctionTable setVisibleFunctionTable:atBufferIndex:]
-    pub fn setVisibleFunctionTable_atBufferIndex_(self: *@This(), function_table: ?*VisibleFunctionTable, buffer_index: usize) void {
+    pub fn setVisibleFunctionTable_atBufferIndex(self: *@This(), function_table: ?*VisibleFunctionTable, buffer_index: usize) void {
         return objc.msgSend(self, "setVisibleFunctionTable:atBufferIndex:", void, .{ function_table, buffer_index });
     }
     /// `-[MTLIntersectionFunctionTable setVisibleFunctionTables:withBufferRange:]
-    pub fn setVisibleFunctionTables_withBufferRange_(self: *@This(), function_tables: [*]?*const VisibleFunctionTable, buffer_range: ns.Range) void {
+    pub fn setVisibleFunctionTables_withBufferRange(self: *@This(), function_tables: [*]?*const VisibleFunctionTable, buffer_range: ns.Range) void {
         return objc.msgSend(self, "setVisibleFunctionTables:withBufferRange:", void, .{ function_tables, buffer_range });
     }
     /// `-[MTLIntersectionFunctionTable gpuResourceID]
@@ -6438,26 +6702,29 @@ pub const IntersectionFunctionTable = opaque {
 
 /// `MTLIOCommandBuffer`
 pub const IoCommandBuffer = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `-[MTLIOCommandBuffer addCompletedHandler:]
-    pub fn addCompletedHandler_(self: *@This(), block: *ns.Block(fn (*IoCommandBuffer) void)) void {
+    pub fn addCompletedHandler(self: *@This(), block: *ns.Block(fn (*IoCommandBuffer) void)) void {
         return objc.msgSend(self, "addCompletedHandler:", void, .{block});
     }
     /// `-[MTLIOCommandBuffer loadBytes:size:sourceHandle:sourceHandleOffset:]
-    pub fn loadBytes_size_sourceHandle_sourceHandleOffset_(self: *@This(), pointer: *anyopaque, size: usize, source_handle: *IoFileHandle, source_handle_offset: usize) void {
+    pub fn loadBytes_size_sourceHandle_sourceHandleOffset(self: *@This(), pointer: *anyopaque, size: usize, source_handle: *IoFileHandle, source_handle_offset: usize) void {
         return objc.msgSend(self, "loadBytes:size:sourceHandle:sourceHandleOffset:", void, .{ pointer, size, source_handle, source_handle_offset });
     }
     /// `-[MTLIOCommandBuffer loadBuffer:offset:size:sourceHandle:sourceHandleOffset:]
-    pub fn loadBuffer_offset_size_sourceHandle_sourceHandleOffset_(self: *@This(), buffer: *Buffer, offset: usize, size: usize, source_handle: *IoFileHandle, source_handle_offset: usize) void {
+    pub fn loadBuffer_offset_size_sourceHandle_sourceHandleOffset(self: *@This(), buffer: *Buffer, offset: usize, size: usize, source_handle: *IoFileHandle, source_handle_offset: usize) void {
         return objc.msgSend(self, "loadBuffer:offset:size:sourceHandle:sourceHandleOffset:", void, .{ buffer, offset, size, source_handle, source_handle_offset });
     }
     /// `-[MTLIOCommandBuffer loadTexture:slice:level:size:sourceBytesPerRow:sourceBytesPerImage:destinationOrigin:sourceHandle:sourceHandleOffset:]
-    pub fn loadTexture_slice_level_size_sourceBytesPerRow_sourceBytesPerImage_destinationOrigin_sourceHandle_sourceHandleOffset_(self: *@This(), texture: *Texture, slice: usize, level: usize, size: Size, source_bytes_per_row: usize, source_bytes_per_image: usize, destination_origin: Origin, source_handle: *IoFileHandle, source_handle_offset: usize) void {
+    pub fn loadTexture_slice_level_size_sourceBytesPerRow_sourceBytesPerImage_destinationOrigin_sourceHandle_sourceHandleOffset(self: *@This(), texture: *Texture, slice: usize, level: usize, size: Size, source_bytes_per_row: usize, source_bytes_per_image: usize, destination_origin: Origin, source_handle: *IoFileHandle, source_handle_offset: usize) void {
         return objc.msgSend(self, "loadTexture:slice:level:size:sourceBytesPerRow:sourceBytesPerImage:destinationOrigin:sourceHandle:sourceHandleOffset:", void, .{ texture, slice, level, size, source_bytes_per_row, source_bytes_per_image, destination_origin, source_handle, source_handle_offset });
     }
     /// `-[MTLIOCommandBuffer copyStatusToBuffer:offset:]
-    pub fn copyStatusToBuffer_offset_(self: *@This(), buffer: *Buffer, offset: usize) void {
+    pub fn copyStatusToBuffer_offset(self: *@This(), buffer: *Buffer, offset: usize) void {
         return objc.msgSend(self, "copyStatusToBuffer:offset:", void, .{ buffer, offset });
     }
     /// `-[MTLIOCommandBuffer commit]
@@ -6477,7 +6744,7 @@ pub const IoCommandBuffer = opaque {
         return objc.msgSend(self, "addBarrier", void, .{});
     }
     /// `-[MTLIOCommandBuffer pushDebugGroup:]
-    pub fn pushDebugGroup_(self: *@This(), string: *ns.String) void {
+    pub fn pushDebugGroup(self: *@This(), string: *ns.String) void {
         return objc.msgSend(self, "pushDebugGroup:", void, .{string});
     }
     /// `-[MTLIOCommandBuffer popDebugGroup]
@@ -6489,11 +6756,11 @@ pub const IoCommandBuffer = opaque {
         return objc.msgSend(self, "enqueue", void, .{});
     }
     /// `-[MTLIOCommandBuffer waitForEvent:value:]
-    pub fn waitForEvent_value_(self: *@This(), event: *SharedEvent, value: u64) void {
+    pub fn waitForEvent_value(self: *@This(), event: *SharedEvent, value: u64) void {
         return objc.msgSend(self, "waitForEvent:value:", void, .{ event, value });
     }
     /// `-[MTLIOCommandBuffer signalEvent:value:]
-    pub fn signalEvent_value_(self: *@This(), event: *SharedEvent, value: u64) void {
+    pub fn signalEvent_value(self: *@This(), event: *SharedEvent, value: u64) void {
         return objc.msgSend(self, "signalEvent:value:", void, .{ event, value });
     }
     /// `-[MTLIOCommandBuffer label]
@@ -6501,7 +6768,7 @@ pub const IoCommandBuffer = opaque {
         return objc.msgSend(self, "label", ?*ns.String, .{});
     }
     /// `-[MTLIOCommandBuffer setLabel:]
-    pub fn setLabel_(self: *@This(), str: ?*ns.String) void {
+    pub fn setLabel(self: *@This(), str: ?*ns.String) void {
         return objc.msgSend(self, "setLabel:", void, .{str});
     }
     /// `-[MTLIOCommandBuffer status]
@@ -6516,8 +6783,11 @@ pub const IoCommandBuffer = opaque {
 
 /// `MTLIOCommandQueue`
 pub const IoCommandQueue = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `-[MTLIOCommandQueue enqueueBarrier]
     pub fn enqueueBarrier(self: *@This()) void {
         return objc.msgSend(self, "enqueueBarrier", void, .{});
@@ -6535,15 +6805,18 @@ pub const IoCommandQueue = opaque {
         return objc.msgSend(self, "label", ?*ns.String, .{});
     }
     /// `-[MTLIOCommandQueue setLabel:]
-    pub fn setLabel_(self: *@This(), str: ?*ns.String) void {
+    pub fn setLabel(self: *@This(), str: ?*ns.String) void {
         return objc.msgSend(self, "setLabel:", void, .{str});
     }
 };
 
 /// `MTLIOScratchBuffer`
 pub const IoScratchBuffer = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `-[MTLIOScratchBuffer buffer]
     pub fn buffer(self: *@This()) *Buffer {
         return objc.msgSend(self, "buffer", *Buffer, .{});
@@ -6552,17 +6825,23 @@ pub const IoScratchBuffer = opaque {
 
 /// `MTLIOScratchBufferAllocator`
 pub const IoScratchBufferAllocator = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `-[MTLIOScratchBufferAllocator newScratchBufferWithMinimumSize:]
-    pub fn newScratchBufferWithMinimumSize_(self: *@This(), minimum_size: usize) ?*IoScratchBuffer {
+    pub fn newScratchBufferWithMinimumSize(self: *@This(), minimum_size: usize) ?*IoScratchBuffer {
         return objc.msgSend(self, "newScratchBufferWithMinimumSize:", ?*IoScratchBuffer, .{minimum_size});
     }
 };
 
 /// `MTLIOCommandQueueDescriptor`
 pub const IoCommandQueueDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLIOCommandQueueDescriptor", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == ns.Copying) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -6578,7 +6857,7 @@ pub const IoCommandQueueDescriptor = opaque {
         return objc.msgSend(self, "maxCommandBufferCount", usize, .{});
     }
     /// `-[MTLIOCommandQueueDescriptor setMaxCommandBufferCount:]
-    pub fn setMaxCommandBufferCount_(self: *@This(), max_command_buffer_count: usize) void {
+    pub fn setMaxCommandBufferCount(self: *@This(), max_command_buffer_count: usize) void {
         return objc.msgSend(self, "setMaxCommandBufferCount:", void, .{max_command_buffer_count});
     }
     /// `-[MTLIOCommandQueueDescriptor priority]
@@ -6586,7 +6865,7 @@ pub const IoCommandQueueDescriptor = opaque {
         return objc.msgSend(self, "priority", IoPriority, .{});
     }
     /// `-[MTLIOCommandQueueDescriptor setPriority:]
-    pub fn setPriority_(self: *@This(), value: IoPriority) void {
+    pub fn setPriority(self: *@This(), value: IoPriority) void {
         return objc.msgSend(self, "setPriority:", void, .{value});
     }
     /// `-[MTLIOCommandQueueDescriptor type]
@@ -6594,7 +6873,7 @@ pub const IoCommandQueueDescriptor = opaque {
         return objc.msgSend(self, "type", IoCommandQueueType, .{});
     }
     /// `-[MTLIOCommandQueueDescriptor setType:]
-    pub fn setType_(self: *@This(), value: IoCommandQueueType) void {
+    pub fn setType(self: *@This(), value: IoCommandQueueType) void {
         return objc.msgSend(self, "setType:", void, .{value});
     }
     /// `-[MTLIOCommandQueueDescriptor maxCommandsInFlight]
@@ -6602,7 +6881,7 @@ pub const IoCommandQueueDescriptor = opaque {
         return objc.msgSend(self, "maxCommandsInFlight", usize, .{});
     }
     /// `-[MTLIOCommandQueueDescriptor setMaxCommandsInFlight:]
-    pub fn setMaxCommandsInFlight_(self: *@This(), max_commands_in_flight: usize) void {
+    pub fn setMaxCommandsInFlight(self: *@This(), max_commands_in_flight: usize) void {
         return objc.msgSend(self, "setMaxCommandsInFlight:", void, .{max_commands_in_flight});
     }
     /// `-[MTLIOCommandQueueDescriptor scratchBufferAllocator]
@@ -6610,29 +6889,35 @@ pub const IoCommandQueueDescriptor = opaque {
         return objc.msgSend(self, "scratchBufferAllocator", ?*IoScratchBufferAllocator, .{});
     }
     /// `-[MTLIOCommandQueueDescriptor setScratchBufferAllocator:]
-    pub fn setScratchBufferAllocator_(self: *@This(), scratch_buffer_allocator: ?*IoScratchBufferAllocator) void {
+    pub fn setScratchBufferAllocator(self: *@This(), scratch_buffer_allocator: ?*IoScratchBufferAllocator) void {
         return objc.msgSend(self, "setScratchBufferAllocator:", void, .{scratch_buffer_allocator});
     }
 };
 
 /// `MTLIOFileHandle`
 pub const IoFileHandle = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `-[MTLIOFileHandle label]
     pub fn label(self: *@This()) ?*ns.String {
         return objc.msgSend(self, "label", ?*ns.String, .{});
     }
     /// `-[MTLIOFileHandle setLabel:]
-    pub fn setLabel_(self: *@This(), str: ?*ns.String) void {
+    pub fn setLabel(self: *@This(), str: ?*ns.String) void {
         return objc.msgSend(self, "setLabel:", void, .{str});
     }
 };
 
 /// `MTLVertexAttribute`
 pub const VertexAttribute = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternClass("MTLVertexAttribute", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `+[MTLVertexAttribute new]`
     pub const new = InternalInfo.new;
     /// `+[MTLVertexAttribute alloc]`
@@ -6667,8 +6952,11 @@ pub const VertexAttribute = opaque {
 
 /// `MTLAttribute`
 pub const Attribute = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternClass("MTLAttribute", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `+[MTLAttribute new]`
     pub const new = InternalInfo.new;
     /// `+[MTLAttribute alloc]`
@@ -6703,8 +6991,11 @@ pub const Attribute = opaque {
 
 /// `MTLFunctionConstant`
 pub const FunctionConstant = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternClass("MTLFunctionConstant", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `+[MTLFunctionConstant new]`
     pub const new = InternalInfo.new;
     /// `+[MTLFunctionConstant alloc]`
@@ -6731,14 +7022,17 @@ pub const FunctionConstant = opaque {
 
 /// `MTLFunction`
 pub const Function = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `-[MTLFunction newArgumentEncoderWithBufferIndex:]
-    pub fn newArgumentEncoderWithBufferIndex_(self: *@This(), buffer_index: usize) *ArgumentEncoder {
+    pub fn newArgumentEncoderWithBufferIndex(self: *@This(), buffer_index: usize) *ArgumentEncoder {
         return objc.msgSend(self, "newArgumentEncoderWithBufferIndex:", *ArgumentEncoder, .{buffer_index});
     }
     /// `-[MTLFunction newArgumentEncoderWithBufferIndex:reflection:]
-    pub fn newArgumentEncoderWithBufferIndex_reflection_(self: *@This(), buffer_index: usize, reflection: ?*AutoreleasedArgument) *ArgumentEncoder {
+    pub fn newArgumentEncoderWithBufferIndex_reflection(self: *@This(), buffer_index: usize, reflection: ?*AutoreleasedArgument) *ArgumentEncoder {
         return objc.msgSend(self, "newArgumentEncoderWithBufferIndex:reflection:", *ArgumentEncoder, .{ buffer_index, reflection });
     }
     /// `-[MTLFunction label]
@@ -6746,7 +7040,7 @@ pub const Function = opaque {
         return objc.msgSend(self, "label", ?*ns.String, .{});
     }
     /// `-[MTLFunction setLabel:]
-    pub fn setLabel_(self: *@This(), str: ?*ns.String) void {
+    pub fn setLabel(self: *@This(), str: ?*ns.String) void {
         return objc.msgSend(self, "setLabel:", void, .{str});
     }
     /// `-[MTLFunction device]
@@ -6789,7 +7083,10 @@ pub const Function = opaque {
 
 /// `MTLCompileOptions`
 pub const CompileOptions = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLCompileOptions", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == ns.Copying) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -6805,7 +7102,7 @@ pub const CompileOptions = opaque {
         return objc.msgSend(self, "preprocessorMacros", ?*ns.Dictionary(*ns.String, *ns.ObjectProtocol), .{});
     }
     /// `-[MTLCompileOptions setPreprocessorMacros:]
-    pub fn setPreprocessorMacros_(self: *@This(), preprocessor_macros: ?*ns.Dictionary(*ns.String, *ns.ObjectProtocol)) void {
+    pub fn setPreprocessorMacros(self: *@This(), preprocessor_macros: ?*ns.Dictionary(*ns.String, *ns.ObjectProtocol)) void {
         return objc.msgSend(self, "setPreprocessorMacros:", void, .{preprocessor_macros});
     }
     /// `-[MTLCompileOptions fastMathEnabled]
@@ -6813,7 +7110,7 @@ pub const CompileOptions = opaque {
         return objc.msgSend(self, "fastMathEnabled", bool, .{});
     }
     /// `-[MTLCompileOptions setFastMathEnabled:]
-    pub fn setFastMathEnabled_(self: *@This(), fast_math_enabled: bool) void {
+    pub fn setFastMathEnabled(self: *@This(), fast_math_enabled: bool) void {
         return objc.msgSend(self, "setFastMathEnabled:", void, .{fast_math_enabled});
     }
     /// `-[MTLCompileOptions languageVersion]
@@ -6821,7 +7118,7 @@ pub const CompileOptions = opaque {
         return objc.msgSend(self, "languageVersion", LanguageVersion, .{});
     }
     /// `-[MTLCompileOptions setLanguageVersion:]
-    pub fn setLanguageVersion_(self: *@This(), language_version: LanguageVersion) void {
+    pub fn setLanguageVersion(self: *@This(), language_version: LanguageVersion) void {
         return objc.msgSend(self, "setLanguageVersion:", void, .{language_version});
     }
     /// `-[MTLCompileOptions libraryType]
@@ -6829,7 +7126,7 @@ pub const CompileOptions = opaque {
         return objc.msgSend(self, "libraryType", LibraryType, .{});
     }
     /// `-[MTLCompileOptions setLibraryType:]
-    pub fn setLibraryType_(self: *@This(), library_type: LibraryType) void {
+    pub fn setLibraryType(self: *@This(), library_type: LibraryType) void {
         return objc.msgSend(self, "setLibraryType:", void, .{library_type});
     }
     /// `-[MTLCompileOptions installName]
@@ -6837,7 +7134,7 @@ pub const CompileOptions = opaque {
         return objc.msgSend(self, "installName", ?*ns.String, .{});
     }
     /// `-[MTLCompileOptions setInstallName:]
-    pub fn setInstallName_(self: *@This(), install_name: ?*ns.String) void {
+    pub fn setInstallName(self: *@This(), install_name: ?*ns.String) void {
         return objc.msgSend(self, "setInstallName:", void, .{install_name});
     }
     /// `-[MTLCompileOptions libraries]
@@ -6845,7 +7142,7 @@ pub const CompileOptions = opaque {
         return objc.msgSend(self, "libraries", ?*ns.Array(*DynamicLibrary), .{});
     }
     /// `-[MTLCompileOptions setLibraries:]
-    pub fn setLibraries_(self: *@This(), libs: ?*ns.Array(*DynamicLibrary)) void {
+    pub fn setLibraries(self: *@This(), libs: ?*ns.Array(*DynamicLibrary)) void {
         return objc.msgSend(self, "setLibraries:", void, .{libs});
     }
     /// `-[MTLCompileOptions preserveInvariance]
@@ -6853,7 +7150,7 @@ pub const CompileOptions = opaque {
         return objc.msgSend(self, "preserveInvariance", bool, .{});
     }
     /// `-[MTLCompileOptions setPreserveInvariance:]
-    pub fn setPreserveInvariance_(self: *@This(), preserve_invariance: bool) void {
+    pub fn setPreserveInvariance(self: *@This(), preserve_invariance: bool) void {
         return objc.msgSend(self, "setPreserveInvariance:", void, .{preserve_invariance});
     }
     /// `-[MTLCompileOptions optimizationLevel]
@@ -6861,7 +7158,7 @@ pub const CompileOptions = opaque {
         return objc.msgSend(self, "optimizationLevel", LibraryOptimizationLevel, .{});
     }
     /// `-[MTLCompileOptions setOptimizationLevel:]
-    pub fn setOptimizationLevel_(self: *@This(), optimization_level: LibraryOptimizationLevel) void {
+    pub fn setOptimizationLevel(self: *@This(), optimization_level: LibraryOptimizationLevel) void {
         return objc.msgSend(self, "setOptimizationLevel:", void, .{optimization_level});
     }
     /// `-[MTLCompileOptions compileSymbolVisibility]
@@ -6869,7 +7166,7 @@ pub const CompileOptions = opaque {
         return objc.msgSend(self, "compileSymbolVisibility", CompileSymbolVisibility, .{});
     }
     /// `-[MTLCompileOptions setCompileSymbolVisibility:]
-    pub fn setCompileSymbolVisibility_(self: *@This(), compile_symbol_visibility: CompileSymbolVisibility) void {
+    pub fn setCompileSymbolVisibility(self: *@This(), compile_symbol_visibility: CompileSymbolVisibility) void {
         return objc.msgSend(self, "setCompileSymbolVisibility:", void, .{compile_symbol_visibility});
     }
     /// `-[MTLCompileOptions allowReferencingUndefinedSymbols]
@@ -6877,7 +7174,7 @@ pub const CompileOptions = opaque {
         return objc.msgSend(self, "allowReferencingUndefinedSymbols", bool, .{});
     }
     /// `-[MTLCompileOptions setAllowReferencingUndefinedSymbols:]
-    pub fn setAllowReferencingUndefinedSymbols_(self: *@This(), allow_referencing_undefined_symbols: bool) void {
+    pub fn setAllowReferencingUndefinedSymbols(self: *@This(), allow_referencing_undefined_symbols: bool) void {
         return objc.msgSend(self, "setAllowReferencingUndefinedSymbols:", void, .{allow_referencing_undefined_symbols});
     }
     /// `-[MTLCompileOptions maxTotalThreadsPerThreadgroup]
@@ -6885,41 +7182,44 @@ pub const CompileOptions = opaque {
         return objc.msgSend(self, "maxTotalThreadsPerThreadgroup", usize, .{});
     }
     /// `-[MTLCompileOptions setMaxTotalThreadsPerThreadgroup:]
-    pub fn setMaxTotalThreadsPerThreadgroup_(self: *@This(), max_total_threads_per_threadgroup: usize) void {
+    pub fn setMaxTotalThreadsPerThreadgroup(self: *@This(), max_total_threads_per_threadgroup: usize) void {
         return objc.msgSend(self, "setMaxTotalThreadsPerThreadgroup:", void, .{max_total_threads_per_threadgroup});
     }
 };
 
 /// `MTLLibrary`
 pub const Library = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `-[MTLLibrary newFunctionWithName:]
-    pub fn newFunctionWithName_(self: *@This(), function_name: *ns.String) ?*Function {
+    pub fn newFunctionWithName(self: *@This(), function_name: *ns.String) ?*Function {
         return objc.msgSend(self, "newFunctionWithName:", ?*Function, .{function_name});
     }
     /// `-[MTLLibrary newFunctionWithName:constantValues:error:]
-    pub fn newFunctionWithName_constantValues_error_(self: *@This(), name: *ns.String, constant_values: *FunctionConstantValues, err: ?*?*ns.Error) ?*Function {
+    pub fn newFunctionWithName_constantValues_error(self: *@This(), name: *ns.String, constant_values: *FunctionConstantValues, err: ?*?*ns.Error) ?*Function {
         return objc.msgSend(self, "newFunctionWithName:constantValues:error:", ?*Function, .{ name, constant_values, err });
     }
     /// `-[MTLLibrary newFunctionWithName:constantValues:completionHandler:]
-    pub fn newFunctionWithName_constantValues_completionHandler_(self: *@This(), name: *ns.String, constant_values: *FunctionConstantValues, completion_handler: *ns.Block(fn (?*Function, ?*ns.Error) void)) void {
+    pub fn newFunctionWithName_constantValues_completionHandler(self: *@This(), name: *ns.String, constant_values: *FunctionConstantValues, completion_handler: *ns.Block(fn (?*Function, ?*ns.Error) void)) void {
         return objc.msgSend(self, "newFunctionWithName:constantValues:completionHandler:", void, .{ name, constant_values, completion_handler });
     }
     /// `-[MTLLibrary newFunctionWithDescriptor:completionHandler:]
-    pub fn newFunctionWithDescriptor_completionHandler_(self: *@This(), descriptor: *FunctionDescriptor, completion_handler: *ns.Block(fn (?*Function, ?*ns.Error) void)) void {
+    pub fn newFunctionWithDescriptor_completionHandler(self: *@This(), descriptor: *FunctionDescriptor, completion_handler: *ns.Block(fn (?*Function, ?*ns.Error) void)) void {
         return objc.msgSend(self, "newFunctionWithDescriptor:completionHandler:", void, .{ descriptor, completion_handler });
     }
     /// `-[MTLLibrary newFunctionWithDescriptor:error:]
-    pub fn newFunctionWithDescriptor_error_(self: *@This(), descriptor: *FunctionDescriptor, err: ?*?*ns.Error) ?*Function {
+    pub fn newFunctionWithDescriptor_error(self: *@This(), descriptor: *FunctionDescriptor, err: ?*?*ns.Error) ?*Function {
         return objc.msgSend(self, "newFunctionWithDescriptor:error:", ?*Function, .{ descriptor, err });
     }
     /// `-[MTLLibrary newIntersectionFunctionWithDescriptor:completionHandler:]
-    pub fn newIntersectionFunctionWithDescriptor_completionHandler_(self: *@This(), descriptor: *IntersectionFunctionDescriptor, completion_handler: *ns.Block(fn (?*Function, ?*ns.Error) void)) void {
+    pub fn newIntersectionFunctionWithDescriptor_completionHandler(self: *@This(), descriptor: *IntersectionFunctionDescriptor, completion_handler: *ns.Block(fn (?*Function, ?*ns.Error) void)) void {
         return objc.msgSend(self, "newIntersectionFunctionWithDescriptor:completionHandler:", void, .{ descriptor, completion_handler });
     }
     /// `-[MTLLibrary newIntersectionFunctionWithDescriptor:error:]
-    pub fn newIntersectionFunctionWithDescriptor_error_(self: *@This(), descriptor: *IntersectionFunctionDescriptor, err: ?*?*ns.Error) ?*Function {
+    pub fn newIntersectionFunctionWithDescriptor_error(self: *@This(), descriptor: *IntersectionFunctionDescriptor, err: ?*?*ns.Error) ?*Function {
         return objc.msgSend(self, "newIntersectionFunctionWithDescriptor:error:", ?*Function, .{ descriptor, err });
     }
     /// `-[MTLLibrary label]
@@ -6927,7 +7227,7 @@ pub const Library = opaque {
         return objc.msgSend(self, "label", ?*ns.String, .{});
     }
     /// `-[MTLLibrary setLabel:]
-    pub fn setLabel_(self: *@This(), str: ?*ns.String) void {
+    pub fn setLabel(self: *@This(), str: ?*ns.String) void {
         return objc.msgSend(self, "setLabel:", void, .{str});
     }
     /// `-[MTLLibrary device]
@@ -6950,7 +7250,10 @@ pub const Library = opaque {
 
 /// `MTLLinkedFunctions`
 pub const LinkedFunctions = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLLinkedFunctions", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == ns.Copying) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -6970,7 +7273,7 @@ pub const LinkedFunctions = opaque {
         return objc.msgSend(self, "functions", ?*ns.Array(*Function), .{});
     }
     /// `-[MTLLinkedFunctions setFunctions:]
-    pub fn setFunctions_(self: *@This(), fns: ?*ns.Array(*Function)) void {
+    pub fn setFunctions(self: *@This(), fns: ?*ns.Array(*Function)) void {
         return objc.msgSend(self, "setFunctions:", void, .{fns});
     }
     /// `-[MTLLinkedFunctions binaryFunctions]
@@ -6978,7 +7281,7 @@ pub const LinkedFunctions = opaque {
         return objc.msgSend(self, "binaryFunctions", ?*ns.Array(*Function), .{});
     }
     /// `-[MTLLinkedFunctions setBinaryFunctions:]
-    pub fn setBinaryFunctions_(self: *@This(), binary_functions: ?*ns.Array(*Function)) void {
+    pub fn setBinaryFunctions(self: *@This(), binary_functions: ?*ns.Array(*Function)) void {
         return objc.msgSend(self, "setBinaryFunctions:", void, .{binary_functions});
     }
     /// `-[MTLLinkedFunctions groups]
@@ -6986,7 +7289,7 @@ pub const LinkedFunctions = opaque {
         return objc.msgSend(self, "groups", ?*ns.Dictionary(*ns.String, *ns.Array(*Function)), .{});
     }
     /// `-[MTLLinkedFunctions setGroups:]
-    pub fn setGroups_(self: *@This(), fn_groups: ?*ns.Dictionary(*ns.String, *ns.Array(*Function))) void {
+    pub fn setGroups(self: *@This(), fn_groups: ?*ns.Dictionary(*ns.String, *ns.Array(*Function))) void {
         return objc.msgSend(self, "setGroups:", void, .{fn_groups});
     }
     /// `-[MTLLinkedFunctions privateFunctions]
@@ -6994,48 +7297,54 @@ pub const LinkedFunctions = opaque {
         return objc.msgSend(self, "privateFunctions", ?*ns.Array(*Function), .{});
     }
     /// `-[MTLLinkedFunctions setPrivateFunctions:]
-    pub fn setPrivateFunctions_(self: *@This(), private_functions: ?*ns.Array(*Function)) void {
+    pub fn setPrivateFunctions(self: *@This(), private_functions: ?*ns.Array(*Function)) void {
         return objc.msgSend(self, "setPrivateFunctions:", void, .{private_functions});
     }
 };
 
 /// `MTLParallelRenderCommandEncoder`
 pub const ParallelRenderCommandEncoder = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), CommandEncoder);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), CommandEncoder);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `-[MTLParallelRenderCommandEncoder renderCommandEncoder]
     pub fn renderCommandEncoder(self: *@This()) ?*RenderCommandEncoder {
         return objc.msgSend(self, "renderCommandEncoder", ?*RenderCommandEncoder, .{});
     }
     /// `-[MTLParallelRenderCommandEncoder setColorStoreAction:atIndex:]
-    pub fn setColorStoreAction_atIndex_(self: *@This(), store_action: StoreAction, color_attachment_index: usize) void {
+    pub fn setColorStoreAction_atIndex(self: *@This(), store_action: StoreAction, color_attachment_index: usize) void {
         return objc.msgSend(self, "setColorStoreAction:atIndex:", void, .{ store_action, color_attachment_index });
     }
     /// `-[MTLParallelRenderCommandEncoder setDepthStoreAction:]
-    pub fn setDepthStoreAction_(self: *@This(), store_action: StoreAction) void {
+    pub fn setDepthStoreAction(self: *@This(), store_action: StoreAction) void {
         return objc.msgSend(self, "setDepthStoreAction:", void, .{store_action});
     }
     /// `-[MTLParallelRenderCommandEncoder setStencilStoreAction:]
-    pub fn setStencilStoreAction_(self: *@This(), store_action: StoreAction) void {
+    pub fn setStencilStoreAction(self: *@This(), store_action: StoreAction) void {
         return objc.msgSend(self, "setStencilStoreAction:", void, .{store_action});
     }
     /// `-[MTLParallelRenderCommandEncoder setColorStoreActionOptions:atIndex:]
-    pub fn setColorStoreActionOptions_atIndex_(self: *@This(), store_action_options: StoreActionOptions, color_attachment_index: usize) void {
+    pub fn setColorStoreActionOptions_atIndex(self: *@This(), store_action_options: StoreActionOptions, color_attachment_index: usize) void {
         return objc.msgSend(self, "setColorStoreActionOptions:atIndex:", void, .{ store_action_options, color_attachment_index });
     }
     /// `-[MTLParallelRenderCommandEncoder setDepthStoreActionOptions:]
-    pub fn setDepthStoreActionOptions_(self: *@This(), store_action_options: StoreActionOptions) void {
+    pub fn setDepthStoreActionOptions(self: *@This(), store_action_options: StoreActionOptions) void {
         return objc.msgSend(self, "setDepthStoreActionOptions:", void, .{store_action_options});
     }
     /// `-[MTLParallelRenderCommandEncoder setStencilStoreActionOptions:]
-    pub fn setStencilStoreActionOptions_(self: *@This(), store_action_options: StoreActionOptions) void {
+    pub fn setStencilStoreActionOptions(self: *@This(), store_action_options: StoreActionOptions) void {
         return objc.msgSend(self, "setStencilStoreActionOptions:", void, .{store_action_options});
     }
 };
 
 /// `MTLPipelineBufferDescriptor`
 pub const PipelineBufferDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLPipelineBufferDescriptor", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == ns.Copying) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -7051,15 +7360,18 @@ pub const PipelineBufferDescriptor = opaque {
         return objc.msgSend(self, "mutability", Mutability, .{});
     }
     /// `-[MTLPipelineBufferDescriptor setMutability:]
-    pub fn setMutability_(self: *@This(), mut: Mutability) void {
+    pub fn setMutability(self: *@This(), mut: Mutability) void {
         return objc.msgSend(self, "setMutability:", void, .{mut});
     }
 };
 
 /// `MTLPipelineBufferDescriptorArray`
 pub const PipelineBufferDescriptorArray = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternClass("MTLPipelineBufferDescriptorArray", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `+[MTLPipelineBufferDescriptorArray new]`
     pub const new = InternalInfo.new;
     /// `+[MTLPipelineBufferDescriptorArray alloc]`
@@ -7067,19 +7379,22 @@ pub const PipelineBufferDescriptorArray = opaque {
     /// `[[MTLPipelineBufferDescriptorArray alloc] init]`
     pub const allocInit = InternalInfo.allocInit;
     /// `-[MTLPipelineBufferDescriptorArray objectAtIndexedSubscript:]
-    pub fn objectAtIndexedSubscript_(self: *@This(), buffer_index: usize) *PipelineBufferDescriptor {
+    pub fn objectAtIndexedSubscript(self: *@This(), buffer_index: usize) *PipelineBufferDescriptor {
         return objc.msgSend(self, "objectAtIndexedSubscript:", *PipelineBufferDescriptor, .{buffer_index});
     }
     /// `-[MTLPipelineBufferDescriptorArray setObject:atIndexedSubscript:]
-    pub fn setObject_atIndexedSubscript_(self: *@This(), buffer: ?*PipelineBufferDescriptor, buffer_index: usize) void {
+    pub fn setObject_atIndexedSubscript(self: *@This(), buffer: ?*PipelineBufferDescriptor, buffer_index: usize) void {
         return objc.msgSend(self, "setObject:atIndexedSubscript:", void, .{ buffer, buffer_index });
     }
 };
 
 /// `MTLRasterizationRateSampleArray`
 pub const RasterizationRateSampleArray = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternClass("MTLRasterizationRateSampleArray", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `+[MTLRasterizationRateSampleArray new]`
     pub const new = InternalInfo.new;
     /// `+[MTLRasterizationRateSampleArray alloc]`
@@ -7087,19 +7402,22 @@ pub const RasterizationRateSampleArray = opaque {
     /// `[[MTLRasterizationRateSampleArray alloc] init]`
     pub const allocInit = InternalInfo.allocInit;
     /// `-[MTLRasterizationRateSampleArray objectAtIndexedSubscript:]
-    pub fn objectAtIndexedSubscript_(self: *@This(), index: usize) *ns.Number {
+    pub fn objectAtIndexedSubscript(self: *@This(), index: usize) *ns.Number {
         return objc.msgSend(self, "objectAtIndexedSubscript:", *ns.Number, .{index});
     }
     /// `-[MTLRasterizationRateSampleArray setObject:atIndexedSubscript:]
-    pub fn setObject_atIndexedSubscript_(self: *@This(), value: *ns.Number, index: usize) void {
+    pub fn setObject_atIndexedSubscript(self: *@This(), value: *ns.Number, index: usize) void {
         return objc.msgSend(self, "setObject:atIndexedSubscript:", void, .{ value, index });
     }
 };
 
 /// `MTLRasterizationRateLayerDescriptor`
 pub const RasterizationRateLayerDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternClass("MTLRasterizationRateLayerDescriptor", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `+[MTLRasterizationRateLayerDescriptor new]`
     pub const new = InternalInfo.new;
     /// `+[MTLRasterizationRateLayerDescriptor alloc]`
@@ -7107,11 +7425,11 @@ pub const RasterizationRateLayerDescriptor = opaque {
     /// `[[MTLRasterizationRateLayerDescriptor alloc] init]`
     pub const allocInit = InternalInfo.allocInit;
     /// `-[MTLRasterizationRateLayerDescriptor initWithSampleCount:]
-    pub fn initWithSampleCount_(self: *@This(), sample_count: Size) *@This() {
+    pub fn initWithSampleCount(self: *@This(), sample_count: Size) *@This() {
         return objc.msgSend(self, "initWithSampleCount:", *@This(), .{sample_count});
     }
     /// `-[MTLRasterizationRateLayerDescriptor initWithSampleCount:horizontal:vertical:]
-    pub fn initWithSampleCount_horizontal_vertical_(self: *@This(), sample_count: Size, h: *const f32, v: *const f32) *@This() {
+    pub fn initWithSampleCount_horizontal_vertical(self: *@This(), sample_count: Size, h: *const f32, v: *const f32) *@This() {
         return objc.msgSend(self, "initWithSampleCount:horizontal:vertical:", *@This(), .{ sample_count, h, v });
     }
     /// `-[MTLRasterizationRateLayerDescriptor sampleCount]
@@ -7139,15 +7457,18 @@ pub const RasterizationRateLayerDescriptor = opaque {
         return objc.msgSend(self, "vertical", *RasterizationRateSampleArray, .{});
     }
     /// `-[MTLRasterizationRateLayerDescriptor setSampleCount:]
-    pub fn setSampleCount_(self: *@This(), sample_count: Size) void {
+    pub fn setSampleCount(self: *@This(), sample_count: Size) void {
         return objc.msgSend(self, "setSampleCount:", void, .{sample_count});
     }
 };
 
 /// `MTLRasterizationRateLayerArray`
 pub const RasterizationRateLayerArray = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternClass("MTLRasterizationRateLayerArray", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `+[MTLRasterizationRateLayerArray new]`
     pub const new = InternalInfo.new;
     /// `+[MTLRasterizationRateLayerArray alloc]`
@@ -7155,18 +7476,21 @@ pub const RasterizationRateLayerArray = opaque {
     /// `[[MTLRasterizationRateLayerArray alloc] init]`
     pub const allocInit = InternalInfo.allocInit;
     /// `-[MTLRasterizationRateLayerArray objectAtIndexedSubscript:]
-    pub fn objectAtIndexedSubscript_(self: *@This(), layer_index: usize) ?*RasterizationRateLayerDescriptor {
+    pub fn objectAtIndexedSubscript(self: *@This(), layer_index: usize) ?*RasterizationRateLayerDescriptor {
         return objc.msgSend(self, "objectAtIndexedSubscript:", ?*RasterizationRateLayerDescriptor, .{layer_index});
     }
     /// `-[MTLRasterizationRateLayerArray setObject:atIndexedSubscript:]
-    pub fn setObject_atIndexedSubscript_(self: *@This(), layer: ?*RasterizationRateLayerDescriptor, layer_index: usize) void {
+    pub fn setObject_atIndexedSubscript(self: *@This(), layer: ?*RasterizationRateLayerDescriptor, layer_index: usize) void {
         return objc.msgSend(self, "setObject:atIndexedSubscript:", void, .{ layer, layer_index });
     }
 };
 
 /// `MTLRasterizationRateMapDescriptor`
 pub const RasterizationRateMapDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLRasterizationRateMapDescriptor", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == ns.Copying) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -7178,23 +7502,23 @@ pub const RasterizationRateMapDescriptor = opaque {
     /// `[[MTLRasterizationRateMapDescriptor alloc] init]`
     pub const allocInit = InternalInfo.allocInit;
     /// `+[MTLRasterizationRateMapDescriptor rasterizationRateMapDescriptorWithScreenSize:]
-    pub fn rasterizationRateMapDescriptorWithScreenSize_(screen_size: Size) *RasterizationRateMapDescriptor {
+    pub fn rasterizationRateMapDescriptorWithScreenSize(screen_size: Size) *RasterizationRateMapDescriptor {
         return objc.msgSend(InternalInfo.class(), "rasterizationRateMapDescriptorWithScreenSize:", *RasterizationRateMapDescriptor, .{screen_size});
     }
     /// `+[MTLRasterizationRateMapDescriptor rasterizationRateMapDescriptorWithScreenSize:layer:]
-    pub fn rasterizationRateMapDescriptorWithScreenSize_layer_(screen_size: Size, layer: *RasterizationRateLayerDescriptor) *RasterizationRateMapDescriptor {
+    pub fn rasterizationRateMapDescriptorWithScreenSize_layer(screen_size: Size, layer: *RasterizationRateLayerDescriptor) *RasterizationRateMapDescriptor {
         return objc.msgSend(InternalInfo.class(), "rasterizationRateMapDescriptorWithScreenSize:layer:", *RasterizationRateMapDescriptor, .{ screen_size, layer });
     }
     /// `+[MTLRasterizationRateMapDescriptor rasterizationRateMapDescriptorWithScreenSize:layerCount:layers:]
-    pub fn rasterizationRateMapDescriptorWithScreenSize_layerCount_layers_(screen_size: Size, layer_count: usize, layer_descrioptors: [*]*const RasterizationRateLayerDescriptor) *RasterizationRateMapDescriptor {
+    pub fn rasterizationRateMapDescriptorWithScreenSize_layerCount_layers(screen_size: Size, layer_count: usize, layer_descrioptors: [*]*const RasterizationRateLayerDescriptor) *RasterizationRateMapDescriptor {
         return objc.msgSend(InternalInfo.class(), "rasterizationRateMapDescriptorWithScreenSize:layerCount:layers:", *RasterizationRateMapDescriptor, .{ screen_size, layer_count, layer_descrioptors });
     }
     /// `-[MTLRasterizationRateMapDescriptor layerAtIndex:]
-    pub fn layerAtIndex_(self: *@This(), layer_index: usize) ?*RasterizationRateLayerDescriptor {
+    pub fn layerAtIndex(self: *@This(), layer_index: usize) ?*RasterizationRateLayerDescriptor {
         return objc.msgSend(self, "layerAtIndex:", ?*RasterizationRateLayerDescriptor, .{layer_index});
     }
     /// `-[MTLRasterizationRateMapDescriptor setLayer:atIndex:]
-    pub fn setLayer_atIndex_(self: *@This(), layer: ?*RasterizationRateLayerDescriptor, layer_index: usize) void {
+    pub fn setLayer_atIndex(self: *@This(), layer: ?*RasterizationRateLayerDescriptor, layer_index: usize) void {
         return objc.msgSend(self, "setLayer:atIndex:", void, .{ layer, layer_index });
     }
     /// `-[MTLRasterizationRateMapDescriptor layers]
@@ -7206,7 +7530,7 @@ pub const RasterizationRateMapDescriptor = opaque {
         return objc.msgSend(self, "screenSize", Size, .{});
     }
     /// `-[MTLRasterizationRateMapDescriptor setScreenSize:]
-    pub fn setScreenSize_(self: *@This(), screen_size: Size) void {
+    pub fn setScreenSize(self: *@This(), screen_size: Size) void {
         return objc.msgSend(self, "setScreenSize:", void, .{screen_size});
     }
     /// `-[MTLRasterizationRateMapDescriptor label]
@@ -7214,7 +7538,7 @@ pub const RasterizationRateMapDescriptor = opaque {
         return objc.msgSend(self, "label", ?*ns.String, .{});
     }
     /// `-[MTLRasterizationRateMapDescriptor setLabel:]
-    pub fn setLabel_(self: *@This(), str: ?*ns.String) void {
+    pub fn setLabel(self: *@This(), str: ?*ns.String) void {
         return objc.msgSend(self, "setLabel:", void, .{str});
     }
     /// `-[MTLRasterizationRateMapDescriptor layerCount]
@@ -7225,22 +7549,25 @@ pub const RasterizationRateMapDescriptor = opaque {
 
 /// `MTLRasterizationRateMap`
 pub const RasterizationRateMap = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `-[MTLRasterizationRateMap copyParameterDataToBuffer:offset:]
-    pub fn copyParameterDataToBuffer_offset_(self: *@This(), buffer: *Buffer, offset: usize) void {
+    pub fn copyParameterDataToBuffer_offset(self: *@This(), buffer: *Buffer, offset: usize) void {
         return objc.msgSend(self, "copyParameterDataToBuffer:offset:", void, .{ buffer, offset });
     }
     /// `-[MTLRasterizationRateMap physicalSizeForLayer:]
-    pub fn physicalSizeForLayer_(self: *@This(), layer_index: usize) Size {
+    pub fn physicalSizeForLayer(self: *@This(), layer_index: usize) Size {
         return objc.msgSend(self, "physicalSizeForLayer:", Size, .{layer_index});
     }
     /// `-[MTLRasterizationRateMap mapScreenToPhysicalCoordinates:forLayer:]
-    pub fn mapScreenToPhysicalCoordinates_forLayer_(self: *@This(), screen_coordinates: Coordinate2D, layer_index: usize) Coordinate2D {
+    pub fn mapScreenToPhysicalCoordinates_forLayer(self: *@This(), screen_coordinates: Coordinate2D, layer_index: usize) Coordinate2D {
         return objc.msgSend(self, "mapScreenToPhysicalCoordinates:forLayer:", Coordinate2D, .{ screen_coordinates, layer_index });
     }
     /// `-[MTLRasterizationRateMap mapPhysicalToScreenCoordinates:forLayer:]
-    pub fn mapPhysicalToScreenCoordinates_forLayer_(self: *@This(), physical_coordinates: Coordinate2D, layer_index: usize) Coordinate2D {
+    pub fn mapPhysicalToScreenCoordinates_forLayer(self: *@This(), physical_coordinates: Coordinate2D, layer_index: usize) Coordinate2D {
         return objc.msgSend(self, "mapPhysicalToScreenCoordinates:forLayer:", Coordinate2D, .{ physical_coordinates, layer_index });
     }
     /// `-[MTLRasterizationRateMap device]
@@ -7271,358 +7598,361 @@ pub const RasterizationRateMap = opaque {
 
 /// `MTLRenderCommandEncoder`
 pub const RenderCommandEncoder = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), CommandEncoder);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), CommandEncoder);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `-[MTLRenderCommandEncoder setRenderPipelineState:]
-    pub fn setRenderPipelineState_(self: *@This(), pipeline_state: *RenderPipelineState) void {
+    pub fn setRenderPipelineState(self: *@This(), pipeline_state: *RenderPipelineState) void {
         return objc.msgSend(self, "setRenderPipelineState:", void, .{pipeline_state});
     }
     /// `-[MTLRenderCommandEncoder setVertexBytes:length:atIndex:]
-    pub fn setVertexBytes_length_atIndex_(self: *@This(), bytes: *const anyopaque, length: usize, index: usize) void {
+    pub fn setVertexBytes_length_atIndex(self: *@This(), bytes: *const anyopaque, length: usize, index: usize) void {
         return objc.msgSend(self, "setVertexBytes:length:atIndex:", void, .{ bytes, length, index });
     }
     /// `-[MTLRenderCommandEncoder setVertexBuffer:offset:atIndex:]
-    pub fn setVertexBuffer_offset_atIndex_(self: *@This(), buffer: ?*Buffer, offset: usize, index: usize) void {
+    pub fn setVertexBuffer_offset_atIndex(self: *@This(), buffer: ?*Buffer, offset: usize, index: usize) void {
         return objc.msgSend(self, "setVertexBuffer:offset:atIndex:", void, .{ buffer, offset, index });
     }
     /// `-[MTLRenderCommandEncoder setVertexBufferOffset:atIndex:]
-    pub fn setVertexBufferOffset_atIndex_(self: *@This(), offset: usize, index: usize) void {
+    pub fn setVertexBufferOffset_atIndex(self: *@This(), offset: usize, index: usize) void {
         return objc.msgSend(self, "setVertexBufferOffset:atIndex:", void, .{ offset, index });
     }
     /// `-[MTLRenderCommandEncoder setVertexBuffers:offsets:withRange:]
-    pub fn setVertexBuffers_offsets_withRange_(self: *@This(), buffers: [*]?*const Buffer, offsets: *const usize, range: ns.Range) void {
+    pub fn setVertexBuffers_offsets_withRange(self: *@This(), buffers: [*]?*const Buffer, offsets: *const usize, range: ns.Range) void {
         return objc.msgSend(self, "setVertexBuffers:offsets:withRange:", void, .{ buffers, offsets, range });
     }
     /// `-[MTLRenderCommandEncoder setVertexBuffer:offset:attributeStride:atIndex:]
-    pub fn setVertexBuffer_offset_attributeStride_atIndex_(self: *@This(), buffer: ?*Buffer, offset: usize, stride: usize, index: usize) void {
+    pub fn setVertexBuffer_offset_attributeStride_atIndex(self: *@This(), buffer: ?*Buffer, offset: usize, stride: usize, index: usize) void {
         return objc.msgSend(self, "setVertexBuffer:offset:attributeStride:atIndex:", void, .{ buffer, offset, stride, index });
     }
     /// `-[MTLRenderCommandEncoder setVertexBuffers:offsets:attributeStrides:withRange:]
-    pub fn setVertexBuffers_offsets_attributeStrides_withRange_(self: *@This(), buffers: [*]?*const Buffer, offsets: *const usize, strides: *const usize, range: ns.Range) void {
+    pub fn setVertexBuffers_offsets_attributeStrides_withRange(self: *@This(), buffers: [*]?*const Buffer, offsets: *const usize, strides: *const usize, range: ns.Range) void {
         return objc.msgSend(self, "setVertexBuffers:offsets:attributeStrides:withRange:", void, .{ buffers, offsets, strides, range });
     }
     /// `-[MTLRenderCommandEncoder setVertexBufferOffset:attributeStride:atIndex:]
-    pub fn setVertexBufferOffset_attributeStride_atIndex_(self: *@This(), offset: usize, stride: usize, index: usize) void {
+    pub fn setVertexBufferOffset_attributeStride_atIndex(self: *@This(), offset: usize, stride: usize, index: usize) void {
         return objc.msgSend(self, "setVertexBufferOffset:attributeStride:atIndex:", void, .{ offset, stride, index });
     }
     /// `-[MTLRenderCommandEncoder setVertexBytes:length:attributeStride:atIndex:]
-    pub fn setVertexBytes_length_attributeStride_atIndex_(self: *@This(), bytes: *const anyopaque, length: usize, stride: usize, index: usize) void {
+    pub fn setVertexBytes_length_attributeStride_atIndex(self: *@This(), bytes: *const anyopaque, length: usize, stride: usize, index: usize) void {
         return objc.msgSend(self, "setVertexBytes:length:attributeStride:atIndex:", void, .{ bytes, length, stride, index });
     }
     /// `-[MTLRenderCommandEncoder setVertexTexture:atIndex:]
-    pub fn setVertexTexture_atIndex_(self: *@This(), texture: ?*Texture, index: usize) void {
+    pub fn setVertexTexture_atIndex(self: *@This(), texture: ?*Texture, index: usize) void {
         return objc.msgSend(self, "setVertexTexture:atIndex:", void, .{ texture, index });
     }
     /// `-[MTLRenderCommandEncoder setVertexTextures:withRange:]
-    pub fn setVertexTextures_withRange_(self: *@This(), textures: [*]?*const Texture, range: ns.Range) void {
+    pub fn setVertexTextures_withRange(self: *@This(), textures: [*]?*const Texture, range: ns.Range) void {
         return objc.msgSend(self, "setVertexTextures:withRange:", void, .{ textures, range });
     }
     /// `-[MTLRenderCommandEncoder setVertexSamplerState:atIndex:]
-    pub fn setVertexSamplerState_atIndex_(self: *@This(), sampler: ?*SamplerState, index: usize) void {
+    pub fn setVertexSamplerState_atIndex(self: *@This(), sampler: ?*SamplerState, index: usize) void {
         return objc.msgSend(self, "setVertexSamplerState:atIndex:", void, .{ sampler, index });
     }
     /// `-[MTLRenderCommandEncoder setVertexSamplerStates:withRange:]
-    pub fn setVertexSamplerStates_withRange_(self: *@This(), samplers: [*]?*const SamplerState, range: ns.Range) void {
+    pub fn setVertexSamplerStates_withRange(self: *@This(), samplers: [*]?*const SamplerState, range: ns.Range) void {
         return objc.msgSend(self, "setVertexSamplerStates:withRange:", void, .{ samplers, range });
     }
     /// `-[MTLRenderCommandEncoder setVertexSamplerState:lodMinClamp:lodMaxClamp:atIndex:]
-    pub fn setVertexSamplerState_lodMinClamp_lodMaxClamp_atIndex_(self: *@This(), sampler: ?*SamplerState, lod_min_clamp: f32, lod_max_clamp: f32, index: usize) void {
+    pub fn setVertexSamplerState_lodMinClamp_lodMaxClamp_atIndex(self: *@This(), sampler: ?*SamplerState, lod_min_clamp: f32, lod_max_clamp: f32, index: usize) void {
         return objc.msgSend(self, "setVertexSamplerState:lodMinClamp:lodMaxClamp:atIndex:", void, .{ sampler, lod_min_clamp, lod_max_clamp, index });
     }
     /// `-[MTLRenderCommandEncoder setVertexSamplerStates:lodMinClamps:lodMaxClamps:withRange:]
-    pub fn setVertexSamplerStates_lodMinClamps_lodMaxClamps_withRange_(self: *@This(), samplers: [*]?*const SamplerState, lod_min_clamps: *const f32, lod_max_clamps: *const f32, range: ns.Range) void {
+    pub fn setVertexSamplerStates_lodMinClamps_lodMaxClamps_withRange(self: *@This(), samplers: [*]?*const SamplerState, lod_min_clamps: *const f32, lod_max_clamps: *const f32, range: ns.Range) void {
         return objc.msgSend(self, "setVertexSamplerStates:lodMinClamps:lodMaxClamps:withRange:", void, .{ samplers, lod_min_clamps, lod_max_clamps, range });
     }
     /// `-[MTLRenderCommandEncoder setVertexVisibleFunctionTable:atBufferIndex:]
-    pub fn setVertexVisibleFunctionTable_atBufferIndex_(self: *@This(), function_table: ?*VisibleFunctionTable, buffer_index: usize) void {
+    pub fn setVertexVisibleFunctionTable_atBufferIndex(self: *@This(), function_table: ?*VisibleFunctionTable, buffer_index: usize) void {
         return objc.msgSend(self, "setVertexVisibleFunctionTable:atBufferIndex:", void, .{ function_table, buffer_index });
     }
     /// `-[MTLRenderCommandEncoder setVertexVisibleFunctionTables:withBufferRange:]
-    pub fn setVertexVisibleFunctionTables_withBufferRange_(self: *@This(), function_tables: [*]?*const VisibleFunctionTable, range: ns.Range) void {
+    pub fn setVertexVisibleFunctionTables_withBufferRange(self: *@This(), function_tables: [*]?*const VisibleFunctionTable, range: ns.Range) void {
         return objc.msgSend(self, "setVertexVisibleFunctionTables:withBufferRange:", void, .{ function_tables, range });
     }
     /// `-[MTLRenderCommandEncoder setVertexIntersectionFunctionTable:atBufferIndex:]
-    pub fn setVertexIntersectionFunctionTable_atBufferIndex_(self: *@This(), intersection_function_table: ?*IntersectionFunctionTable, buffer_index: usize) void {
+    pub fn setVertexIntersectionFunctionTable_atBufferIndex(self: *@This(), intersection_function_table: ?*IntersectionFunctionTable, buffer_index: usize) void {
         return objc.msgSend(self, "setVertexIntersectionFunctionTable:atBufferIndex:", void, .{ intersection_function_table, buffer_index });
     }
     /// `-[MTLRenderCommandEncoder setVertexIntersectionFunctionTables:withBufferRange:]
-    pub fn setVertexIntersectionFunctionTables_withBufferRange_(self: *@This(), intersection_function_tables: [*]?*const IntersectionFunctionTable, range: ns.Range) void {
+    pub fn setVertexIntersectionFunctionTables_withBufferRange(self: *@This(), intersection_function_tables: [*]?*const IntersectionFunctionTable, range: ns.Range) void {
         return objc.msgSend(self, "setVertexIntersectionFunctionTables:withBufferRange:", void, .{ intersection_function_tables, range });
     }
     /// `-[MTLRenderCommandEncoder setVertexAccelerationStructure:atBufferIndex:]
-    pub fn setVertexAccelerationStructure_atBufferIndex_(self: *@This(), acceleration_structure: ?*AccelerationStructure, buffer_index: usize) void {
+    pub fn setVertexAccelerationStructure_atBufferIndex(self: *@This(), acceleration_structure: ?*AccelerationStructure, buffer_index: usize) void {
         return objc.msgSend(self, "setVertexAccelerationStructure:atBufferIndex:", void, .{ acceleration_structure, buffer_index });
     }
     /// `-[MTLRenderCommandEncoder setViewport:]
-    pub fn setViewport_(self: *@This(), viewport: Viewport) void {
+    pub fn setViewport(self: *@This(), viewport: Viewport) void {
         return objc.msgSend(self, "setViewport:", void, .{viewport});
     }
     /// `-[MTLRenderCommandEncoder setViewports:count:]
-    pub fn setViewports_count_(self: *@This(), viewports: *const Viewport, count: usize) void {
+    pub fn setViewports_count(self: *@This(), viewports: *const Viewport, count: usize) void {
         return objc.msgSend(self, "setViewports:count:", void, .{ viewports, count });
     }
     /// `-[MTLRenderCommandEncoder setFrontFacingWinding:]
-    pub fn setFrontFacingWinding_(self: *@This(), front_facing_winding: Winding) void {
+    pub fn setFrontFacingWinding(self: *@This(), front_facing_winding: Winding) void {
         return objc.msgSend(self, "setFrontFacingWinding:", void, .{front_facing_winding});
     }
     /// `-[MTLRenderCommandEncoder setVertexAmplificationCount:viewMappings:]
-    pub fn setVertexAmplificationCount_viewMappings_(self: *@This(), count: usize, view_mappings: ?*const VertexAmplificationViewMapping) void {
+    pub fn setVertexAmplificationCount_viewMappings(self: *@This(), count: usize, view_mappings: ?*const VertexAmplificationViewMapping) void {
         return objc.msgSend(self, "setVertexAmplificationCount:viewMappings:", void, .{ count, view_mappings });
     }
     /// `-[MTLRenderCommandEncoder setCullMode:]
-    pub fn setCullMode_(self: *@This(), cull_mode: CullMode) void {
+    pub fn setCullMode(self: *@This(), cull_mode: CullMode) void {
         return objc.msgSend(self, "setCullMode:", void, .{cull_mode});
     }
     /// `-[MTLRenderCommandEncoder setDepthClipMode:]
-    pub fn setDepthClipMode_(self: *@This(), depth_clip_mode: DepthClipMode) void {
+    pub fn setDepthClipMode(self: *@This(), depth_clip_mode: DepthClipMode) void {
         return objc.msgSend(self, "setDepthClipMode:", void, .{depth_clip_mode});
     }
     /// `-[MTLRenderCommandEncoder setDepthBias:slopeScale:clamp:]
-    pub fn setDepthBias_slopeScale_clamp_(self: *@This(), depth_bias: f32, slope_scale: f32, clamp: f32) void {
+    pub fn setDepthBias_slopeScale_clamp(self: *@This(), depth_bias: f32, slope_scale: f32, clamp: f32) void {
         return objc.msgSend(self, "setDepthBias:slopeScale:clamp:", void, .{ depth_bias, slope_scale, clamp });
     }
     /// `-[MTLRenderCommandEncoder setScissorRect:]
-    pub fn setScissorRect_(self: *@This(), rect: ScissorRect) void {
+    pub fn setScissorRect(self: *@This(), rect: ScissorRect) void {
         return objc.msgSend(self, "setScissorRect:", void, .{rect});
     }
     /// `-[MTLRenderCommandEncoder setScissorRects:count:]
-    pub fn setScissorRects_count_(self: *@This(), scissor_rects: *const ScissorRect, count: usize) void {
+    pub fn setScissorRects_count(self: *@This(), scissor_rects: *const ScissorRect, count: usize) void {
         return objc.msgSend(self, "setScissorRects:count:", void, .{ scissor_rects, count });
     }
     /// `-[MTLRenderCommandEncoder setTriangleFillMode:]
-    pub fn setTriangleFillMode_(self: *@This(), fill_mode: TriangleFillMode) void {
+    pub fn setTriangleFillMode(self: *@This(), fill_mode: TriangleFillMode) void {
         return objc.msgSend(self, "setTriangleFillMode:", void, .{fill_mode});
     }
     /// `-[MTLRenderCommandEncoder setFragmentBytes:length:atIndex:]
-    pub fn setFragmentBytes_length_atIndex_(self: *@This(), bytes: *const anyopaque, length: usize, index: usize) void {
+    pub fn setFragmentBytes_length_atIndex(self: *@This(), bytes: *const anyopaque, length: usize, index: usize) void {
         return objc.msgSend(self, "setFragmentBytes:length:atIndex:", void, .{ bytes, length, index });
     }
     /// `-[MTLRenderCommandEncoder setFragmentBuffer:offset:atIndex:]
-    pub fn setFragmentBuffer_offset_atIndex_(self: *@This(), buffer: ?*Buffer, offset: usize, index: usize) void {
+    pub fn setFragmentBuffer_offset_atIndex(self: *@This(), buffer: ?*Buffer, offset: usize, index: usize) void {
         return objc.msgSend(self, "setFragmentBuffer:offset:atIndex:", void, .{ buffer, offset, index });
     }
     /// `-[MTLRenderCommandEncoder setFragmentBufferOffset:atIndex:]
-    pub fn setFragmentBufferOffset_atIndex_(self: *@This(), offset: usize, index: usize) void {
+    pub fn setFragmentBufferOffset_atIndex(self: *@This(), offset: usize, index: usize) void {
         return objc.msgSend(self, "setFragmentBufferOffset:atIndex:", void, .{ offset, index });
     }
     /// `-[MTLRenderCommandEncoder setFragmentBuffers:offsets:withRange:]
-    pub fn setFragmentBuffers_offsets_withRange_(self: *@This(), buffers: [*]?*const Buffer, offsets: *const usize, range: ns.Range) void {
+    pub fn setFragmentBuffers_offsets_withRange(self: *@This(), buffers: [*]?*const Buffer, offsets: *const usize, range: ns.Range) void {
         return objc.msgSend(self, "setFragmentBuffers:offsets:withRange:", void, .{ buffers, offsets, range });
     }
     /// `-[MTLRenderCommandEncoder setFragmentTexture:atIndex:]
-    pub fn setFragmentTexture_atIndex_(self: *@This(), texture: ?*Texture, index: usize) void {
+    pub fn setFragmentTexture_atIndex(self: *@This(), texture: ?*Texture, index: usize) void {
         return objc.msgSend(self, "setFragmentTexture:atIndex:", void, .{ texture, index });
     }
     /// `-[MTLRenderCommandEncoder setFragmentTextures:withRange:]
-    pub fn setFragmentTextures_withRange_(self: *@This(), textures: [*]?*const Texture, range: ns.Range) void {
+    pub fn setFragmentTextures_withRange(self: *@This(), textures: [*]?*const Texture, range: ns.Range) void {
         return objc.msgSend(self, "setFragmentTextures:withRange:", void, .{ textures, range });
     }
     /// `-[MTLRenderCommandEncoder setFragmentSamplerState:atIndex:]
-    pub fn setFragmentSamplerState_atIndex_(self: *@This(), sampler: ?*SamplerState, index: usize) void {
+    pub fn setFragmentSamplerState_atIndex(self: *@This(), sampler: ?*SamplerState, index: usize) void {
         return objc.msgSend(self, "setFragmentSamplerState:atIndex:", void, .{ sampler, index });
     }
     /// `-[MTLRenderCommandEncoder setFragmentSamplerStates:withRange:]
-    pub fn setFragmentSamplerStates_withRange_(self: *@This(), samplers: [*]?*const SamplerState, range: ns.Range) void {
+    pub fn setFragmentSamplerStates_withRange(self: *@This(), samplers: [*]?*const SamplerState, range: ns.Range) void {
         return objc.msgSend(self, "setFragmentSamplerStates:withRange:", void, .{ samplers, range });
     }
     /// `-[MTLRenderCommandEncoder setFragmentSamplerState:lodMinClamp:lodMaxClamp:atIndex:]
-    pub fn setFragmentSamplerState_lodMinClamp_lodMaxClamp_atIndex_(self: *@This(), sampler: ?*SamplerState, lod_min_clamp: f32, lod_max_clamp: f32, index: usize) void {
+    pub fn setFragmentSamplerState_lodMinClamp_lodMaxClamp_atIndex(self: *@This(), sampler: ?*SamplerState, lod_min_clamp: f32, lod_max_clamp: f32, index: usize) void {
         return objc.msgSend(self, "setFragmentSamplerState:lodMinClamp:lodMaxClamp:atIndex:", void, .{ sampler, lod_min_clamp, lod_max_clamp, index });
     }
     /// `-[MTLRenderCommandEncoder setFragmentSamplerStates:lodMinClamps:lodMaxClamps:withRange:]
-    pub fn setFragmentSamplerStates_lodMinClamps_lodMaxClamps_withRange_(self: *@This(), samplers: [*]?*const SamplerState, lod_min_clamps: *const f32, lod_max_clamps: *const f32, range: ns.Range) void {
+    pub fn setFragmentSamplerStates_lodMinClamps_lodMaxClamps_withRange(self: *@This(), samplers: [*]?*const SamplerState, lod_min_clamps: *const f32, lod_max_clamps: *const f32, range: ns.Range) void {
         return objc.msgSend(self, "setFragmentSamplerStates:lodMinClamps:lodMaxClamps:withRange:", void, .{ samplers, lod_min_clamps, lod_max_clamps, range });
     }
     /// `-[MTLRenderCommandEncoder setFragmentVisibleFunctionTable:atBufferIndex:]
-    pub fn setFragmentVisibleFunctionTable_atBufferIndex_(self: *@This(), function_table: ?*VisibleFunctionTable, buffer_index: usize) void {
+    pub fn setFragmentVisibleFunctionTable_atBufferIndex(self: *@This(), function_table: ?*VisibleFunctionTable, buffer_index: usize) void {
         return objc.msgSend(self, "setFragmentVisibleFunctionTable:atBufferIndex:", void, .{ function_table, buffer_index });
     }
     /// `-[MTLRenderCommandEncoder setFragmentVisibleFunctionTables:withBufferRange:]
-    pub fn setFragmentVisibleFunctionTables_withBufferRange_(self: *@This(), function_tables: [*]?*const VisibleFunctionTable, range: ns.Range) void {
+    pub fn setFragmentVisibleFunctionTables_withBufferRange(self: *@This(), function_tables: [*]?*const VisibleFunctionTable, range: ns.Range) void {
         return objc.msgSend(self, "setFragmentVisibleFunctionTables:withBufferRange:", void, .{ function_tables, range });
     }
     /// `-[MTLRenderCommandEncoder setFragmentIntersectionFunctionTable:atBufferIndex:]
-    pub fn setFragmentIntersectionFunctionTable_atBufferIndex_(self: *@This(), intersection_function_table: ?*IntersectionFunctionTable, buffer_index: usize) void {
+    pub fn setFragmentIntersectionFunctionTable_atBufferIndex(self: *@This(), intersection_function_table: ?*IntersectionFunctionTable, buffer_index: usize) void {
         return objc.msgSend(self, "setFragmentIntersectionFunctionTable:atBufferIndex:", void, .{ intersection_function_table, buffer_index });
     }
     /// `-[MTLRenderCommandEncoder setFragmentIntersectionFunctionTables:withBufferRange:]
-    pub fn setFragmentIntersectionFunctionTables_withBufferRange_(self: *@This(), intersection_function_tables: [*]?*const IntersectionFunctionTable, range: ns.Range) void {
+    pub fn setFragmentIntersectionFunctionTables_withBufferRange(self: *@This(), intersection_function_tables: [*]?*const IntersectionFunctionTable, range: ns.Range) void {
         return objc.msgSend(self, "setFragmentIntersectionFunctionTables:withBufferRange:", void, .{ intersection_function_tables, range });
     }
     /// `-[MTLRenderCommandEncoder setFragmentAccelerationStructure:atBufferIndex:]
-    pub fn setFragmentAccelerationStructure_atBufferIndex_(self: *@This(), acceleration_structure: ?*AccelerationStructure, buffer_index: usize) void {
+    pub fn setFragmentAccelerationStructure_atBufferIndex(self: *@This(), acceleration_structure: ?*AccelerationStructure, buffer_index: usize) void {
         return objc.msgSend(self, "setFragmentAccelerationStructure:atBufferIndex:", void, .{ acceleration_structure, buffer_index });
     }
     /// `-[MTLRenderCommandEncoder setBlendColorRed:green:blue:alpha:]
-    pub fn setBlendColorRed_green_blue_alpha_(self: *@This(), red: f32, green: f32, blue: f32, alpha: f32) void {
+    pub fn setBlendColorRed_green_blue_alpha(self: *@This(), red: f32, green: f32, blue: f32, alpha: f32) void {
         return objc.msgSend(self, "setBlendColorRed:green:blue:alpha:", void, .{ red, green, blue, alpha });
     }
     /// `-[MTLRenderCommandEncoder setDepthStencilState:]
-    pub fn setDepthStencilState_(self: *@This(), depth_stencil_state: ?*DepthStencilState) void {
+    pub fn setDepthStencilState(self: *@This(), depth_stencil_state: ?*DepthStencilState) void {
         return objc.msgSend(self, "setDepthStencilState:", void, .{depth_stencil_state});
     }
     /// `-[MTLRenderCommandEncoder setStencilReferenceValue:]
-    pub fn setStencilReferenceValue_(self: *@This(), reference_value: u32) void {
+    pub fn setStencilReferenceValue(self: *@This(), reference_value: u32) void {
         return objc.msgSend(self, "setStencilReferenceValue:", void, .{reference_value});
     }
     /// `-[MTLRenderCommandEncoder setStencilFrontReferenceValue:backReferenceValue:]
-    pub fn setStencilFrontReferenceValue_backReferenceValue_(self: *@This(), front_reference_value: u32, back_reference_value: u32) void {
+    pub fn setStencilFrontReferenceValue_backReferenceValue(self: *@This(), front_reference_value: u32, back_reference_value: u32) void {
         return objc.msgSend(self, "setStencilFrontReferenceValue:backReferenceValue:", void, .{ front_reference_value, back_reference_value });
     }
     /// `-[MTLRenderCommandEncoder setVisibilityResultMode:offset:]
-    pub fn setVisibilityResultMode_offset_(self: *@This(), mode: VisibilityResultMode, offset: usize) void {
+    pub fn setVisibilityResultMode_offset(self: *@This(), mode: VisibilityResultMode, offset: usize) void {
         return objc.msgSend(self, "setVisibilityResultMode:offset:", void, .{ mode, offset });
     }
     /// `-[MTLRenderCommandEncoder setColorStoreAction:atIndex:]
-    pub fn setColorStoreAction_atIndex_(self: *@This(), store_action: StoreAction, color_attachment_index: usize) void {
+    pub fn setColorStoreAction_atIndex(self: *@This(), store_action: StoreAction, color_attachment_index: usize) void {
         return objc.msgSend(self, "setColorStoreAction:atIndex:", void, .{ store_action, color_attachment_index });
     }
     /// `-[MTLRenderCommandEncoder setDepthStoreAction:]
-    pub fn setDepthStoreAction_(self: *@This(), store_action: StoreAction) void {
+    pub fn setDepthStoreAction(self: *@This(), store_action: StoreAction) void {
         return objc.msgSend(self, "setDepthStoreAction:", void, .{store_action});
     }
     /// `-[MTLRenderCommandEncoder setStencilStoreAction:]
-    pub fn setStencilStoreAction_(self: *@This(), store_action: StoreAction) void {
+    pub fn setStencilStoreAction(self: *@This(), store_action: StoreAction) void {
         return objc.msgSend(self, "setStencilStoreAction:", void, .{store_action});
     }
     /// `-[MTLRenderCommandEncoder setColorStoreActionOptions:atIndex:]
-    pub fn setColorStoreActionOptions_atIndex_(self: *@This(), store_action_options: StoreActionOptions, color_attachment_index: usize) void {
+    pub fn setColorStoreActionOptions_atIndex(self: *@This(), store_action_options: StoreActionOptions, color_attachment_index: usize) void {
         return objc.msgSend(self, "setColorStoreActionOptions:atIndex:", void, .{ store_action_options, color_attachment_index });
     }
     /// `-[MTLRenderCommandEncoder setDepthStoreActionOptions:]
-    pub fn setDepthStoreActionOptions_(self: *@This(), store_action_options: StoreActionOptions) void {
+    pub fn setDepthStoreActionOptions(self: *@This(), store_action_options: StoreActionOptions) void {
         return objc.msgSend(self, "setDepthStoreActionOptions:", void, .{store_action_options});
     }
     /// `-[MTLRenderCommandEncoder setStencilStoreActionOptions:]
-    pub fn setStencilStoreActionOptions_(self: *@This(), store_action_options: StoreActionOptions) void {
+    pub fn setStencilStoreActionOptions(self: *@This(), store_action_options: StoreActionOptions) void {
         return objc.msgSend(self, "setStencilStoreActionOptions:", void, .{store_action_options});
     }
     /// `-[MTLRenderCommandEncoder setObjectBytes:length:atIndex:]
-    pub fn setObjectBytes_length_atIndex_(self: *@This(), bytes: *const anyopaque, length: usize, index: usize) void {
+    pub fn setObjectBytes_length_atIndex(self: *@This(), bytes: *const anyopaque, length: usize, index: usize) void {
         return objc.msgSend(self, "setObjectBytes:length:atIndex:", void, .{ bytes, length, index });
     }
     /// `-[MTLRenderCommandEncoder setObjectBuffer:offset:atIndex:]
-    pub fn setObjectBuffer_offset_atIndex_(self: *@This(), buffer: ?*Buffer, offset: usize, index: usize) void {
+    pub fn setObjectBuffer_offset_atIndex(self: *@This(), buffer: ?*Buffer, offset: usize, index: usize) void {
         return objc.msgSend(self, "setObjectBuffer:offset:atIndex:", void, .{ buffer, offset, index });
     }
     /// `-[MTLRenderCommandEncoder setObjectBufferOffset:atIndex:]
-    pub fn setObjectBufferOffset_atIndex_(self: *@This(), offset: usize, index: usize) void {
+    pub fn setObjectBufferOffset_atIndex(self: *@This(), offset: usize, index: usize) void {
         return objc.msgSend(self, "setObjectBufferOffset:atIndex:", void, .{ offset, index });
     }
     /// `-[MTLRenderCommandEncoder setObjectBuffers:offsets:withRange:]
-    pub fn setObjectBuffers_offsets_withRange_(self: *@This(), buffers: [*]?*const Buffer, offsets: *const usize, range: ns.Range) void {
+    pub fn setObjectBuffers_offsets_withRange(self: *@This(), buffers: [*]?*const Buffer, offsets: *const usize, range: ns.Range) void {
         return objc.msgSend(self, "setObjectBuffers:offsets:withRange:", void, .{ buffers, offsets, range });
     }
     /// `-[MTLRenderCommandEncoder setObjectTexture:atIndex:]
-    pub fn setObjectTexture_atIndex_(self: *@This(), texture: ?*Texture, index: usize) void {
+    pub fn setObjectTexture_atIndex(self: *@This(), texture: ?*Texture, index: usize) void {
         return objc.msgSend(self, "setObjectTexture:atIndex:", void, .{ texture, index });
     }
     /// `-[MTLRenderCommandEncoder setObjectTextures:withRange:]
-    pub fn setObjectTextures_withRange_(self: *@This(), textures: [*]?*const Texture, range: ns.Range) void {
+    pub fn setObjectTextures_withRange(self: *@This(), textures: [*]?*const Texture, range: ns.Range) void {
         return objc.msgSend(self, "setObjectTextures:withRange:", void, .{ textures, range });
     }
     /// `-[MTLRenderCommandEncoder setObjectSamplerState:atIndex:]
-    pub fn setObjectSamplerState_atIndex_(self: *@This(), sampler: ?*SamplerState, index: usize) void {
+    pub fn setObjectSamplerState_atIndex(self: *@This(), sampler: ?*SamplerState, index: usize) void {
         return objc.msgSend(self, "setObjectSamplerState:atIndex:", void, .{ sampler, index });
     }
     /// `-[MTLRenderCommandEncoder setObjectSamplerStates:withRange:]
-    pub fn setObjectSamplerStates_withRange_(self: *@This(), samplers: [*]?*const SamplerState, range: ns.Range) void {
+    pub fn setObjectSamplerStates_withRange(self: *@This(), samplers: [*]?*const SamplerState, range: ns.Range) void {
         return objc.msgSend(self, "setObjectSamplerStates:withRange:", void, .{ samplers, range });
     }
     /// `-[MTLRenderCommandEncoder setObjectSamplerState:lodMinClamp:lodMaxClamp:atIndex:]
-    pub fn setObjectSamplerState_lodMinClamp_lodMaxClamp_atIndex_(self: *@This(), sampler: ?*SamplerState, lod_min_clamp: f32, lod_max_clamp: f32, index: usize) void {
+    pub fn setObjectSamplerState_lodMinClamp_lodMaxClamp_atIndex(self: *@This(), sampler: ?*SamplerState, lod_min_clamp: f32, lod_max_clamp: f32, index: usize) void {
         return objc.msgSend(self, "setObjectSamplerState:lodMinClamp:lodMaxClamp:atIndex:", void, .{ sampler, lod_min_clamp, lod_max_clamp, index });
     }
     /// `-[MTLRenderCommandEncoder setObjectSamplerStates:lodMinClamps:lodMaxClamps:withRange:]
-    pub fn setObjectSamplerStates_lodMinClamps_lodMaxClamps_withRange_(self: *@This(), samplers: [*]?*const SamplerState, lod_min_clamps: *const f32, lod_max_clamps: *const f32, range: ns.Range) void {
+    pub fn setObjectSamplerStates_lodMinClamps_lodMaxClamps_withRange(self: *@This(), samplers: [*]?*const SamplerState, lod_min_clamps: *const f32, lod_max_clamps: *const f32, range: ns.Range) void {
         return objc.msgSend(self, "setObjectSamplerStates:lodMinClamps:lodMaxClamps:withRange:", void, .{ samplers, lod_min_clamps, lod_max_clamps, range });
     }
     /// `-[MTLRenderCommandEncoder setObjectThreadgroupMemoryLength:atIndex:]
-    pub fn setObjectThreadgroupMemoryLength_atIndex_(self: *@This(), length: usize, index: usize) void {
+    pub fn setObjectThreadgroupMemoryLength_atIndex(self: *@This(), length: usize, index: usize) void {
         return objc.msgSend(self, "setObjectThreadgroupMemoryLength:atIndex:", void, .{ length, index });
     }
     /// `-[MTLRenderCommandEncoder setMeshBytes:length:atIndex:]
-    pub fn setMeshBytes_length_atIndex_(self: *@This(), bytes: *const anyopaque, length: usize, index: usize) void {
+    pub fn setMeshBytes_length_atIndex(self: *@This(), bytes: *const anyopaque, length: usize, index: usize) void {
         return objc.msgSend(self, "setMeshBytes:length:atIndex:", void, .{ bytes, length, index });
     }
     /// `-[MTLRenderCommandEncoder setMeshBuffer:offset:atIndex:]
-    pub fn setMeshBuffer_offset_atIndex_(self: *@This(), buffer: ?*Buffer, offset: usize, index: usize) void {
+    pub fn setMeshBuffer_offset_atIndex(self: *@This(), buffer: ?*Buffer, offset: usize, index: usize) void {
         return objc.msgSend(self, "setMeshBuffer:offset:atIndex:", void, .{ buffer, offset, index });
     }
     /// `-[MTLRenderCommandEncoder setMeshBufferOffset:atIndex:]
-    pub fn setMeshBufferOffset_atIndex_(self: *@This(), offset: usize, index: usize) void {
+    pub fn setMeshBufferOffset_atIndex(self: *@This(), offset: usize, index: usize) void {
         return objc.msgSend(self, "setMeshBufferOffset:atIndex:", void, .{ offset, index });
     }
     /// `-[MTLRenderCommandEncoder setMeshBuffers:offsets:withRange:]
-    pub fn setMeshBuffers_offsets_withRange_(self: *@This(), buffers: [*]?*const Buffer, offsets: *const usize, range: ns.Range) void {
+    pub fn setMeshBuffers_offsets_withRange(self: *@This(), buffers: [*]?*const Buffer, offsets: *const usize, range: ns.Range) void {
         return objc.msgSend(self, "setMeshBuffers:offsets:withRange:", void, .{ buffers, offsets, range });
     }
     /// `-[MTLRenderCommandEncoder setMeshTexture:atIndex:]
-    pub fn setMeshTexture_atIndex_(self: *@This(), texture: ?*Texture, index: usize) void {
+    pub fn setMeshTexture_atIndex(self: *@This(), texture: ?*Texture, index: usize) void {
         return objc.msgSend(self, "setMeshTexture:atIndex:", void, .{ texture, index });
     }
     /// `-[MTLRenderCommandEncoder setMeshTextures:withRange:]
-    pub fn setMeshTextures_withRange_(self: *@This(), textures: [*]?*const Texture, range: ns.Range) void {
+    pub fn setMeshTextures_withRange(self: *@This(), textures: [*]?*const Texture, range: ns.Range) void {
         return objc.msgSend(self, "setMeshTextures:withRange:", void, .{ textures, range });
     }
     /// `-[MTLRenderCommandEncoder setMeshSamplerState:atIndex:]
-    pub fn setMeshSamplerState_atIndex_(self: *@This(), sampler: ?*SamplerState, index: usize) void {
+    pub fn setMeshSamplerState_atIndex(self: *@This(), sampler: ?*SamplerState, index: usize) void {
         return objc.msgSend(self, "setMeshSamplerState:atIndex:", void, .{ sampler, index });
     }
     /// `-[MTLRenderCommandEncoder setMeshSamplerStates:withRange:]
-    pub fn setMeshSamplerStates_withRange_(self: *@This(), samplers: [*]?*const SamplerState, range: ns.Range) void {
+    pub fn setMeshSamplerStates_withRange(self: *@This(), samplers: [*]?*const SamplerState, range: ns.Range) void {
         return objc.msgSend(self, "setMeshSamplerStates:withRange:", void, .{ samplers, range });
     }
     /// `-[MTLRenderCommandEncoder setMeshSamplerState:lodMinClamp:lodMaxClamp:atIndex:]
-    pub fn setMeshSamplerState_lodMinClamp_lodMaxClamp_atIndex_(self: *@This(), sampler: ?*SamplerState, lod_min_clamp: f32, lod_max_clamp: f32, index: usize) void {
+    pub fn setMeshSamplerState_lodMinClamp_lodMaxClamp_atIndex(self: *@This(), sampler: ?*SamplerState, lod_min_clamp: f32, lod_max_clamp: f32, index: usize) void {
         return objc.msgSend(self, "setMeshSamplerState:lodMinClamp:lodMaxClamp:atIndex:", void, .{ sampler, lod_min_clamp, lod_max_clamp, index });
     }
     /// `-[MTLRenderCommandEncoder setMeshSamplerStates:lodMinClamps:lodMaxClamps:withRange:]
-    pub fn setMeshSamplerStates_lodMinClamps_lodMaxClamps_withRange_(self: *@This(), samplers: [*]?*const SamplerState, lod_min_clamps: *const f32, lod_max_clamps: *const f32, range: ns.Range) void {
+    pub fn setMeshSamplerStates_lodMinClamps_lodMaxClamps_withRange(self: *@This(), samplers: [*]?*const SamplerState, lod_min_clamps: *const f32, lod_max_clamps: *const f32, range: ns.Range) void {
         return objc.msgSend(self, "setMeshSamplerStates:lodMinClamps:lodMaxClamps:withRange:", void, .{ samplers, lod_min_clamps, lod_max_clamps, range });
     }
     /// `-[MTLRenderCommandEncoder drawMeshThreadgroups:threadsPerObjectThreadgroup:threadsPerMeshThreadgroup:]
-    pub fn drawMeshThreadgroups_threadsPerObjectThreadgroup_threadsPerMeshThreadgroup_(self: *@This(), threadgroups_per_grid: Size, threads_per_object_threadgroup: Size, threads_per_mesh_threadgroup: Size) void {
+    pub fn drawMeshThreadgroups_threadsPerObjectThreadgroup_threadsPerMeshThreadgroup(self: *@This(), threadgroups_per_grid: Size, threads_per_object_threadgroup: Size, threads_per_mesh_threadgroup: Size) void {
         return objc.msgSend(self, "drawMeshThreadgroups:threadsPerObjectThreadgroup:threadsPerMeshThreadgroup:", void, .{ threadgroups_per_grid, threads_per_object_threadgroup, threads_per_mesh_threadgroup });
     }
     /// `-[MTLRenderCommandEncoder drawMeshThreads:threadsPerObjectThreadgroup:threadsPerMeshThreadgroup:]
-    pub fn drawMeshThreads_threadsPerObjectThreadgroup_threadsPerMeshThreadgroup_(self: *@This(), threads_per_grid: Size, threads_per_object_threadgroup: Size, threads_per_mesh_threadgroup: Size) void {
+    pub fn drawMeshThreads_threadsPerObjectThreadgroup_threadsPerMeshThreadgroup(self: *@This(), threads_per_grid: Size, threads_per_object_threadgroup: Size, threads_per_mesh_threadgroup: Size) void {
         return objc.msgSend(self, "drawMeshThreads:threadsPerObjectThreadgroup:threadsPerMeshThreadgroup:", void, .{ threads_per_grid, threads_per_object_threadgroup, threads_per_mesh_threadgroup });
     }
     /// `-[MTLRenderCommandEncoder drawMeshThreadgroupsWithIndirectBuffer:indirectBufferOffset:threadsPerObjectThreadgroup:threadsPerMeshThreadgroup:]
-    pub fn drawMeshThreadgroupsWithIndirectBuffer_indirectBufferOffset_threadsPerObjectThreadgroup_threadsPerMeshThreadgroup_(self: *@This(), indirect_buffer: *Buffer, indirect_buffer_offset: usize, threads_per_object_threadgroup: Size, threads_per_mesh_threadgroup: Size) void {
+    pub fn drawMeshThreadgroupsWithIndirectBuffer_indirectBufferOffset_threadsPerObjectThreadgroup_threadsPerMeshThreadgroup(self: *@This(), indirect_buffer: *Buffer, indirect_buffer_offset: usize, threads_per_object_threadgroup: Size, threads_per_mesh_threadgroup: Size) void {
         return objc.msgSend(self, "drawMeshThreadgroupsWithIndirectBuffer:indirectBufferOffset:threadsPerObjectThreadgroup:threadsPerMeshThreadgroup:", void, .{ indirect_buffer, indirect_buffer_offset, threads_per_object_threadgroup, threads_per_mesh_threadgroup });
     }
     /// `-[MTLRenderCommandEncoder drawPrimitives:vertexStart:vertexCount:instanceCount:]
-    pub fn drawPrimitives_vertexStart_vertexCount_instanceCount_(self: *@This(), primitive_type: PrimitiveType, vertex_start: usize, vertex_count: usize, instance_count: usize) void {
+    pub fn drawPrimitives_vertexStart_vertexCount_instanceCount(self: *@This(), primitive_type: PrimitiveType, vertex_start: usize, vertex_count: usize, instance_count: usize) void {
         return objc.msgSend(self, "drawPrimitives:vertexStart:vertexCount:instanceCount:", void, .{ primitive_type, vertex_start, vertex_count, instance_count });
     }
     /// `-[MTLRenderCommandEncoder drawPrimitives:vertexStart:vertexCount:]
-    pub fn drawPrimitives_vertexStart_vertexCount_(self: *@This(), primitive_type: PrimitiveType, vertex_start: usize, vertex_count: usize) void {
+    pub fn drawPrimitives_vertexStart_vertexCount(self: *@This(), primitive_type: PrimitiveType, vertex_start: usize, vertex_count: usize) void {
         return objc.msgSend(self, "drawPrimitives:vertexStart:vertexCount:", void, .{ primitive_type, vertex_start, vertex_count });
     }
     /// `-[MTLRenderCommandEncoder drawIndexedPrimitives:indexCount:indexType:indexBuffer:indexBufferOffset:instanceCount:]
-    pub fn drawIndexedPrimitives_indexCount_indexType_indexBuffer_indexBufferOffset_instanceCount_(self: *@This(), primitive_type: PrimitiveType, index_count: usize, index_type: IndexType, index_buffer: *Buffer, index_buffer_offset: usize, instance_count: usize) void {
+    pub fn drawIndexedPrimitives_indexCount_indexType_indexBuffer_indexBufferOffset_instanceCount(self: *@This(), primitive_type: PrimitiveType, index_count: usize, index_type: IndexType, index_buffer: *Buffer, index_buffer_offset: usize, instance_count: usize) void {
         return objc.msgSend(self, "drawIndexedPrimitives:indexCount:indexType:indexBuffer:indexBufferOffset:instanceCount:", void, .{ primitive_type, index_count, index_type, index_buffer, index_buffer_offset, instance_count });
     }
     /// `-[MTLRenderCommandEncoder drawIndexedPrimitives:indexCount:indexType:indexBuffer:indexBufferOffset:]
-    pub fn drawIndexedPrimitives_indexCount_indexType_indexBuffer_indexBufferOffset_(self: *@This(), primitive_type: PrimitiveType, index_count: usize, index_type: IndexType, index_buffer: *Buffer, index_buffer_offset: usize) void {
+    pub fn drawIndexedPrimitives_indexCount_indexType_indexBuffer_indexBufferOffset(self: *@This(), primitive_type: PrimitiveType, index_count: usize, index_type: IndexType, index_buffer: *Buffer, index_buffer_offset: usize) void {
         return objc.msgSend(self, "drawIndexedPrimitives:indexCount:indexType:indexBuffer:indexBufferOffset:", void, .{ primitive_type, index_count, index_type, index_buffer, index_buffer_offset });
     }
     /// `-[MTLRenderCommandEncoder drawPrimitives:vertexStart:vertexCount:instanceCount:baseInstance:]
-    pub fn drawPrimitives_vertexStart_vertexCount_instanceCount_baseInstance_(self: *@This(), primitive_type: PrimitiveType, vertex_start: usize, vertex_count: usize, instance_count: usize, base_instance: usize) void {
+    pub fn drawPrimitives_vertexStart_vertexCount_instanceCount_baseInstance(self: *@This(), primitive_type: PrimitiveType, vertex_start: usize, vertex_count: usize, instance_count: usize, base_instance: usize) void {
         return objc.msgSend(self, "drawPrimitives:vertexStart:vertexCount:instanceCount:baseInstance:", void, .{ primitive_type, vertex_start, vertex_count, instance_count, base_instance });
     }
     /// `-[MTLRenderCommandEncoder drawIndexedPrimitives:indexCount:indexType:indexBuffer:indexBufferOffset:instanceCount:baseVertex:baseInstance:]
-    pub fn drawIndexedPrimitives_indexCount_indexType_indexBuffer_indexBufferOffset_instanceCount_baseVertex_baseInstance_(self: *@This(), primitive_type: PrimitiveType, index_count: usize, index_type: IndexType, index_buffer: *Buffer, index_buffer_offset: usize, instance_count: usize, base_vertex: isize, base_instance: usize) void {
+    pub fn drawIndexedPrimitives_indexCount_indexType_indexBuffer_indexBufferOffset_instanceCount_baseVertex_baseInstance(self: *@This(), primitive_type: PrimitiveType, index_count: usize, index_type: IndexType, index_buffer: *Buffer, index_buffer_offset: usize, instance_count: usize, base_vertex: isize, base_instance: usize) void {
         return objc.msgSend(self, "drawIndexedPrimitives:indexCount:indexType:indexBuffer:indexBufferOffset:instanceCount:baseVertex:baseInstance:", void, .{ primitive_type, index_count, index_type, index_buffer, index_buffer_offset, instance_count, base_vertex, base_instance });
     }
     /// `-[MTLRenderCommandEncoder drawPrimitives:indirectBuffer:indirectBufferOffset:]
-    pub fn drawPrimitives_indirectBuffer_indirectBufferOffset_(self: *@This(), primitive_type: PrimitiveType, indirect_buffer: *Buffer, indirect_buffer_offset: usize) void {
+    pub fn drawPrimitives_indirectBuffer_indirectBufferOffset(self: *@This(), primitive_type: PrimitiveType, indirect_buffer: *Buffer, indirect_buffer_offset: usize) void {
         return objc.msgSend(self, "drawPrimitives:indirectBuffer:indirectBufferOffset:", void, .{ primitive_type, indirect_buffer, indirect_buffer_offset });
     }
     /// `-[MTLRenderCommandEncoder drawIndexedPrimitives:indexType:indexBuffer:indexBufferOffset:indirectBuffer:indirectBufferOffset:]
-    pub fn drawIndexedPrimitives_indexType_indexBuffer_indexBufferOffset_indirectBuffer_indirectBufferOffset_(self: *@This(), primitive_type: PrimitiveType, index_type: IndexType, index_buffer: *Buffer, index_buffer_offset: usize, indirect_buffer: *Buffer, indirect_buffer_offset: usize) void {
+    pub fn drawIndexedPrimitives_indexType_indexBuffer_indexBufferOffset_indirectBuffer_indirectBufferOffset(self: *@This(), primitive_type: PrimitiveType, index_type: IndexType, index_buffer: *Buffer, index_buffer_offset: usize, indirect_buffer: *Buffer, indirect_buffer_offset: usize) void {
         return objc.msgSend(self, "drawIndexedPrimitives:indexType:indexBuffer:indexBufferOffset:indirectBuffer:indirectBufferOffset:", void, .{ primitive_type, index_type, index_buffer, index_buffer_offset, indirect_buffer, indirect_buffer_offset });
     }
     /// `-[MTLRenderCommandEncoder textureBarrier]
@@ -7630,155 +7960,155 @@ pub const RenderCommandEncoder = opaque {
         return objc.msgSend(self, "textureBarrier", void, .{});
     }
     /// `-[MTLRenderCommandEncoder updateFence:afterStages:]
-    pub fn updateFence_afterStages_(self: *@This(), fence: *Fence, stages: RenderStages) void {
+    pub fn updateFence_afterStages(self: *@This(), fence: *Fence, stages: RenderStages) void {
         return objc.msgSend(self, "updateFence:afterStages:", void, .{ fence, stages });
     }
     /// `-[MTLRenderCommandEncoder waitForFence:beforeStages:]
-    pub fn waitForFence_beforeStages_(self: *@This(), fence: *Fence, stages: RenderStages) void {
+    pub fn waitForFence_beforeStages(self: *@This(), fence: *Fence, stages: RenderStages) void {
         return objc.msgSend(self, "waitForFence:beforeStages:", void, .{ fence, stages });
     }
     /// `-[MTLRenderCommandEncoder setTessellationFactorBuffer:offset:instanceStride:]
-    pub fn setTessellationFactorBuffer_offset_instanceStride_(self: *@This(), buffer: ?*Buffer, offset: usize, instance_stride: usize) void {
+    pub fn setTessellationFactorBuffer_offset_instanceStride(self: *@This(), buffer: ?*Buffer, offset: usize, instance_stride: usize) void {
         return objc.msgSend(self, "setTessellationFactorBuffer:offset:instanceStride:", void, .{ buffer, offset, instance_stride });
     }
     /// `-[MTLRenderCommandEncoder setTessellationFactorScale:]
-    pub fn setTessellationFactorScale_(self: *@This(), scale: f32) void {
+    pub fn setTessellationFactorScale(self: *@This(), scale: f32) void {
         return objc.msgSend(self, "setTessellationFactorScale:", void, .{scale});
     }
     /// `-[MTLRenderCommandEncoder drawPatches:patchStart:patchCount:patchIndexBuffer:patchIndexBufferOffset:instanceCount:baseInstance:]
-    pub fn drawPatches_patchStart_patchCount_patchIndexBuffer_patchIndexBufferOffset_instanceCount_baseInstance_(self: *@This(), number_of_patch_control_points: usize, patch_start: usize, patch_count: usize, patch_index_buffer: ?*Buffer, patch_index_buffer_offset: usize, instance_count: usize, base_instance: usize) void {
+    pub fn drawPatches_patchStart_patchCount_patchIndexBuffer_patchIndexBufferOffset_instanceCount_baseInstance(self: *@This(), number_of_patch_control_points: usize, patch_start: usize, patch_count: usize, patch_index_buffer: ?*Buffer, patch_index_buffer_offset: usize, instance_count: usize, base_instance: usize) void {
         return objc.msgSend(self, "drawPatches:patchStart:patchCount:patchIndexBuffer:patchIndexBufferOffset:instanceCount:baseInstance:", void, .{ number_of_patch_control_points, patch_start, patch_count, patch_index_buffer, patch_index_buffer_offset, instance_count, base_instance });
     }
     /// `-[MTLRenderCommandEncoder drawPatches:patchIndexBuffer:patchIndexBufferOffset:indirectBuffer:indirectBufferOffset:]
-    pub fn drawPatches_patchIndexBuffer_patchIndexBufferOffset_indirectBuffer_indirectBufferOffset_(self: *@This(), number_of_patch_control_points: usize, patch_index_buffer: ?*Buffer, patch_index_buffer_offset: usize, indirect_buffer: *Buffer, indirect_buffer_offset: usize) void {
+    pub fn drawPatches_patchIndexBuffer_patchIndexBufferOffset_indirectBuffer_indirectBufferOffset(self: *@This(), number_of_patch_control_points: usize, patch_index_buffer: ?*Buffer, patch_index_buffer_offset: usize, indirect_buffer: *Buffer, indirect_buffer_offset: usize) void {
         return objc.msgSend(self, "drawPatches:patchIndexBuffer:patchIndexBufferOffset:indirectBuffer:indirectBufferOffset:", void, .{ number_of_patch_control_points, patch_index_buffer, patch_index_buffer_offset, indirect_buffer, indirect_buffer_offset });
     }
     /// `-[MTLRenderCommandEncoder drawIndexedPatches:patchStart:patchCount:patchIndexBuffer:patchIndexBufferOffset:controlPointIndexBuffer:controlPointIndexBufferOffset:instanceCount:baseInstance:]
-    pub fn drawIndexedPatches_patchStart_patchCount_patchIndexBuffer_patchIndexBufferOffset_controlPointIndexBuffer_controlPointIndexBufferOffset_instanceCount_baseInstance_(self: *@This(), number_of_patch_control_points: usize, patch_start: usize, patch_count: usize, patch_index_buffer: ?*Buffer, patch_index_buffer_offset: usize, control_point_index_buffer: *Buffer, control_point_index_buffer_offset: usize, instance_count: usize, base_instance: usize) void {
+    pub fn drawIndexedPatches_patchStart_patchCount_patchIndexBuffer_patchIndexBufferOffset_controlPointIndexBuffer_controlPointIndexBufferOffset_instanceCount_baseInstance(self: *@This(), number_of_patch_control_points: usize, patch_start: usize, patch_count: usize, patch_index_buffer: ?*Buffer, patch_index_buffer_offset: usize, control_point_index_buffer: *Buffer, control_point_index_buffer_offset: usize, instance_count: usize, base_instance: usize) void {
         return objc.msgSend(self, "drawIndexedPatches:patchStart:patchCount:patchIndexBuffer:patchIndexBufferOffset:controlPointIndexBuffer:controlPointIndexBufferOffset:instanceCount:baseInstance:", void, .{ number_of_patch_control_points, patch_start, patch_count, patch_index_buffer, patch_index_buffer_offset, control_point_index_buffer, control_point_index_buffer_offset, instance_count, base_instance });
     }
     /// `-[MTLRenderCommandEncoder drawIndexedPatches:patchIndexBuffer:patchIndexBufferOffset:controlPointIndexBuffer:controlPointIndexBufferOffset:indirectBuffer:indirectBufferOffset:]
-    pub fn drawIndexedPatches_patchIndexBuffer_patchIndexBufferOffset_controlPointIndexBuffer_controlPointIndexBufferOffset_indirectBuffer_indirectBufferOffset_(self: *@This(), number_of_patch_control_points: usize, patch_index_buffer: ?*Buffer, patch_index_buffer_offset: usize, control_point_index_buffer: *Buffer, control_point_index_buffer_offset: usize, indirect_buffer: *Buffer, indirect_buffer_offset: usize) void {
+    pub fn drawIndexedPatches_patchIndexBuffer_patchIndexBufferOffset_controlPointIndexBuffer_controlPointIndexBufferOffset_indirectBuffer_indirectBufferOffset(self: *@This(), number_of_patch_control_points: usize, patch_index_buffer: ?*Buffer, patch_index_buffer_offset: usize, control_point_index_buffer: *Buffer, control_point_index_buffer_offset: usize, indirect_buffer: *Buffer, indirect_buffer_offset: usize) void {
         return objc.msgSend(self, "drawIndexedPatches:patchIndexBuffer:patchIndexBufferOffset:controlPointIndexBuffer:controlPointIndexBufferOffset:indirectBuffer:indirectBufferOffset:", void, .{ number_of_patch_control_points, patch_index_buffer, patch_index_buffer_offset, control_point_index_buffer, control_point_index_buffer_offset, indirect_buffer, indirect_buffer_offset });
     }
     /// `-[MTLRenderCommandEncoder setTileBytes:length:atIndex:]
-    pub fn setTileBytes_length_atIndex_(self: *@This(), bytes: *const anyopaque, length: usize, index: usize) void {
+    pub fn setTileBytes_length_atIndex(self: *@This(), bytes: *const anyopaque, length: usize, index: usize) void {
         return objc.msgSend(self, "setTileBytes:length:atIndex:", void, .{ bytes, length, index });
     }
     /// `-[MTLRenderCommandEncoder setTileBuffer:offset:atIndex:]
-    pub fn setTileBuffer_offset_atIndex_(self: *@This(), buffer: ?*Buffer, offset: usize, index: usize) void {
+    pub fn setTileBuffer_offset_atIndex(self: *@This(), buffer: ?*Buffer, offset: usize, index: usize) void {
         return objc.msgSend(self, "setTileBuffer:offset:atIndex:", void, .{ buffer, offset, index });
     }
     /// `-[MTLRenderCommandEncoder setTileBufferOffset:atIndex:]
-    pub fn setTileBufferOffset_atIndex_(self: *@This(), offset: usize, index: usize) void {
+    pub fn setTileBufferOffset_atIndex(self: *@This(), offset: usize, index: usize) void {
         return objc.msgSend(self, "setTileBufferOffset:atIndex:", void, .{ offset, index });
     }
     /// `-[MTLRenderCommandEncoder setTileBuffers:offsets:withRange:]
-    pub fn setTileBuffers_offsets_withRange_(self: *@This(), buffers: [*]?*const Buffer, offsets: *const usize, range: ns.Range) void {
+    pub fn setTileBuffers_offsets_withRange(self: *@This(), buffers: [*]?*const Buffer, offsets: *const usize, range: ns.Range) void {
         return objc.msgSend(self, "setTileBuffers:offsets:withRange:", void, .{ buffers, offsets, range });
     }
     /// `-[MTLRenderCommandEncoder setTileTexture:atIndex:]
-    pub fn setTileTexture_atIndex_(self: *@This(), texture: ?*Texture, index: usize) void {
+    pub fn setTileTexture_atIndex(self: *@This(), texture: ?*Texture, index: usize) void {
         return objc.msgSend(self, "setTileTexture:atIndex:", void, .{ texture, index });
     }
     /// `-[MTLRenderCommandEncoder setTileTextures:withRange:]
-    pub fn setTileTextures_withRange_(self: *@This(), textures: [*]?*const Texture, range: ns.Range) void {
+    pub fn setTileTextures_withRange(self: *@This(), textures: [*]?*const Texture, range: ns.Range) void {
         return objc.msgSend(self, "setTileTextures:withRange:", void, .{ textures, range });
     }
     /// `-[MTLRenderCommandEncoder setTileSamplerState:atIndex:]
-    pub fn setTileSamplerState_atIndex_(self: *@This(), sampler: ?*SamplerState, index: usize) void {
+    pub fn setTileSamplerState_atIndex(self: *@This(), sampler: ?*SamplerState, index: usize) void {
         return objc.msgSend(self, "setTileSamplerState:atIndex:", void, .{ sampler, index });
     }
     /// `-[MTLRenderCommandEncoder setTileSamplerStates:withRange:]
-    pub fn setTileSamplerStates_withRange_(self: *@This(), samplers: [*]?*const SamplerState, range: ns.Range) void {
+    pub fn setTileSamplerStates_withRange(self: *@This(), samplers: [*]?*const SamplerState, range: ns.Range) void {
         return objc.msgSend(self, "setTileSamplerStates:withRange:", void, .{ samplers, range });
     }
     /// `-[MTLRenderCommandEncoder setTileSamplerState:lodMinClamp:lodMaxClamp:atIndex:]
-    pub fn setTileSamplerState_lodMinClamp_lodMaxClamp_atIndex_(self: *@This(), sampler: ?*SamplerState, lod_min_clamp: f32, lod_max_clamp: f32, index: usize) void {
+    pub fn setTileSamplerState_lodMinClamp_lodMaxClamp_atIndex(self: *@This(), sampler: ?*SamplerState, lod_min_clamp: f32, lod_max_clamp: f32, index: usize) void {
         return objc.msgSend(self, "setTileSamplerState:lodMinClamp:lodMaxClamp:atIndex:", void, .{ sampler, lod_min_clamp, lod_max_clamp, index });
     }
     /// `-[MTLRenderCommandEncoder setTileSamplerStates:lodMinClamps:lodMaxClamps:withRange:]
-    pub fn setTileSamplerStates_lodMinClamps_lodMaxClamps_withRange_(self: *@This(), samplers: [*]?*const SamplerState, lod_min_clamps: *const f32, lod_max_clamps: *const f32, range: ns.Range) void {
+    pub fn setTileSamplerStates_lodMinClamps_lodMaxClamps_withRange(self: *@This(), samplers: [*]?*const SamplerState, lod_min_clamps: *const f32, lod_max_clamps: *const f32, range: ns.Range) void {
         return objc.msgSend(self, "setTileSamplerStates:lodMinClamps:lodMaxClamps:withRange:", void, .{ samplers, lod_min_clamps, lod_max_clamps, range });
     }
     /// `-[MTLRenderCommandEncoder setTileVisibleFunctionTable:atBufferIndex:]
-    pub fn setTileVisibleFunctionTable_atBufferIndex_(self: *@This(), function_table: ?*VisibleFunctionTable, buffer_index: usize) void {
+    pub fn setTileVisibleFunctionTable_atBufferIndex(self: *@This(), function_table: ?*VisibleFunctionTable, buffer_index: usize) void {
         return objc.msgSend(self, "setTileVisibleFunctionTable:atBufferIndex:", void, .{ function_table, buffer_index });
     }
     /// `-[MTLRenderCommandEncoder setTileVisibleFunctionTables:withBufferRange:]
-    pub fn setTileVisibleFunctionTables_withBufferRange_(self: *@This(), function_tables: [*]?*const VisibleFunctionTable, range: ns.Range) void {
+    pub fn setTileVisibleFunctionTables_withBufferRange(self: *@This(), function_tables: [*]?*const VisibleFunctionTable, range: ns.Range) void {
         return objc.msgSend(self, "setTileVisibleFunctionTables:withBufferRange:", void, .{ function_tables, range });
     }
     /// `-[MTLRenderCommandEncoder setTileIntersectionFunctionTable:atBufferIndex:]
-    pub fn setTileIntersectionFunctionTable_atBufferIndex_(self: *@This(), intersection_function_table: ?*IntersectionFunctionTable, buffer_index: usize) void {
+    pub fn setTileIntersectionFunctionTable_atBufferIndex(self: *@This(), intersection_function_table: ?*IntersectionFunctionTable, buffer_index: usize) void {
         return objc.msgSend(self, "setTileIntersectionFunctionTable:atBufferIndex:", void, .{ intersection_function_table, buffer_index });
     }
     /// `-[MTLRenderCommandEncoder setTileIntersectionFunctionTables:withBufferRange:]
-    pub fn setTileIntersectionFunctionTables_withBufferRange_(self: *@This(), intersection_function_tables: [*]?*const IntersectionFunctionTable, range: ns.Range) void {
+    pub fn setTileIntersectionFunctionTables_withBufferRange(self: *@This(), intersection_function_tables: [*]?*const IntersectionFunctionTable, range: ns.Range) void {
         return objc.msgSend(self, "setTileIntersectionFunctionTables:withBufferRange:", void, .{ intersection_function_tables, range });
     }
     /// `-[MTLRenderCommandEncoder setTileAccelerationStructure:atBufferIndex:]
-    pub fn setTileAccelerationStructure_atBufferIndex_(self: *@This(), acceleration_structure: ?*AccelerationStructure, buffer_index: usize) void {
+    pub fn setTileAccelerationStructure_atBufferIndex(self: *@This(), acceleration_structure: ?*AccelerationStructure, buffer_index: usize) void {
         return objc.msgSend(self, "setTileAccelerationStructure:atBufferIndex:", void, .{ acceleration_structure, buffer_index });
     }
     /// `-[MTLRenderCommandEncoder dispatchThreadsPerTile:]
-    pub fn dispatchThreadsPerTile_(self: *@This(), threads_per_tile: Size) void {
+    pub fn dispatchThreadsPerTile(self: *@This(), threads_per_tile: Size) void {
         return objc.msgSend(self, "dispatchThreadsPerTile:", void, .{threads_per_tile});
     }
     /// `-[MTLRenderCommandEncoder setThreadgroupMemoryLength:offset:atIndex:]
-    pub fn setThreadgroupMemoryLength_offset_atIndex_(self: *@This(), length: usize, offset: usize, index: usize) void {
+    pub fn setThreadgroupMemoryLength_offset_atIndex(self: *@This(), length: usize, offset: usize, index: usize) void {
         return objc.msgSend(self, "setThreadgroupMemoryLength:offset:atIndex:", void, .{ length, offset, index });
     }
     /// `-[MTLRenderCommandEncoder useResource:usage:]
-    pub fn useResource_usage_(self: *@This(), resource: *Resource, usage: ResourceUsage) void {
+    pub fn useResource_usage(self: *@This(), resource: *Resource, usage: ResourceUsage) void {
         return objc.msgSend(self, "useResource:usage:", void, .{ resource, usage });
     }
     /// `-[MTLRenderCommandEncoder useResources:count:usage:]
-    pub fn useResources_count_usage_(self: *@This(), resources: [*]*const Resource, count: usize, usage: ResourceUsage) void {
+    pub fn useResources_count_usage(self: *@This(), resources: [*]*const Resource, count: usize, usage: ResourceUsage) void {
         return objc.msgSend(self, "useResources:count:usage:", void, .{ resources, count, usage });
     }
     /// `-[MTLRenderCommandEncoder useResource:usage:stages:]
-    pub fn useResource_usage_stages_(self: *@This(), resource: *Resource, usage: ResourceUsage, stages: RenderStages) void {
+    pub fn useResource_usage_stages(self: *@This(), resource: *Resource, usage: ResourceUsage, stages: RenderStages) void {
         return objc.msgSend(self, "useResource:usage:stages:", void, .{ resource, usage, stages });
     }
     /// `-[MTLRenderCommandEncoder useResources:count:usage:stages:]
-    pub fn useResources_count_usage_stages_(self: *@This(), resources: [*]*const Resource, count: usize, usage: ResourceUsage, stages: RenderStages) void {
+    pub fn useResources_count_usage_stages(self: *@This(), resources: [*]*const Resource, count: usize, usage: ResourceUsage, stages: RenderStages) void {
         return objc.msgSend(self, "useResources:count:usage:stages:", void, .{ resources, count, usage, stages });
     }
     /// `-[MTLRenderCommandEncoder useHeap:]
-    pub fn useHeap_(self: *@This(), heap: *Heap) void {
+    pub fn useHeap(self: *@This(), heap: *Heap) void {
         return objc.msgSend(self, "useHeap:", void, .{heap});
     }
     /// `-[MTLRenderCommandEncoder useHeaps:count:]
-    pub fn useHeaps_count_(self: *@This(), heaps: [*]*const Heap, count: usize) void {
+    pub fn useHeaps_count(self: *@This(), heaps: [*]*const Heap, count: usize) void {
         return objc.msgSend(self, "useHeaps:count:", void, .{ heaps, count });
     }
     /// `-[MTLRenderCommandEncoder useHeap:stages:]
-    pub fn useHeap_stages_(self: *@This(), heap: *Heap, stages: RenderStages) void {
+    pub fn useHeap_stages(self: *@This(), heap: *Heap, stages: RenderStages) void {
         return objc.msgSend(self, "useHeap:stages:", void, .{ heap, stages });
     }
     /// `-[MTLRenderCommandEncoder useHeaps:count:stages:]
-    pub fn useHeaps_count_stages_(self: *@This(), heaps: [*]*const Heap, count: usize, stages: RenderStages) void {
+    pub fn useHeaps_count_stages(self: *@This(), heaps: [*]*const Heap, count: usize, stages: RenderStages) void {
         return objc.msgSend(self, "useHeaps:count:stages:", void, .{ heaps, count, stages });
     }
     /// `-[MTLRenderCommandEncoder executeCommandsInBuffer:withRange:]
-    pub fn executeCommandsInBuffer_withRange_(self: *@This(), indirect_command_buffer: *IndirectCommandBuffer, execution_range: ns.Range) void {
+    pub fn executeCommandsInBuffer_withRange(self: *@This(), indirect_command_buffer: *IndirectCommandBuffer, execution_range: ns.Range) void {
         return objc.msgSend(self, "executeCommandsInBuffer:withRange:", void, .{ indirect_command_buffer, execution_range });
     }
     /// `-[MTLRenderCommandEncoder executeCommandsInBuffer:indirectBuffer:indirectBufferOffset:]
-    pub fn executeCommandsInBuffer_indirectBuffer_indirectBufferOffset_(self: *@This(), indirect_commandbuffer: *IndirectCommandBuffer, indirect_range_buffer: *Buffer, indirect_buffer_offset: usize) void {
+    pub fn executeCommandsInBuffer_indirectBuffer_indirectBufferOffset(self: *@This(), indirect_commandbuffer: *IndirectCommandBuffer, indirect_range_buffer: *Buffer, indirect_buffer_offset: usize) void {
         return objc.msgSend(self, "executeCommandsInBuffer:indirectBuffer:indirectBufferOffset:", void, .{ indirect_commandbuffer, indirect_range_buffer, indirect_buffer_offset });
     }
     /// `-[MTLRenderCommandEncoder memoryBarrierWithScope:afterStages:beforeStages:]
-    pub fn memoryBarrierWithScope_afterStages_beforeStages_(self: *@This(), scope: BarrierScope, after: RenderStages, before: RenderStages) void {
+    pub fn memoryBarrierWithScope_afterStages_beforeStages(self: *@This(), scope: BarrierScope, after: RenderStages, before: RenderStages) void {
         return objc.msgSend(self, "memoryBarrierWithScope:afterStages:beforeStages:", void, .{ scope, after, before });
     }
     /// `-[MTLRenderCommandEncoder memoryBarrierWithResources:count:afterStages:beforeStages:]
-    pub fn memoryBarrierWithResources_count_afterStages_beforeStages_(self: *@This(), resources: [*]*const Resource, count: usize, after: RenderStages, before: RenderStages) void {
+    pub fn memoryBarrierWithResources_count_afterStages_beforeStages(self: *@This(), resources: [*]*const Resource, count: usize, after: RenderStages, before: RenderStages) void {
         return objc.msgSend(self, "memoryBarrierWithResources:count:afterStages:beforeStages:", void, .{ resources, count, after, before });
     }
     /// `-[MTLRenderCommandEncoder sampleCountersInBuffer:atSampleIndex:withBarrier:]
-    pub fn sampleCountersInBuffer_atSampleIndex_withBarrier_(self: *@This(), sample_buffer: *CounterSampleBuffer, sample_index: usize, barrier: bool) void {
+    pub fn sampleCountersInBuffer_atSampleIndex_withBarrier(self: *@This(), sample_buffer: *CounterSampleBuffer, sample_index: usize, barrier: bool) void {
         return objc.msgSend(self, "sampleCountersInBuffer:atSampleIndex:withBarrier:", void, .{ sample_buffer, sample_index, barrier });
     }
     /// `-[MTLRenderCommandEncoder tileWidth]
@@ -7793,7 +8123,10 @@ pub const RenderCommandEncoder = opaque {
 
 /// `MTLRenderPassAttachmentDescriptor`
 pub const RenderPassAttachmentDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLRenderPassAttachmentDescriptor", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == ns.Copying) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -7809,7 +8142,7 @@ pub const RenderPassAttachmentDescriptor = opaque {
         return objc.msgSend(self, "texture", ?*Texture, .{});
     }
     /// `-[MTLRenderPassAttachmentDescriptor setTexture:]
-    pub fn setTexture_(self: *@This(), value: ?*Texture) void {
+    pub fn setTexture(self: *@This(), value: ?*Texture) void {
         return objc.msgSend(self, "setTexture:", void, .{value});
     }
     /// `-[MTLRenderPassAttachmentDescriptor level]
@@ -7817,7 +8150,7 @@ pub const RenderPassAttachmentDescriptor = opaque {
         return objc.msgSend(self, "level", usize, .{});
     }
     /// `-[MTLRenderPassAttachmentDescriptor setLevel:]
-    pub fn setLevel_(self: *@This(), lvl: usize) void {
+    pub fn setLevel(self: *@This(), lvl: usize) void {
         return objc.msgSend(self, "setLevel:", void, .{lvl});
     }
     /// `-[MTLRenderPassAttachmentDescriptor slice]
@@ -7825,7 +8158,7 @@ pub const RenderPassAttachmentDescriptor = opaque {
         return objc.msgSend(self, "slice", usize, .{});
     }
     /// `-[MTLRenderPassAttachmentDescriptor setSlice:]
-    pub fn setSlice_(self: *@This(), value: usize) void {
+    pub fn setSlice(self: *@This(), value: usize) void {
         return objc.msgSend(self, "setSlice:", void, .{value});
     }
     /// `-[MTLRenderPassAttachmentDescriptor depthPlane]
@@ -7833,7 +8166,7 @@ pub const RenderPassAttachmentDescriptor = opaque {
         return objc.msgSend(self, "depthPlane", usize, .{});
     }
     /// `-[MTLRenderPassAttachmentDescriptor setDepthPlane:]
-    pub fn setDepthPlane_(self: *@This(), depth_plane: usize) void {
+    pub fn setDepthPlane(self: *@This(), depth_plane: usize) void {
         return objc.msgSend(self, "setDepthPlane:", void, .{depth_plane});
     }
     /// `-[MTLRenderPassAttachmentDescriptor resolveTexture]
@@ -7841,7 +8174,7 @@ pub const RenderPassAttachmentDescriptor = opaque {
         return objc.msgSend(self, "resolveTexture", ?*Texture, .{});
     }
     /// `-[MTLRenderPassAttachmentDescriptor setResolveTexture:]
-    pub fn setResolveTexture_(self: *@This(), resolve_texture: ?*Texture) void {
+    pub fn setResolveTexture(self: *@This(), resolve_texture: ?*Texture) void {
         return objc.msgSend(self, "setResolveTexture:", void, .{resolve_texture});
     }
     /// `-[MTLRenderPassAttachmentDescriptor resolveLevel]
@@ -7849,7 +8182,7 @@ pub const RenderPassAttachmentDescriptor = opaque {
         return objc.msgSend(self, "resolveLevel", usize, .{});
     }
     /// `-[MTLRenderPassAttachmentDescriptor setResolveLevel:]
-    pub fn setResolveLevel_(self: *@This(), resolve_level: usize) void {
+    pub fn setResolveLevel(self: *@This(), resolve_level: usize) void {
         return objc.msgSend(self, "setResolveLevel:", void, .{resolve_level});
     }
     /// `-[MTLRenderPassAttachmentDescriptor resolveSlice]
@@ -7857,7 +8190,7 @@ pub const RenderPassAttachmentDescriptor = opaque {
         return objc.msgSend(self, "resolveSlice", usize, .{});
     }
     /// `-[MTLRenderPassAttachmentDescriptor setResolveSlice:]
-    pub fn setResolveSlice_(self: *@This(), resolve_slice: usize) void {
+    pub fn setResolveSlice(self: *@This(), resolve_slice: usize) void {
         return objc.msgSend(self, "setResolveSlice:", void, .{resolve_slice});
     }
     /// `-[MTLRenderPassAttachmentDescriptor resolveDepthPlane]
@@ -7865,7 +8198,7 @@ pub const RenderPassAttachmentDescriptor = opaque {
         return objc.msgSend(self, "resolveDepthPlane", usize, .{});
     }
     /// `-[MTLRenderPassAttachmentDescriptor setResolveDepthPlane:]
-    pub fn setResolveDepthPlane_(self: *@This(), resolve_depth_plane: usize) void {
+    pub fn setResolveDepthPlane(self: *@This(), resolve_depth_plane: usize) void {
         return objc.msgSend(self, "setResolveDepthPlane:", void, .{resolve_depth_plane});
     }
     /// `-[MTLRenderPassAttachmentDescriptor loadAction]
@@ -7873,7 +8206,7 @@ pub const RenderPassAttachmentDescriptor = opaque {
         return objc.msgSend(self, "loadAction", LoadAction, .{});
     }
     /// `-[MTLRenderPassAttachmentDescriptor setLoadAction:]
-    pub fn setLoadAction_(self: *@This(), load_action: LoadAction) void {
+    pub fn setLoadAction(self: *@This(), load_action: LoadAction) void {
         return objc.msgSend(self, "setLoadAction:", void, .{load_action});
     }
     /// `-[MTLRenderPassAttachmentDescriptor storeAction]
@@ -7881,7 +8214,7 @@ pub const RenderPassAttachmentDescriptor = opaque {
         return objc.msgSend(self, "storeAction", StoreAction, .{});
     }
     /// `-[MTLRenderPassAttachmentDescriptor setStoreAction:]
-    pub fn setStoreAction_(self: *@This(), store_action: StoreAction) void {
+    pub fn setStoreAction(self: *@This(), store_action: StoreAction) void {
         return objc.msgSend(self, "setStoreAction:", void, .{store_action});
     }
     /// `-[MTLRenderPassAttachmentDescriptor storeActionOptions]
@@ -7889,15 +8222,18 @@ pub const RenderPassAttachmentDescriptor = opaque {
         return objc.msgSend(self, "storeActionOptions", StoreActionOptions, .{});
     }
     /// `-[MTLRenderPassAttachmentDescriptor setStoreActionOptions:]
-    pub fn setStoreActionOptions_(self: *@This(), store_action_options: StoreActionOptions) void {
+    pub fn setStoreActionOptions(self: *@This(), store_action_options: StoreActionOptions) void {
         return objc.msgSend(self, "setStoreActionOptions:", void, .{store_action_options});
     }
 };
 
 /// `MTLRenderPassColorAttachmentDescriptor`
 pub const RenderPassColorAttachmentDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), RenderPassAttachmentDescriptor);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternClass("MTLRenderPassColorAttachmentDescriptor", @This(), RenderPassAttachmentDescriptor);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `+[MTLRenderPassColorAttachmentDescriptor new]`
     pub const new = InternalInfo.new;
     /// `+[MTLRenderPassColorAttachmentDescriptor alloc]`
@@ -7909,15 +8245,18 @@ pub const RenderPassColorAttachmentDescriptor = opaque {
         return objc.msgSend(self, "clearColor", ClearColor, .{});
     }
     /// `-[MTLRenderPassColorAttachmentDescriptor setClearColor:]
-    pub fn setClearColor_(self: *@This(), clear_color: ClearColor) void {
+    pub fn setClearColor(self: *@This(), clear_color: ClearColor) void {
         return objc.msgSend(self, "setClearColor:", void, .{clear_color});
     }
 };
 
 /// `MTLRenderPassDepthAttachmentDescriptor`
 pub const RenderPassDepthAttachmentDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), RenderPassAttachmentDescriptor);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternClass("MTLRenderPassDepthAttachmentDescriptor", @This(), RenderPassAttachmentDescriptor);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `+[MTLRenderPassDepthAttachmentDescriptor new]`
     pub const new = InternalInfo.new;
     /// `+[MTLRenderPassDepthAttachmentDescriptor alloc]`
@@ -7929,7 +8268,7 @@ pub const RenderPassDepthAttachmentDescriptor = opaque {
         return objc.msgSend(self, "clearDepth", f64, .{});
     }
     /// `-[MTLRenderPassDepthAttachmentDescriptor setClearDepth:]
-    pub fn setClearDepth_(self: *@This(), clear_depth: f64) void {
+    pub fn setClearDepth(self: *@This(), clear_depth: f64) void {
         return objc.msgSend(self, "setClearDepth:", void, .{clear_depth});
     }
     /// `-[MTLRenderPassDepthAttachmentDescriptor depthResolveFilter]
@@ -7937,15 +8276,18 @@ pub const RenderPassDepthAttachmentDescriptor = opaque {
         return objc.msgSend(self, "depthResolveFilter", MultisampleDepthResolveFilter, .{});
     }
     /// `-[MTLRenderPassDepthAttachmentDescriptor setDepthResolveFilter:]
-    pub fn setDepthResolveFilter_(self: *@This(), depth_resolve_filter: MultisampleDepthResolveFilter) void {
+    pub fn setDepthResolveFilter(self: *@This(), depth_resolve_filter: MultisampleDepthResolveFilter) void {
         return objc.msgSend(self, "setDepthResolveFilter:", void, .{depth_resolve_filter});
     }
 };
 
 /// `MTLRenderPassStencilAttachmentDescriptor`
 pub const RenderPassStencilAttachmentDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), RenderPassAttachmentDescriptor);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternClass("MTLRenderPassStencilAttachmentDescriptor", @This(), RenderPassAttachmentDescriptor);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `+[MTLRenderPassStencilAttachmentDescriptor new]`
     pub const new = InternalInfo.new;
     /// `+[MTLRenderPassStencilAttachmentDescriptor alloc]`
@@ -7957,7 +8299,7 @@ pub const RenderPassStencilAttachmentDescriptor = opaque {
         return objc.msgSend(self, "clearStencil", u32, .{});
     }
     /// `-[MTLRenderPassStencilAttachmentDescriptor setClearStencil:]
-    pub fn setClearStencil_(self: *@This(), clear_stencil: u32) void {
+    pub fn setClearStencil(self: *@This(), clear_stencil: u32) void {
         return objc.msgSend(self, "setClearStencil:", void, .{clear_stencil});
     }
     /// `-[MTLRenderPassStencilAttachmentDescriptor stencilResolveFilter]
@@ -7965,15 +8307,18 @@ pub const RenderPassStencilAttachmentDescriptor = opaque {
         return objc.msgSend(self, "stencilResolveFilter", MultisampleStencilResolveFilter, .{});
     }
     /// `-[MTLRenderPassStencilAttachmentDescriptor setStencilResolveFilter:]
-    pub fn setStencilResolveFilter_(self: *@This(), stencil_resolve_filter: MultisampleStencilResolveFilter) void {
+    pub fn setStencilResolveFilter(self: *@This(), stencil_resolve_filter: MultisampleStencilResolveFilter) void {
         return objc.msgSend(self, "setStencilResolveFilter:", void, .{stencil_resolve_filter});
     }
 };
 
 /// `MTLRenderPassColorAttachmentDescriptorArray`
 pub const RenderPassColorAttachmentDescriptorArray = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternClass("MTLRenderPassColorAttachmentDescriptorArray", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `+[MTLRenderPassColorAttachmentDescriptorArray new]`
     pub const new = InternalInfo.new;
     /// `+[MTLRenderPassColorAttachmentDescriptorArray alloc]`
@@ -7981,18 +8326,21 @@ pub const RenderPassColorAttachmentDescriptorArray = opaque {
     /// `[[MTLRenderPassColorAttachmentDescriptorArray alloc] init]`
     pub const allocInit = InternalInfo.allocInit;
     /// `-[MTLRenderPassColorAttachmentDescriptorArray objectAtIndexedSubscript:]
-    pub fn objectAtIndexedSubscript_(self: *@This(), attachment_index: usize) *RenderPassColorAttachmentDescriptor {
+    pub fn objectAtIndexedSubscript(self: *@This(), attachment_index: usize) *RenderPassColorAttachmentDescriptor {
         return objc.msgSend(self, "objectAtIndexedSubscript:", *RenderPassColorAttachmentDescriptor, .{attachment_index});
     }
     /// `-[MTLRenderPassColorAttachmentDescriptorArray setObject:atIndexedSubscript:]
-    pub fn setObject_atIndexedSubscript_(self: *@This(), attachment: ?*RenderPassColorAttachmentDescriptor, attachment_index: usize) void {
+    pub fn setObject_atIndexedSubscript(self: *@This(), attachment: ?*RenderPassColorAttachmentDescriptor, attachment_index: usize) void {
         return objc.msgSend(self, "setObject:atIndexedSubscript:", void, .{ attachment, attachment_index });
     }
 };
 
 /// `MTLRenderPassSampleBufferAttachmentDescriptor`
 pub const RenderPassSampleBufferAttachmentDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLRenderPassSampleBufferAttachmentDescriptor", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == ns.Copying) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -8008,7 +8356,7 @@ pub const RenderPassSampleBufferAttachmentDescriptor = opaque {
         return objc.msgSend(self, "sampleBuffer", ?*CounterSampleBuffer, .{});
     }
     /// `-[MTLRenderPassSampleBufferAttachmentDescriptor setSampleBuffer:]
-    pub fn setSampleBuffer_(self: *@This(), sample_buffer: ?*CounterSampleBuffer) void {
+    pub fn setSampleBuffer(self: *@This(), sample_buffer: ?*CounterSampleBuffer) void {
         return objc.msgSend(self, "setSampleBuffer:", void, .{sample_buffer});
     }
     /// `-[MTLRenderPassSampleBufferAttachmentDescriptor startOfVertexSampleIndex]
@@ -8016,7 +8364,7 @@ pub const RenderPassSampleBufferAttachmentDescriptor = opaque {
         return objc.msgSend(self, "startOfVertexSampleIndex", usize, .{});
     }
     /// `-[MTLRenderPassSampleBufferAttachmentDescriptor setStartOfVertexSampleIndex:]
-    pub fn setStartOfVertexSampleIndex_(self: *@This(), start_of_vertex_sample_index: usize) void {
+    pub fn setStartOfVertexSampleIndex(self: *@This(), start_of_vertex_sample_index: usize) void {
         return objc.msgSend(self, "setStartOfVertexSampleIndex:", void, .{start_of_vertex_sample_index});
     }
     /// `-[MTLRenderPassSampleBufferAttachmentDescriptor endOfVertexSampleIndex]
@@ -8024,7 +8372,7 @@ pub const RenderPassSampleBufferAttachmentDescriptor = opaque {
         return objc.msgSend(self, "endOfVertexSampleIndex", usize, .{});
     }
     /// `-[MTLRenderPassSampleBufferAttachmentDescriptor setEndOfVertexSampleIndex:]
-    pub fn setEndOfVertexSampleIndex_(self: *@This(), end_of_vertex_sample_index: usize) void {
+    pub fn setEndOfVertexSampleIndex(self: *@This(), end_of_vertex_sample_index: usize) void {
         return objc.msgSend(self, "setEndOfVertexSampleIndex:", void, .{end_of_vertex_sample_index});
     }
     /// `-[MTLRenderPassSampleBufferAttachmentDescriptor startOfFragmentSampleIndex]
@@ -8032,7 +8380,7 @@ pub const RenderPassSampleBufferAttachmentDescriptor = opaque {
         return objc.msgSend(self, "startOfFragmentSampleIndex", usize, .{});
     }
     /// `-[MTLRenderPassSampleBufferAttachmentDescriptor setStartOfFragmentSampleIndex:]
-    pub fn setStartOfFragmentSampleIndex_(self: *@This(), start_of_fragment_sample_index: usize) void {
+    pub fn setStartOfFragmentSampleIndex(self: *@This(), start_of_fragment_sample_index: usize) void {
         return objc.msgSend(self, "setStartOfFragmentSampleIndex:", void, .{start_of_fragment_sample_index});
     }
     /// `-[MTLRenderPassSampleBufferAttachmentDescriptor endOfFragmentSampleIndex]
@@ -8040,15 +8388,18 @@ pub const RenderPassSampleBufferAttachmentDescriptor = opaque {
         return objc.msgSend(self, "endOfFragmentSampleIndex", usize, .{});
     }
     /// `-[MTLRenderPassSampleBufferAttachmentDescriptor setEndOfFragmentSampleIndex:]
-    pub fn setEndOfFragmentSampleIndex_(self: *@This(), end_of_fragment_sample_index: usize) void {
+    pub fn setEndOfFragmentSampleIndex(self: *@This(), end_of_fragment_sample_index: usize) void {
         return objc.msgSend(self, "setEndOfFragmentSampleIndex:", void, .{end_of_fragment_sample_index});
     }
 };
 
 /// `MTLRenderPassSampleBufferAttachmentDescriptorArray`
 pub const RenderPassSampleBufferAttachmentDescriptorArray = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternClass("MTLRenderPassSampleBufferAttachmentDescriptorArray", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `+[MTLRenderPassSampleBufferAttachmentDescriptorArray new]`
     pub const new = InternalInfo.new;
     /// `+[MTLRenderPassSampleBufferAttachmentDescriptorArray alloc]`
@@ -8056,18 +8407,21 @@ pub const RenderPassSampleBufferAttachmentDescriptorArray = opaque {
     /// `[[MTLRenderPassSampleBufferAttachmentDescriptorArray alloc] init]`
     pub const allocInit = InternalInfo.allocInit;
     /// `-[MTLRenderPassSampleBufferAttachmentDescriptorArray objectAtIndexedSubscript:]
-    pub fn objectAtIndexedSubscript_(self: *@This(), attachment_index: usize) *RenderPassSampleBufferAttachmentDescriptor {
+    pub fn objectAtIndexedSubscript(self: *@This(), attachment_index: usize) *RenderPassSampleBufferAttachmentDescriptor {
         return objc.msgSend(self, "objectAtIndexedSubscript:", *RenderPassSampleBufferAttachmentDescriptor, .{attachment_index});
     }
     /// `-[MTLRenderPassSampleBufferAttachmentDescriptorArray setObject:atIndexedSubscript:]
-    pub fn setObject_atIndexedSubscript_(self: *@This(), attachment: ?*RenderPassSampleBufferAttachmentDescriptor, attachment_index: usize) void {
+    pub fn setObject_atIndexedSubscript(self: *@This(), attachment: ?*RenderPassSampleBufferAttachmentDescriptor, attachment_index: usize) void {
         return objc.msgSend(self, "setObject:atIndexedSubscript:", void, .{ attachment, attachment_index });
     }
 };
 
 /// `MTLRenderPassDescriptor`
 pub const RenderPassDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLRenderPassDescriptor", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == ns.Copying) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -8083,11 +8437,11 @@ pub const RenderPassDescriptor = opaque {
         return objc.msgSend(InternalInfo.class(), "renderPassDescriptor", *RenderPassDescriptor, .{});
     }
     /// `-[MTLRenderPassDescriptor setSamplePositions:count:]
-    pub fn setSamplePositions_count_(self: *@This(), positions: ?*const SamplePosition, count: usize) void {
+    pub fn setSamplePositions_count(self: *@This(), positions: ?*const SamplePosition, count: usize) void {
         return objc.msgSend(self, "setSamplePositions:count:", void, .{ positions, count });
     }
     /// `-[MTLRenderPassDescriptor getSamplePositions:count:]
-    pub fn getSamplePositions_count_(self: *@This(), positions: ?*SamplePosition, count: usize) usize {
+    pub fn getSamplePositions_count(self: *@This(), positions: ?*SamplePosition, count: usize) usize {
         return objc.msgSend(self, "getSamplePositions:count:", usize, .{ positions, count });
     }
     /// `-[MTLRenderPassDescriptor colorAttachments]
@@ -8099,7 +8453,7 @@ pub const RenderPassDescriptor = opaque {
         return objc.msgSend(self, "depthAttachment", *RenderPassDepthAttachmentDescriptor, .{});
     }
     /// `-[MTLRenderPassDescriptor setDepthAttachment:]
-    pub fn setDepthAttachment_(self: *@This(), depth_attachment: ?*RenderPassDepthAttachmentDescriptor) void {
+    pub fn setDepthAttachment(self: *@This(), depth_attachment: ?*RenderPassDepthAttachmentDescriptor) void {
         return objc.msgSend(self, "setDepthAttachment:", void, .{depth_attachment});
     }
     /// `-[MTLRenderPassDescriptor stencilAttachment]
@@ -8107,7 +8461,7 @@ pub const RenderPassDescriptor = opaque {
         return objc.msgSend(self, "stencilAttachment", *RenderPassStencilAttachmentDescriptor, .{});
     }
     /// `-[MTLRenderPassDescriptor setStencilAttachment:]
-    pub fn setStencilAttachment_(self: *@This(), stencil_attachment: ?*RenderPassStencilAttachmentDescriptor) void {
+    pub fn setStencilAttachment(self: *@This(), stencil_attachment: ?*RenderPassStencilAttachmentDescriptor) void {
         return objc.msgSend(self, "setStencilAttachment:", void, .{stencil_attachment});
     }
     /// `-[MTLRenderPassDescriptor visibilityResultBuffer]
@@ -8115,7 +8469,7 @@ pub const RenderPassDescriptor = opaque {
         return objc.msgSend(self, "visibilityResultBuffer", ?*Buffer, .{});
     }
     /// `-[MTLRenderPassDescriptor setVisibilityResultBuffer:]
-    pub fn setVisibilityResultBuffer_(self: *@This(), visibility_result_buffer: ?*Buffer) void {
+    pub fn setVisibilityResultBuffer(self: *@This(), visibility_result_buffer: ?*Buffer) void {
         return objc.msgSend(self, "setVisibilityResultBuffer:", void, .{visibility_result_buffer});
     }
     /// `-[MTLRenderPassDescriptor renderTargetArrayLength]
@@ -8123,7 +8477,7 @@ pub const RenderPassDescriptor = opaque {
         return objc.msgSend(self, "renderTargetArrayLength", usize, .{});
     }
     /// `-[MTLRenderPassDescriptor setRenderTargetArrayLength:]
-    pub fn setRenderTargetArrayLength_(self: *@This(), render_target_array_length: usize) void {
+    pub fn setRenderTargetArrayLength(self: *@This(), render_target_array_length: usize) void {
         return objc.msgSend(self, "setRenderTargetArrayLength:", void, .{render_target_array_length});
     }
     /// `-[MTLRenderPassDescriptor imageblockSampleLength]
@@ -8131,7 +8485,7 @@ pub const RenderPassDescriptor = opaque {
         return objc.msgSend(self, "imageblockSampleLength", usize, .{});
     }
     /// `-[MTLRenderPassDescriptor setImageblockSampleLength:]
-    pub fn setImageblockSampleLength_(self: *@This(), imageblock_sample_length: usize) void {
+    pub fn setImageblockSampleLength(self: *@This(), imageblock_sample_length: usize) void {
         return objc.msgSend(self, "setImageblockSampleLength:", void, .{imageblock_sample_length});
     }
     /// `-[MTLRenderPassDescriptor threadgroupMemoryLength]
@@ -8139,7 +8493,7 @@ pub const RenderPassDescriptor = opaque {
         return objc.msgSend(self, "threadgroupMemoryLength", usize, .{});
     }
     /// `-[MTLRenderPassDescriptor setThreadgroupMemoryLength:]
-    pub fn setThreadgroupMemoryLength_(self: *@This(), threadgroup_memory_length: usize) void {
+    pub fn setThreadgroupMemoryLength(self: *@This(), threadgroup_memory_length: usize) void {
         return objc.msgSend(self, "setThreadgroupMemoryLength:", void, .{threadgroup_memory_length});
     }
     /// `-[MTLRenderPassDescriptor tileWidth]
@@ -8147,7 +8501,7 @@ pub const RenderPassDescriptor = opaque {
         return objc.msgSend(self, "tileWidth", usize, .{});
     }
     /// `-[MTLRenderPassDescriptor setTileWidth:]
-    pub fn setTileWidth_(self: *@This(), tile_width: usize) void {
+    pub fn setTileWidth(self: *@This(), tile_width: usize) void {
         return objc.msgSend(self, "setTileWidth:", void, .{tile_width});
     }
     /// `-[MTLRenderPassDescriptor tileHeight]
@@ -8155,7 +8509,7 @@ pub const RenderPassDescriptor = opaque {
         return objc.msgSend(self, "tileHeight", usize, .{});
     }
     /// `-[MTLRenderPassDescriptor setTileHeight:]
-    pub fn setTileHeight_(self: *@This(), tile_height: usize) void {
+    pub fn setTileHeight(self: *@This(), tile_height: usize) void {
         return objc.msgSend(self, "setTileHeight:", void, .{tile_height});
     }
     /// `-[MTLRenderPassDescriptor defaultRasterSampleCount]
@@ -8163,7 +8517,7 @@ pub const RenderPassDescriptor = opaque {
         return objc.msgSend(self, "defaultRasterSampleCount", usize, .{});
     }
     /// `-[MTLRenderPassDescriptor setDefaultRasterSampleCount:]
-    pub fn setDefaultRasterSampleCount_(self: *@This(), default_raster_sample_count: usize) void {
+    pub fn setDefaultRasterSampleCount(self: *@This(), default_raster_sample_count: usize) void {
         return objc.msgSend(self, "setDefaultRasterSampleCount:", void, .{default_raster_sample_count});
     }
     /// `-[MTLRenderPassDescriptor renderTargetWidth]
@@ -8171,7 +8525,7 @@ pub const RenderPassDescriptor = opaque {
         return objc.msgSend(self, "renderTargetWidth", usize, .{});
     }
     /// `-[MTLRenderPassDescriptor setRenderTargetWidth:]
-    pub fn setRenderTargetWidth_(self: *@This(), render_target_width: usize) void {
+    pub fn setRenderTargetWidth(self: *@This(), render_target_width: usize) void {
         return objc.msgSend(self, "setRenderTargetWidth:", void, .{render_target_width});
     }
     /// `-[MTLRenderPassDescriptor renderTargetHeight]
@@ -8179,7 +8533,7 @@ pub const RenderPassDescriptor = opaque {
         return objc.msgSend(self, "renderTargetHeight", usize, .{});
     }
     /// `-[MTLRenderPassDescriptor setRenderTargetHeight:]
-    pub fn setRenderTargetHeight_(self: *@This(), render_target_height: usize) void {
+    pub fn setRenderTargetHeight(self: *@This(), render_target_height: usize) void {
         return objc.msgSend(self, "setRenderTargetHeight:", void, .{render_target_height});
     }
     /// `-[MTLRenderPassDescriptor rasterizationRateMap]
@@ -8187,7 +8541,7 @@ pub const RenderPassDescriptor = opaque {
         return objc.msgSend(self, "rasterizationRateMap", ?*RasterizationRateMap, .{});
     }
     /// `-[MTLRenderPassDescriptor setRasterizationRateMap:]
-    pub fn setRasterizationRateMap_(self: *@This(), rasterization_rate_map: ?*RasterizationRateMap) void {
+    pub fn setRasterizationRateMap(self: *@This(), rasterization_rate_map: ?*RasterizationRateMap) void {
         return objc.msgSend(self, "setRasterizationRateMap:", void, .{rasterization_rate_map});
     }
     /// `-[MTLRenderPassDescriptor sampleBufferAttachments]
@@ -8198,7 +8552,10 @@ pub const RenderPassDescriptor = opaque {
 
 /// `MTLRenderPipelineColorAttachmentDescriptor`
 pub const RenderPipelineColorAttachmentDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLRenderPipelineColorAttachmentDescriptor", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == ns.Copying) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -8214,7 +8571,7 @@ pub const RenderPipelineColorAttachmentDescriptor = opaque {
         return objc.msgSend(self, "pixelFormat", PixelFormat, .{});
     }
     /// `-[MTLRenderPipelineColorAttachmentDescriptor setPixelFormat:]
-    pub fn setPixelFormat_(self: *@This(), pixel_format: PixelFormat) void {
+    pub fn setPixelFormat(self: *@This(), pixel_format: PixelFormat) void {
         return objc.msgSend(self, "setPixelFormat:", void, .{pixel_format});
     }
     /// `-[MTLRenderPipelineColorAttachmentDescriptor isBlendingEnabled]
@@ -8222,7 +8579,7 @@ pub const RenderPipelineColorAttachmentDescriptor = opaque {
         return objc.msgSend(self, "isBlendingEnabled", bool, .{});
     }
     /// `-[MTLRenderPipelineColorAttachmentDescriptor setBlendingEnabled:]
-    pub fn setBlendingEnabled_(self: *@This(), blending_enabled: bool) void {
+    pub fn setBlendingEnabled(self: *@This(), blending_enabled: bool) void {
         return objc.msgSend(self, "setBlendingEnabled:", void, .{blending_enabled});
     }
     /// `-[MTLRenderPipelineColorAttachmentDescriptor sourceRGBBlendFactor]
@@ -8230,7 +8587,7 @@ pub const RenderPipelineColorAttachmentDescriptor = opaque {
         return objc.msgSend(self, "sourceRGBBlendFactor", BlendFactor, .{});
     }
     /// `-[MTLRenderPipelineColorAttachmentDescriptor setSourceRGBBlendFactor:]
-    pub fn setSourceRGBBlendFactor_(self: *@This(), source_rgbblend_factor: BlendFactor) void {
+    pub fn setSourceRGBBlendFactor(self: *@This(), source_rgbblend_factor: BlendFactor) void {
         return objc.msgSend(self, "setSourceRGBBlendFactor:", void, .{source_rgbblend_factor});
     }
     /// `-[MTLRenderPipelineColorAttachmentDescriptor destinationRGBBlendFactor]
@@ -8238,7 +8595,7 @@ pub const RenderPipelineColorAttachmentDescriptor = opaque {
         return objc.msgSend(self, "destinationRGBBlendFactor", BlendFactor, .{});
     }
     /// `-[MTLRenderPipelineColorAttachmentDescriptor setDestinationRGBBlendFactor:]
-    pub fn setDestinationRGBBlendFactor_(self: *@This(), destination_rgbblend_factor: BlendFactor) void {
+    pub fn setDestinationRGBBlendFactor(self: *@This(), destination_rgbblend_factor: BlendFactor) void {
         return objc.msgSend(self, "setDestinationRGBBlendFactor:", void, .{destination_rgbblend_factor});
     }
     /// `-[MTLRenderPipelineColorAttachmentDescriptor rgbBlendOperation]
@@ -8246,7 +8603,7 @@ pub const RenderPipelineColorAttachmentDescriptor = opaque {
         return objc.msgSend(self, "rgbBlendOperation", BlendOperation, .{});
     }
     /// `-[MTLRenderPipelineColorAttachmentDescriptor setRgbBlendOperation:]
-    pub fn setRgbBlendOperation_(self: *@This(), rgb_blend_operation: BlendOperation) void {
+    pub fn setRgbBlendOperation(self: *@This(), rgb_blend_operation: BlendOperation) void {
         return objc.msgSend(self, "setRgbBlendOperation:", void, .{rgb_blend_operation});
     }
     /// `-[MTLRenderPipelineColorAttachmentDescriptor sourceAlphaBlendFactor]
@@ -8254,7 +8611,7 @@ pub const RenderPipelineColorAttachmentDescriptor = opaque {
         return objc.msgSend(self, "sourceAlphaBlendFactor", BlendFactor, .{});
     }
     /// `-[MTLRenderPipelineColorAttachmentDescriptor setSourceAlphaBlendFactor:]
-    pub fn setSourceAlphaBlendFactor_(self: *@This(), source_alpha_blend_factor: BlendFactor) void {
+    pub fn setSourceAlphaBlendFactor(self: *@This(), source_alpha_blend_factor: BlendFactor) void {
         return objc.msgSend(self, "setSourceAlphaBlendFactor:", void, .{source_alpha_blend_factor});
     }
     /// `-[MTLRenderPipelineColorAttachmentDescriptor destinationAlphaBlendFactor]
@@ -8262,7 +8619,7 @@ pub const RenderPipelineColorAttachmentDescriptor = opaque {
         return objc.msgSend(self, "destinationAlphaBlendFactor", BlendFactor, .{});
     }
     /// `-[MTLRenderPipelineColorAttachmentDescriptor setDestinationAlphaBlendFactor:]
-    pub fn setDestinationAlphaBlendFactor_(self: *@This(), destination_alpha_blend_factor: BlendFactor) void {
+    pub fn setDestinationAlphaBlendFactor(self: *@This(), destination_alpha_blend_factor: BlendFactor) void {
         return objc.msgSend(self, "setDestinationAlphaBlendFactor:", void, .{destination_alpha_blend_factor});
     }
     /// `-[MTLRenderPipelineColorAttachmentDescriptor alphaBlendOperation]
@@ -8270,7 +8627,7 @@ pub const RenderPipelineColorAttachmentDescriptor = opaque {
         return objc.msgSend(self, "alphaBlendOperation", BlendOperation, .{});
     }
     /// `-[MTLRenderPipelineColorAttachmentDescriptor setAlphaBlendOperation:]
-    pub fn setAlphaBlendOperation_(self: *@This(), alpha_blend_operation: BlendOperation) void {
+    pub fn setAlphaBlendOperation(self: *@This(), alpha_blend_operation: BlendOperation) void {
         return objc.msgSend(self, "setAlphaBlendOperation:", void, .{alpha_blend_operation});
     }
     /// `-[MTLRenderPipelineColorAttachmentDescriptor writeMask]
@@ -8278,15 +8635,18 @@ pub const RenderPipelineColorAttachmentDescriptor = opaque {
         return objc.msgSend(self, "writeMask", ColorWriteMask, .{});
     }
     /// `-[MTLRenderPipelineColorAttachmentDescriptor setWriteMask:]
-    pub fn setWriteMask_(self: *@This(), write_mask: ColorWriteMask) void {
+    pub fn setWriteMask(self: *@This(), write_mask: ColorWriteMask) void {
         return objc.msgSend(self, "setWriteMask:", void, .{write_mask});
     }
 };
 
 /// `MTLRenderPipelineReflection`
 pub const RenderPipelineReflection = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternClass("MTLRenderPipelineReflection", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `+[MTLRenderPipelineReflection new]`
     pub const new = InternalInfo.new;
     /// `+[MTLRenderPipelineReflection alloc]`
@@ -8329,7 +8689,10 @@ pub const RenderPipelineReflection = opaque {
 
 /// `MTLRenderPipelineDescriptor`
 pub const RenderPipelineDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLRenderPipelineDescriptor", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == ns.Copying) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -8349,7 +8712,7 @@ pub const RenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "label", ?*ns.String, .{});
     }
     /// `-[MTLRenderPipelineDescriptor setLabel:]
-    pub fn setLabel_(self: *@This(), str: ?*ns.String) void {
+    pub fn setLabel(self: *@This(), str: ?*ns.String) void {
         return objc.msgSend(self, "setLabel:", void, .{str});
     }
     /// `-[MTLRenderPipelineDescriptor vertexFunction]
@@ -8357,7 +8720,7 @@ pub const RenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "vertexFunction", ?*Function, .{});
     }
     /// `-[MTLRenderPipelineDescriptor setVertexFunction:]
-    pub fn setVertexFunction_(self: *@This(), vertex_function: ?*Function) void {
+    pub fn setVertexFunction(self: *@This(), vertex_function: ?*Function) void {
         return objc.msgSend(self, "setVertexFunction:", void, .{vertex_function});
     }
     /// `-[MTLRenderPipelineDescriptor fragmentFunction]
@@ -8365,7 +8728,7 @@ pub const RenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "fragmentFunction", ?*Function, .{});
     }
     /// `-[MTLRenderPipelineDescriptor setFragmentFunction:]
-    pub fn setFragmentFunction_(self: *@This(), fragment_function: ?*Function) void {
+    pub fn setFragmentFunction(self: *@This(), fragment_function: ?*Function) void {
         return objc.msgSend(self, "setFragmentFunction:", void, .{fragment_function});
     }
     /// `-[MTLRenderPipelineDescriptor vertexDescriptor]
@@ -8373,7 +8736,7 @@ pub const RenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "vertexDescriptor", ?*VertexDescriptor, .{});
     }
     /// `-[MTLRenderPipelineDescriptor setVertexDescriptor:]
-    pub fn setVertexDescriptor_(self: *@This(), vertex_descriptor: ?*VertexDescriptor) void {
+    pub fn setVertexDescriptor(self: *@This(), vertex_descriptor: ?*VertexDescriptor) void {
         return objc.msgSend(self, "setVertexDescriptor:", void, .{vertex_descriptor});
     }
     /// `-[MTLRenderPipelineDescriptor sampleCount]
@@ -8381,7 +8744,7 @@ pub const RenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "sampleCount", usize, .{});
     }
     /// `-[MTLRenderPipelineDescriptor setSampleCount:]
-    pub fn setSampleCount_(self: *@This(), sample_count: usize) void {
+    pub fn setSampleCount(self: *@This(), sample_count: usize) void {
         return objc.msgSend(self, "setSampleCount:", void, .{sample_count});
     }
     /// `-[MTLRenderPipelineDescriptor rasterSampleCount]
@@ -8389,7 +8752,7 @@ pub const RenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "rasterSampleCount", usize, .{});
     }
     /// `-[MTLRenderPipelineDescriptor setRasterSampleCount:]
-    pub fn setRasterSampleCount_(self: *@This(), raster_sample_count: usize) void {
+    pub fn setRasterSampleCount(self: *@This(), raster_sample_count: usize) void {
         return objc.msgSend(self, "setRasterSampleCount:", void, .{raster_sample_count});
     }
     /// `-[MTLRenderPipelineDescriptor isAlphaToCoverageEnabled]
@@ -8397,7 +8760,7 @@ pub const RenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "isAlphaToCoverageEnabled", bool, .{});
     }
     /// `-[MTLRenderPipelineDescriptor setAlphaToCoverageEnabled:]
-    pub fn setAlphaToCoverageEnabled_(self: *@This(), alpha_to_coverage_enabled: bool) void {
+    pub fn setAlphaToCoverageEnabled(self: *@This(), alpha_to_coverage_enabled: bool) void {
         return objc.msgSend(self, "setAlphaToCoverageEnabled:", void, .{alpha_to_coverage_enabled});
     }
     /// `-[MTLRenderPipelineDescriptor isAlphaToOneEnabled]
@@ -8405,7 +8768,7 @@ pub const RenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "isAlphaToOneEnabled", bool, .{});
     }
     /// `-[MTLRenderPipelineDescriptor setAlphaToOneEnabled:]
-    pub fn setAlphaToOneEnabled_(self: *@This(), alpha_to_one_enabled: bool) void {
+    pub fn setAlphaToOneEnabled(self: *@This(), alpha_to_one_enabled: bool) void {
         return objc.msgSend(self, "setAlphaToOneEnabled:", void, .{alpha_to_one_enabled});
     }
     /// `-[MTLRenderPipelineDescriptor isRasterizationEnabled]
@@ -8413,7 +8776,7 @@ pub const RenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "isRasterizationEnabled", bool, .{});
     }
     /// `-[MTLRenderPipelineDescriptor setRasterizationEnabled:]
-    pub fn setRasterizationEnabled_(self: *@This(), rasterization_enabled: bool) void {
+    pub fn setRasterizationEnabled(self: *@This(), rasterization_enabled: bool) void {
         return objc.msgSend(self, "setRasterizationEnabled:", void, .{rasterization_enabled});
     }
     /// `-[MTLRenderPipelineDescriptor maxVertexAmplificationCount]
@@ -8421,7 +8784,7 @@ pub const RenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "maxVertexAmplificationCount", usize, .{});
     }
     /// `-[MTLRenderPipelineDescriptor setMaxVertexAmplificationCount:]
-    pub fn setMaxVertexAmplificationCount_(self: *@This(), max_vertex_amplification_count: usize) void {
+    pub fn setMaxVertexAmplificationCount(self: *@This(), max_vertex_amplification_count: usize) void {
         return objc.msgSend(self, "setMaxVertexAmplificationCount:", void, .{max_vertex_amplification_count});
     }
     /// `-[MTLRenderPipelineDescriptor colorAttachments]
@@ -8433,7 +8796,7 @@ pub const RenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "depthAttachmentPixelFormat", PixelFormat, .{});
     }
     /// `-[MTLRenderPipelineDescriptor setDepthAttachmentPixelFormat:]
-    pub fn setDepthAttachmentPixelFormat_(self: *@This(), depth_attachment_pixel_format: PixelFormat) void {
+    pub fn setDepthAttachmentPixelFormat(self: *@This(), depth_attachment_pixel_format: PixelFormat) void {
         return objc.msgSend(self, "setDepthAttachmentPixelFormat:", void, .{depth_attachment_pixel_format});
     }
     /// `-[MTLRenderPipelineDescriptor stencilAttachmentPixelFormat]
@@ -8441,7 +8804,7 @@ pub const RenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "stencilAttachmentPixelFormat", PixelFormat, .{});
     }
     /// `-[MTLRenderPipelineDescriptor setStencilAttachmentPixelFormat:]
-    pub fn setStencilAttachmentPixelFormat_(self: *@This(), stencil_attachment_pixel_format: PixelFormat) void {
+    pub fn setStencilAttachmentPixelFormat(self: *@This(), stencil_attachment_pixel_format: PixelFormat) void {
         return objc.msgSend(self, "setStencilAttachmentPixelFormat:", void, .{stencil_attachment_pixel_format});
     }
     /// `-[MTLRenderPipelineDescriptor inputPrimitiveTopology]
@@ -8449,7 +8812,7 @@ pub const RenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "inputPrimitiveTopology", PrimitiveTopologyClass, .{});
     }
     /// `-[MTLRenderPipelineDescriptor setInputPrimitiveTopology:]
-    pub fn setInputPrimitiveTopology_(self: *@This(), input_primitive_topology: PrimitiveTopologyClass) void {
+    pub fn setInputPrimitiveTopology(self: *@This(), input_primitive_topology: PrimitiveTopologyClass) void {
         return objc.msgSend(self, "setInputPrimitiveTopology:", void, .{input_primitive_topology});
     }
     /// `-[MTLRenderPipelineDescriptor tessellationPartitionMode]
@@ -8457,7 +8820,7 @@ pub const RenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "tessellationPartitionMode", TessellationPartitionMode, .{});
     }
     /// `-[MTLRenderPipelineDescriptor setTessellationPartitionMode:]
-    pub fn setTessellationPartitionMode_(self: *@This(), tessellation_partition_mode: TessellationPartitionMode) void {
+    pub fn setTessellationPartitionMode(self: *@This(), tessellation_partition_mode: TessellationPartitionMode) void {
         return objc.msgSend(self, "setTessellationPartitionMode:", void, .{tessellation_partition_mode});
     }
     /// `-[MTLRenderPipelineDescriptor maxTessellationFactor]
@@ -8465,7 +8828,7 @@ pub const RenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "maxTessellationFactor", usize, .{});
     }
     /// `-[MTLRenderPipelineDescriptor setMaxTessellationFactor:]
-    pub fn setMaxTessellationFactor_(self: *@This(), max_tessellation_factor: usize) void {
+    pub fn setMaxTessellationFactor(self: *@This(), max_tessellation_factor: usize) void {
         return objc.msgSend(self, "setMaxTessellationFactor:", void, .{max_tessellation_factor});
     }
     /// `-[MTLRenderPipelineDescriptor isTessellationFactorScaleEnabled]
@@ -8473,7 +8836,7 @@ pub const RenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "isTessellationFactorScaleEnabled", bool, .{});
     }
     /// `-[MTLRenderPipelineDescriptor setTessellationFactorScaleEnabled:]
-    pub fn setTessellationFactorScaleEnabled_(self: *@This(), tessellation_factor_scale_enabled: bool) void {
+    pub fn setTessellationFactorScaleEnabled(self: *@This(), tessellation_factor_scale_enabled: bool) void {
         return objc.msgSend(self, "setTessellationFactorScaleEnabled:", void, .{tessellation_factor_scale_enabled});
     }
     /// `-[MTLRenderPipelineDescriptor tessellationFactorFormat]
@@ -8481,7 +8844,7 @@ pub const RenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "tessellationFactorFormat", TessellationFactorFormat, .{});
     }
     /// `-[MTLRenderPipelineDescriptor setTessellationFactorFormat:]
-    pub fn setTessellationFactorFormat_(self: *@This(), tessellation_factor_format: TessellationFactorFormat) void {
+    pub fn setTessellationFactorFormat(self: *@This(), tessellation_factor_format: TessellationFactorFormat) void {
         return objc.msgSend(self, "setTessellationFactorFormat:", void, .{tessellation_factor_format});
     }
     /// `-[MTLRenderPipelineDescriptor tessellationControlPointIndexType]
@@ -8489,7 +8852,7 @@ pub const RenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "tessellationControlPointIndexType", TessellationControlPointIndexType, .{});
     }
     /// `-[MTLRenderPipelineDescriptor setTessellationControlPointIndexType:]
-    pub fn setTessellationControlPointIndexType_(self: *@This(), tessellation_control_point_index_type: TessellationControlPointIndexType) void {
+    pub fn setTessellationControlPointIndexType(self: *@This(), tessellation_control_point_index_type: TessellationControlPointIndexType) void {
         return objc.msgSend(self, "setTessellationControlPointIndexType:", void, .{tessellation_control_point_index_type});
     }
     /// `-[MTLRenderPipelineDescriptor tessellationFactorStepFunction]
@@ -8497,7 +8860,7 @@ pub const RenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "tessellationFactorStepFunction", TessellationFactorStepFunction, .{});
     }
     /// `-[MTLRenderPipelineDescriptor setTessellationFactorStepFunction:]
-    pub fn setTessellationFactorStepFunction_(self: *@This(), tessellation_factor_step_function: TessellationFactorStepFunction) void {
+    pub fn setTessellationFactorStepFunction(self: *@This(), tessellation_factor_step_function: TessellationFactorStepFunction) void {
         return objc.msgSend(self, "setTessellationFactorStepFunction:", void, .{tessellation_factor_step_function});
     }
     /// `-[MTLRenderPipelineDescriptor tessellationOutputWindingOrder]
@@ -8505,7 +8868,7 @@ pub const RenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "tessellationOutputWindingOrder", Winding, .{});
     }
     /// `-[MTLRenderPipelineDescriptor setTessellationOutputWindingOrder:]
-    pub fn setTessellationOutputWindingOrder_(self: *@This(), tessellation_output_winding_order: Winding) void {
+    pub fn setTessellationOutputWindingOrder(self: *@This(), tessellation_output_winding_order: Winding) void {
         return objc.msgSend(self, "setTessellationOutputWindingOrder:", void, .{tessellation_output_winding_order});
     }
     /// `-[MTLRenderPipelineDescriptor vertexBuffers]
@@ -8521,7 +8884,7 @@ pub const RenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "supportIndirectCommandBuffers", bool, .{});
     }
     /// `-[MTLRenderPipelineDescriptor setSupportIndirectCommandBuffers:]
-    pub fn setSupportIndirectCommandBuffers_(self: *@This(), support_indirect_command_buffers: bool) void {
+    pub fn setSupportIndirectCommandBuffers(self: *@This(), support_indirect_command_buffers: bool) void {
         return objc.msgSend(self, "setSupportIndirectCommandBuffers:", void, .{support_indirect_command_buffers});
     }
     /// `-[MTLRenderPipelineDescriptor binaryArchives]
@@ -8529,7 +8892,7 @@ pub const RenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "binaryArchives", ?*ns.Array(*BinaryArchive), .{});
     }
     /// `-[MTLRenderPipelineDescriptor setBinaryArchives:]
-    pub fn setBinaryArchives_(self: *@This(), binary_archives: ?*ns.Array(*BinaryArchive)) void {
+    pub fn setBinaryArchives(self: *@This(), binary_archives: ?*ns.Array(*BinaryArchive)) void {
         return objc.msgSend(self, "setBinaryArchives:", void, .{binary_archives});
     }
     /// `-[MTLRenderPipelineDescriptor vertexPreloadedLibraries]
@@ -8537,7 +8900,7 @@ pub const RenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "vertexPreloadedLibraries", *ns.Array(*DynamicLibrary), .{});
     }
     /// `-[MTLRenderPipelineDescriptor setVertexPreloadedLibraries:]
-    pub fn setVertexPreloadedLibraries_(self: *@This(), vertex_preloaded_libraries: *ns.Array(*DynamicLibrary)) void {
+    pub fn setVertexPreloadedLibraries(self: *@This(), vertex_preloaded_libraries: *ns.Array(*DynamicLibrary)) void {
         return objc.msgSend(self, "setVertexPreloadedLibraries:", void, .{vertex_preloaded_libraries});
     }
     /// `-[MTLRenderPipelineDescriptor fragmentPreloadedLibraries]
@@ -8545,7 +8908,7 @@ pub const RenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "fragmentPreloadedLibraries", *ns.Array(*DynamicLibrary), .{});
     }
     /// `-[MTLRenderPipelineDescriptor setFragmentPreloadedLibraries:]
-    pub fn setFragmentPreloadedLibraries_(self: *@This(), fragment_preloaded_libraries: *ns.Array(*DynamicLibrary)) void {
+    pub fn setFragmentPreloadedLibraries(self: *@This(), fragment_preloaded_libraries: *ns.Array(*DynamicLibrary)) void {
         return objc.msgSend(self, "setFragmentPreloadedLibraries:", void, .{fragment_preloaded_libraries});
     }
     /// `-[MTLRenderPipelineDescriptor vertexLinkedFunctions]
@@ -8553,7 +8916,7 @@ pub const RenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "vertexLinkedFunctions", *LinkedFunctions, .{});
     }
     /// `-[MTLRenderPipelineDescriptor setVertexLinkedFunctions:]
-    pub fn setVertexLinkedFunctions_(self: *@This(), vertex_linked_functions: ?*LinkedFunctions) void {
+    pub fn setVertexLinkedFunctions(self: *@This(), vertex_linked_functions: ?*LinkedFunctions) void {
         return objc.msgSend(self, "setVertexLinkedFunctions:", void, .{vertex_linked_functions});
     }
     /// `-[MTLRenderPipelineDescriptor fragmentLinkedFunctions]
@@ -8561,7 +8924,7 @@ pub const RenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "fragmentLinkedFunctions", *LinkedFunctions, .{});
     }
     /// `-[MTLRenderPipelineDescriptor setFragmentLinkedFunctions:]
-    pub fn setFragmentLinkedFunctions_(self: *@This(), fragment_linked_functions: ?*LinkedFunctions) void {
+    pub fn setFragmentLinkedFunctions(self: *@This(), fragment_linked_functions: ?*LinkedFunctions) void {
         return objc.msgSend(self, "setFragmentLinkedFunctions:", void, .{fragment_linked_functions});
     }
     /// `-[MTLRenderPipelineDescriptor supportAddingVertexBinaryFunctions]
@@ -8569,7 +8932,7 @@ pub const RenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "supportAddingVertexBinaryFunctions", bool, .{});
     }
     /// `-[MTLRenderPipelineDescriptor setSupportAddingVertexBinaryFunctions:]
-    pub fn setSupportAddingVertexBinaryFunctions_(self: *@This(), support_adding_vertex_binary_functions: bool) void {
+    pub fn setSupportAddingVertexBinaryFunctions(self: *@This(), support_adding_vertex_binary_functions: bool) void {
         return objc.msgSend(self, "setSupportAddingVertexBinaryFunctions:", void, .{support_adding_vertex_binary_functions});
     }
     /// `-[MTLRenderPipelineDescriptor supportAddingFragmentBinaryFunctions]
@@ -8577,7 +8940,7 @@ pub const RenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "supportAddingFragmentBinaryFunctions", bool, .{});
     }
     /// `-[MTLRenderPipelineDescriptor setSupportAddingFragmentBinaryFunctions:]
-    pub fn setSupportAddingFragmentBinaryFunctions_(self: *@This(), support_adding_fragment_binary_functions: bool) void {
+    pub fn setSupportAddingFragmentBinaryFunctions(self: *@This(), support_adding_fragment_binary_functions: bool) void {
         return objc.msgSend(self, "setSupportAddingFragmentBinaryFunctions:", void, .{support_adding_fragment_binary_functions});
     }
     /// `-[MTLRenderPipelineDescriptor maxVertexCallStackDepth]
@@ -8585,7 +8948,7 @@ pub const RenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "maxVertexCallStackDepth", usize, .{});
     }
     /// `-[MTLRenderPipelineDescriptor setMaxVertexCallStackDepth:]
-    pub fn setMaxVertexCallStackDepth_(self: *@This(), max_vertex_call_stack_depth: usize) void {
+    pub fn setMaxVertexCallStackDepth(self: *@This(), max_vertex_call_stack_depth: usize) void {
         return objc.msgSend(self, "setMaxVertexCallStackDepth:", void, .{max_vertex_call_stack_depth});
     }
     /// `-[MTLRenderPipelineDescriptor maxFragmentCallStackDepth]
@@ -8593,14 +8956,17 @@ pub const RenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "maxFragmentCallStackDepth", usize, .{});
     }
     /// `-[MTLRenderPipelineDescriptor setMaxFragmentCallStackDepth:]
-    pub fn setMaxFragmentCallStackDepth_(self: *@This(), max_fragment_call_stack_depth: usize) void {
+    pub fn setMaxFragmentCallStackDepth(self: *@This(), max_fragment_call_stack_depth: usize) void {
         return objc.msgSend(self, "setMaxFragmentCallStackDepth:", void, .{max_fragment_call_stack_depth});
     }
 };
 
 /// `MTLRenderPipelineFunctionsDescriptor`
 pub const RenderPipelineFunctionsDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLRenderPipelineFunctionsDescriptor", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == ns.Copying) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -8616,7 +8982,7 @@ pub const RenderPipelineFunctionsDescriptor = opaque {
         return objc.msgSend(self, "vertexAdditionalBinaryFunctions", ?*ns.Array(*Function), .{});
     }
     /// `-[MTLRenderPipelineFunctionsDescriptor setVertexAdditionalBinaryFunctions:]
-    pub fn setVertexAdditionalBinaryFunctions_(self: *@This(), vertex_additional_binary_functions: ?*ns.Array(*Function)) void {
+    pub fn setVertexAdditionalBinaryFunctions(self: *@This(), vertex_additional_binary_functions: ?*ns.Array(*Function)) void {
         return objc.msgSend(self, "setVertexAdditionalBinaryFunctions:", void, .{vertex_additional_binary_functions});
     }
     /// `-[MTLRenderPipelineFunctionsDescriptor fragmentAdditionalBinaryFunctions]
@@ -8624,7 +8990,7 @@ pub const RenderPipelineFunctionsDescriptor = opaque {
         return objc.msgSend(self, "fragmentAdditionalBinaryFunctions", ?*ns.Array(*Function), .{});
     }
     /// `-[MTLRenderPipelineFunctionsDescriptor setFragmentAdditionalBinaryFunctions:]
-    pub fn setFragmentAdditionalBinaryFunctions_(self: *@This(), fragment_additional_binary_functions: ?*ns.Array(*Function)) void {
+    pub fn setFragmentAdditionalBinaryFunctions(self: *@This(), fragment_additional_binary_functions: ?*ns.Array(*Function)) void {
         return objc.msgSend(self, "setFragmentAdditionalBinaryFunctions:", void, .{fragment_additional_binary_functions});
     }
     /// `-[MTLRenderPipelineFunctionsDescriptor tileAdditionalBinaryFunctions]
@@ -8632,33 +8998,36 @@ pub const RenderPipelineFunctionsDescriptor = opaque {
         return objc.msgSend(self, "tileAdditionalBinaryFunctions", ?*ns.Array(*Function), .{});
     }
     /// `-[MTLRenderPipelineFunctionsDescriptor setTileAdditionalBinaryFunctions:]
-    pub fn setTileAdditionalBinaryFunctions_(self: *@This(), tile_additional_binary_functions: ?*ns.Array(*Function)) void {
+    pub fn setTileAdditionalBinaryFunctions(self: *@This(), tile_additional_binary_functions: ?*ns.Array(*Function)) void {
         return objc.msgSend(self, "setTileAdditionalBinaryFunctions:", void, .{tile_additional_binary_functions});
     }
 };
 
 /// `MTLRenderPipelineState`
 pub const RenderPipelineState = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `-[MTLRenderPipelineState imageblockMemoryLengthForDimensions:]
-    pub fn imageblockMemoryLengthForDimensions_(self: *@This(), imageblock_dimensions: Size) usize {
+    pub fn imageblockMemoryLengthForDimensions(self: *@This(), imageblock_dimensions: Size) usize {
         return objc.msgSend(self, "imageblockMemoryLengthForDimensions:", usize, .{imageblock_dimensions});
     }
     /// `-[MTLRenderPipelineState functionHandleWithFunction:stage:]
-    pub fn functionHandleWithFunction_stage_(self: *@This(), function: *Function, stage: RenderStages) ?*FunctionHandle {
+    pub fn functionHandleWithFunction_stage(self: *@This(), function: *Function, stage: RenderStages) ?*FunctionHandle {
         return objc.msgSend(self, "functionHandleWithFunction:stage:", ?*FunctionHandle, .{ function, stage });
     }
     /// `-[MTLRenderPipelineState newVisibleFunctionTableWithDescriptor:stage:]
-    pub fn newVisibleFunctionTableWithDescriptor_stage_(self: *@This(), descriptor: *VisibleFunctionTableDescriptor, stage: RenderStages) ?*VisibleFunctionTable {
+    pub fn newVisibleFunctionTableWithDescriptor_stage(self: *@This(), descriptor: *VisibleFunctionTableDescriptor, stage: RenderStages) ?*VisibleFunctionTable {
         return objc.msgSend(self, "newVisibleFunctionTableWithDescriptor:stage:", ?*VisibleFunctionTable, .{ descriptor, stage });
     }
     /// `-[MTLRenderPipelineState newIntersectionFunctionTableWithDescriptor:stage:]
-    pub fn newIntersectionFunctionTableWithDescriptor_stage_(self: *@This(), descriptor: *IntersectionFunctionTableDescriptor, stage: RenderStages) ?*IntersectionFunctionTable {
+    pub fn newIntersectionFunctionTableWithDescriptor_stage(self: *@This(), descriptor: *IntersectionFunctionTableDescriptor, stage: RenderStages) ?*IntersectionFunctionTable {
         return objc.msgSend(self, "newIntersectionFunctionTableWithDescriptor:stage:", ?*IntersectionFunctionTable, .{ descriptor, stage });
     }
     /// `-[MTLRenderPipelineState newRenderPipelineStateWithAdditionalBinaryFunctions:error:]
-    pub fn newRenderPipelineStateWithAdditionalBinaryFunctions_error_(self: *@This(), additional_binary_functions: *RenderPipelineFunctionsDescriptor, err: ?*?*ns.Error) ?*RenderPipelineState {
+    pub fn newRenderPipelineStateWithAdditionalBinaryFunctions_error(self: *@This(), additional_binary_functions: *RenderPipelineFunctionsDescriptor, err: ?*?*ns.Error) ?*RenderPipelineState {
         return objc.msgSend(self, "newRenderPipelineStateWithAdditionalBinaryFunctions:error:", ?*RenderPipelineState, .{ additional_binary_functions, err });
     }
     /// `-[MTLRenderPipelineState label]
@@ -8713,8 +9082,11 @@ pub const RenderPipelineState = opaque {
 
 /// `MTLRenderPipelineColorAttachmentDescriptorArray`
 pub const RenderPipelineColorAttachmentDescriptorArray = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternClass("MTLRenderPipelineColorAttachmentDescriptorArray", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `+[MTLRenderPipelineColorAttachmentDescriptorArray new]`
     pub const new = InternalInfo.new;
     /// `+[MTLRenderPipelineColorAttachmentDescriptorArray alloc]`
@@ -8722,18 +9094,21 @@ pub const RenderPipelineColorAttachmentDescriptorArray = opaque {
     /// `[[MTLRenderPipelineColorAttachmentDescriptorArray alloc] init]`
     pub const allocInit = InternalInfo.allocInit;
     /// `-[MTLRenderPipelineColorAttachmentDescriptorArray objectAtIndexedSubscript:]
-    pub fn objectAtIndexedSubscript_(self: *@This(), attachment_index: usize) *RenderPipelineColorAttachmentDescriptor {
+    pub fn objectAtIndexedSubscript(self: *@This(), attachment_index: usize) *RenderPipelineColorAttachmentDescriptor {
         return objc.msgSend(self, "objectAtIndexedSubscript:", *RenderPipelineColorAttachmentDescriptor, .{attachment_index});
     }
     /// `-[MTLRenderPipelineColorAttachmentDescriptorArray setObject:atIndexedSubscript:]
-    pub fn setObject_atIndexedSubscript_(self: *@This(), attachment: ?*RenderPipelineColorAttachmentDescriptor, attachment_index: usize) void {
+    pub fn setObject_atIndexedSubscript(self: *@This(), attachment: ?*RenderPipelineColorAttachmentDescriptor, attachment_index: usize) void {
         return objc.msgSend(self, "setObject:atIndexedSubscript:", void, .{ attachment, attachment_index });
     }
 };
 
 /// `MTLTileRenderPipelineColorAttachmentDescriptor`
 pub const TileRenderPipelineColorAttachmentDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLTileRenderPipelineColorAttachmentDescriptor", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == ns.Copying) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -8749,15 +9124,18 @@ pub const TileRenderPipelineColorAttachmentDescriptor = opaque {
         return objc.msgSend(self, "pixelFormat", PixelFormat, .{});
     }
     /// `-[MTLTileRenderPipelineColorAttachmentDescriptor setPixelFormat:]
-    pub fn setPixelFormat_(self: *@This(), pixel_format: PixelFormat) void {
+    pub fn setPixelFormat(self: *@This(), pixel_format: PixelFormat) void {
         return objc.msgSend(self, "setPixelFormat:", void, .{pixel_format});
     }
 };
 
 /// `MTLTileRenderPipelineColorAttachmentDescriptorArray`
 pub const TileRenderPipelineColorAttachmentDescriptorArray = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternClass("MTLTileRenderPipelineColorAttachmentDescriptorArray", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `+[MTLTileRenderPipelineColorAttachmentDescriptorArray new]`
     pub const new = InternalInfo.new;
     /// `+[MTLTileRenderPipelineColorAttachmentDescriptorArray alloc]`
@@ -8765,18 +9143,21 @@ pub const TileRenderPipelineColorAttachmentDescriptorArray = opaque {
     /// `[[MTLTileRenderPipelineColorAttachmentDescriptorArray alloc] init]`
     pub const allocInit = InternalInfo.allocInit;
     /// `-[MTLTileRenderPipelineColorAttachmentDescriptorArray objectAtIndexedSubscript:]
-    pub fn objectAtIndexedSubscript_(self: *@This(), attachment_index: usize) *TileRenderPipelineColorAttachmentDescriptor {
+    pub fn objectAtIndexedSubscript(self: *@This(), attachment_index: usize) *TileRenderPipelineColorAttachmentDescriptor {
         return objc.msgSend(self, "objectAtIndexedSubscript:", *TileRenderPipelineColorAttachmentDescriptor, .{attachment_index});
     }
     /// `-[MTLTileRenderPipelineColorAttachmentDescriptorArray setObject:atIndexedSubscript:]
-    pub fn setObject_atIndexedSubscript_(self: *@This(), attachment: *TileRenderPipelineColorAttachmentDescriptor, attachment_index: usize) void {
+    pub fn setObject_atIndexedSubscript(self: *@This(), attachment: *TileRenderPipelineColorAttachmentDescriptor, attachment_index: usize) void {
         return objc.msgSend(self, "setObject:atIndexedSubscript:", void, .{ attachment, attachment_index });
     }
 };
 
 /// `MTLTileRenderPipelineDescriptor`
 pub const TileRenderPipelineDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLTileRenderPipelineDescriptor", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == ns.Copying) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -8796,7 +9177,7 @@ pub const TileRenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "label", ?*ns.String, .{});
     }
     /// `-[MTLTileRenderPipelineDescriptor setLabel:]
-    pub fn setLabel_(self: *@This(), str: ?*ns.String) void {
+    pub fn setLabel(self: *@This(), str: ?*ns.String) void {
         return objc.msgSend(self, "setLabel:", void, .{str});
     }
     /// `-[MTLTileRenderPipelineDescriptor tileFunction]
@@ -8804,7 +9185,7 @@ pub const TileRenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "tileFunction", *Function, .{});
     }
     /// `-[MTLTileRenderPipelineDescriptor setTileFunction:]
-    pub fn setTileFunction_(self: *@This(), tile_function: *Function) void {
+    pub fn setTileFunction(self: *@This(), tile_function: *Function) void {
         return objc.msgSend(self, "setTileFunction:", void, .{tile_function});
     }
     /// `-[MTLTileRenderPipelineDescriptor rasterSampleCount]
@@ -8812,7 +9193,7 @@ pub const TileRenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "rasterSampleCount", usize, .{});
     }
     /// `-[MTLTileRenderPipelineDescriptor setRasterSampleCount:]
-    pub fn setRasterSampleCount_(self: *@This(), raster_sample_count: usize) void {
+    pub fn setRasterSampleCount(self: *@This(), raster_sample_count: usize) void {
         return objc.msgSend(self, "setRasterSampleCount:", void, .{raster_sample_count});
     }
     /// `-[MTLTileRenderPipelineDescriptor colorAttachments]
@@ -8824,7 +9205,7 @@ pub const TileRenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "threadgroupSizeMatchesTileSize", bool, .{});
     }
     /// `-[MTLTileRenderPipelineDescriptor setThreadgroupSizeMatchesTileSize:]
-    pub fn setThreadgroupSizeMatchesTileSize_(self: *@This(), threadgroup_size_matches_tile_size: bool) void {
+    pub fn setThreadgroupSizeMatchesTileSize(self: *@This(), threadgroup_size_matches_tile_size: bool) void {
         return objc.msgSend(self, "setThreadgroupSizeMatchesTileSize:", void, .{threadgroup_size_matches_tile_size});
     }
     /// `-[MTLTileRenderPipelineDescriptor tileBuffers]
@@ -8836,7 +9217,7 @@ pub const TileRenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "maxTotalThreadsPerThreadgroup", usize, .{});
     }
     /// `-[MTLTileRenderPipelineDescriptor setMaxTotalThreadsPerThreadgroup:]
-    pub fn setMaxTotalThreadsPerThreadgroup_(self: *@This(), max_total_threads_per_threadgroup: usize) void {
+    pub fn setMaxTotalThreadsPerThreadgroup(self: *@This(), max_total_threads_per_threadgroup: usize) void {
         return objc.msgSend(self, "setMaxTotalThreadsPerThreadgroup:", void, .{max_total_threads_per_threadgroup});
     }
     /// `-[MTLTileRenderPipelineDescriptor binaryArchives]
@@ -8844,7 +9225,7 @@ pub const TileRenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "binaryArchives", ?*ns.Array(*BinaryArchive), .{});
     }
     /// `-[MTLTileRenderPipelineDescriptor setBinaryArchives:]
-    pub fn setBinaryArchives_(self: *@This(), binary_archives: ?*ns.Array(*BinaryArchive)) void {
+    pub fn setBinaryArchives(self: *@This(), binary_archives: ?*ns.Array(*BinaryArchive)) void {
         return objc.msgSend(self, "setBinaryArchives:", void, .{binary_archives});
     }
     /// `-[MTLTileRenderPipelineDescriptor preloadedLibraries]
@@ -8852,7 +9233,7 @@ pub const TileRenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "preloadedLibraries", *ns.Array(*DynamicLibrary), .{});
     }
     /// `-[MTLTileRenderPipelineDescriptor setPreloadedLibraries:]
-    pub fn setPreloadedLibraries_(self: *@This(), preloaded_libraries: *ns.Array(*DynamicLibrary)) void {
+    pub fn setPreloadedLibraries(self: *@This(), preloaded_libraries: *ns.Array(*DynamicLibrary)) void {
         return objc.msgSend(self, "setPreloadedLibraries:", void, .{preloaded_libraries});
     }
     /// `-[MTLTileRenderPipelineDescriptor linkedFunctions]
@@ -8860,7 +9241,7 @@ pub const TileRenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "linkedFunctions", *LinkedFunctions, .{});
     }
     /// `-[MTLTileRenderPipelineDescriptor setLinkedFunctions:]
-    pub fn setLinkedFunctions_(self: *@This(), linked_functions: ?*LinkedFunctions) void {
+    pub fn setLinkedFunctions(self: *@This(), linked_functions: ?*LinkedFunctions) void {
         return objc.msgSend(self, "setLinkedFunctions:", void, .{linked_functions});
     }
     /// `-[MTLTileRenderPipelineDescriptor supportAddingBinaryFunctions]
@@ -8868,7 +9249,7 @@ pub const TileRenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "supportAddingBinaryFunctions", bool, .{});
     }
     /// `-[MTLTileRenderPipelineDescriptor setSupportAddingBinaryFunctions:]
-    pub fn setSupportAddingBinaryFunctions_(self: *@This(), support_adding_binary_functions: bool) void {
+    pub fn setSupportAddingBinaryFunctions(self: *@This(), support_adding_binary_functions: bool) void {
         return objc.msgSend(self, "setSupportAddingBinaryFunctions:", void, .{support_adding_binary_functions});
     }
     /// `-[MTLTileRenderPipelineDescriptor maxCallStackDepth]
@@ -8876,14 +9257,17 @@ pub const TileRenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "maxCallStackDepth", usize, .{});
     }
     /// `-[MTLTileRenderPipelineDescriptor setMaxCallStackDepth:]
-    pub fn setMaxCallStackDepth_(self: *@This(), max_call_stack_depth: usize) void {
+    pub fn setMaxCallStackDepth(self: *@This(), max_call_stack_depth: usize) void {
         return objc.msgSend(self, "setMaxCallStackDepth:", void, .{max_call_stack_depth});
     }
 };
 
 /// `MTLMeshRenderPipelineDescriptor`
 pub const MeshRenderPipelineDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLMeshRenderPipelineDescriptor", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == ns.Copying) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -8903,7 +9287,7 @@ pub const MeshRenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "label", ?*ns.String, .{});
     }
     /// `-[MTLMeshRenderPipelineDescriptor setLabel:]
-    pub fn setLabel_(self: *@This(), str: ?*ns.String) void {
+    pub fn setLabel(self: *@This(), str: ?*ns.String) void {
         return objc.msgSend(self, "setLabel:", void, .{str});
     }
     /// `-[MTLMeshRenderPipelineDescriptor objectFunction]
@@ -8911,7 +9295,7 @@ pub const MeshRenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "objectFunction", ?*Function, .{});
     }
     /// `-[MTLMeshRenderPipelineDescriptor setObjectFunction:]
-    pub fn setObjectFunction_(self: *@This(), object_function: ?*Function) void {
+    pub fn setObjectFunction(self: *@This(), object_function: ?*Function) void {
         return objc.msgSend(self, "setObjectFunction:", void, .{object_function});
     }
     /// `-[MTLMeshRenderPipelineDescriptor meshFunction]
@@ -8919,7 +9303,7 @@ pub const MeshRenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "meshFunction", ?*Function, .{});
     }
     /// `-[MTLMeshRenderPipelineDescriptor setMeshFunction:]
-    pub fn setMeshFunction_(self: *@This(), mesh_function: ?*Function) void {
+    pub fn setMeshFunction(self: *@This(), mesh_function: ?*Function) void {
         return objc.msgSend(self, "setMeshFunction:", void, .{mesh_function});
     }
     /// `-[MTLMeshRenderPipelineDescriptor fragmentFunction]
@@ -8927,7 +9311,7 @@ pub const MeshRenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "fragmentFunction", ?*Function, .{});
     }
     /// `-[MTLMeshRenderPipelineDescriptor setFragmentFunction:]
-    pub fn setFragmentFunction_(self: *@This(), fragment_function: ?*Function) void {
+    pub fn setFragmentFunction(self: *@This(), fragment_function: ?*Function) void {
         return objc.msgSend(self, "setFragmentFunction:", void, .{fragment_function});
     }
     /// `-[MTLMeshRenderPipelineDescriptor maxTotalThreadsPerObjectThreadgroup]
@@ -8935,7 +9319,7 @@ pub const MeshRenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "maxTotalThreadsPerObjectThreadgroup", usize, .{});
     }
     /// `-[MTLMeshRenderPipelineDescriptor setMaxTotalThreadsPerObjectThreadgroup:]
-    pub fn setMaxTotalThreadsPerObjectThreadgroup_(self: *@This(), max_total_threads_per_object_threadgroup: usize) void {
+    pub fn setMaxTotalThreadsPerObjectThreadgroup(self: *@This(), max_total_threads_per_object_threadgroup: usize) void {
         return objc.msgSend(self, "setMaxTotalThreadsPerObjectThreadgroup:", void, .{max_total_threads_per_object_threadgroup});
     }
     /// `-[MTLMeshRenderPipelineDescriptor maxTotalThreadsPerMeshThreadgroup]
@@ -8943,7 +9327,7 @@ pub const MeshRenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "maxTotalThreadsPerMeshThreadgroup", usize, .{});
     }
     /// `-[MTLMeshRenderPipelineDescriptor setMaxTotalThreadsPerMeshThreadgroup:]
-    pub fn setMaxTotalThreadsPerMeshThreadgroup_(self: *@This(), max_total_threads_per_mesh_threadgroup: usize) void {
+    pub fn setMaxTotalThreadsPerMeshThreadgroup(self: *@This(), max_total_threads_per_mesh_threadgroup: usize) void {
         return objc.msgSend(self, "setMaxTotalThreadsPerMeshThreadgroup:", void, .{max_total_threads_per_mesh_threadgroup});
     }
     /// `-[MTLMeshRenderPipelineDescriptor objectThreadgroupSizeIsMultipleOfThreadExecutionWidth]
@@ -8951,7 +9335,7 @@ pub const MeshRenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "objectThreadgroupSizeIsMultipleOfThreadExecutionWidth", bool, .{});
     }
     /// `-[MTLMeshRenderPipelineDescriptor setObjectThreadgroupSizeIsMultipleOfThreadExecutionWidth:]
-    pub fn setObjectThreadgroupSizeIsMultipleOfThreadExecutionWidth_(self: *@This(), object_threadgroup_size_is_multiple_of_thread_execution_width: bool) void {
+    pub fn setObjectThreadgroupSizeIsMultipleOfThreadExecutionWidth(self: *@This(), object_threadgroup_size_is_multiple_of_thread_execution_width: bool) void {
         return objc.msgSend(self, "setObjectThreadgroupSizeIsMultipleOfThreadExecutionWidth:", void, .{object_threadgroup_size_is_multiple_of_thread_execution_width});
     }
     /// `-[MTLMeshRenderPipelineDescriptor meshThreadgroupSizeIsMultipleOfThreadExecutionWidth]
@@ -8959,7 +9343,7 @@ pub const MeshRenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "meshThreadgroupSizeIsMultipleOfThreadExecutionWidth", bool, .{});
     }
     /// `-[MTLMeshRenderPipelineDescriptor setMeshThreadgroupSizeIsMultipleOfThreadExecutionWidth:]
-    pub fn setMeshThreadgroupSizeIsMultipleOfThreadExecutionWidth_(self: *@This(), mesh_threadgroup_size_is_multiple_of_thread_execution_width: bool) void {
+    pub fn setMeshThreadgroupSizeIsMultipleOfThreadExecutionWidth(self: *@This(), mesh_threadgroup_size_is_multiple_of_thread_execution_width: bool) void {
         return objc.msgSend(self, "setMeshThreadgroupSizeIsMultipleOfThreadExecutionWidth:", void, .{mesh_threadgroup_size_is_multiple_of_thread_execution_width});
     }
     /// `-[MTLMeshRenderPipelineDescriptor payloadMemoryLength]
@@ -8967,7 +9351,7 @@ pub const MeshRenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "payloadMemoryLength", usize, .{});
     }
     /// `-[MTLMeshRenderPipelineDescriptor setPayloadMemoryLength:]
-    pub fn setPayloadMemoryLength_(self: *@This(), payload_memory_length: usize) void {
+    pub fn setPayloadMemoryLength(self: *@This(), payload_memory_length: usize) void {
         return objc.msgSend(self, "setPayloadMemoryLength:", void, .{payload_memory_length});
     }
     /// `-[MTLMeshRenderPipelineDescriptor maxTotalThreadgroupsPerMeshGrid]
@@ -8975,7 +9359,7 @@ pub const MeshRenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "maxTotalThreadgroupsPerMeshGrid", usize, .{});
     }
     /// `-[MTLMeshRenderPipelineDescriptor setMaxTotalThreadgroupsPerMeshGrid:]
-    pub fn setMaxTotalThreadgroupsPerMeshGrid_(self: *@This(), max_total_threadgroups_per_mesh_grid: usize) void {
+    pub fn setMaxTotalThreadgroupsPerMeshGrid(self: *@This(), max_total_threadgroups_per_mesh_grid: usize) void {
         return objc.msgSend(self, "setMaxTotalThreadgroupsPerMeshGrid:", void, .{max_total_threadgroups_per_mesh_grid});
     }
     /// `-[MTLMeshRenderPipelineDescriptor objectBuffers]
@@ -8995,7 +9379,7 @@ pub const MeshRenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "rasterSampleCount", usize, .{});
     }
     /// `-[MTLMeshRenderPipelineDescriptor setRasterSampleCount:]
-    pub fn setRasterSampleCount_(self: *@This(), raster_sample_count: usize) void {
+    pub fn setRasterSampleCount(self: *@This(), raster_sample_count: usize) void {
         return objc.msgSend(self, "setRasterSampleCount:", void, .{raster_sample_count});
     }
     /// `-[MTLMeshRenderPipelineDescriptor isAlphaToCoverageEnabled]
@@ -9003,7 +9387,7 @@ pub const MeshRenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "isAlphaToCoverageEnabled", bool, .{});
     }
     /// `-[MTLMeshRenderPipelineDescriptor setAlphaToCoverageEnabled:]
-    pub fn setAlphaToCoverageEnabled_(self: *@This(), alpha_to_coverage_enabled: bool) void {
+    pub fn setAlphaToCoverageEnabled(self: *@This(), alpha_to_coverage_enabled: bool) void {
         return objc.msgSend(self, "setAlphaToCoverageEnabled:", void, .{alpha_to_coverage_enabled});
     }
     /// `-[MTLMeshRenderPipelineDescriptor isAlphaToOneEnabled]
@@ -9011,7 +9395,7 @@ pub const MeshRenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "isAlphaToOneEnabled", bool, .{});
     }
     /// `-[MTLMeshRenderPipelineDescriptor setAlphaToOneEnabled:]
-    pub fn setAlphaToOneEnabled_(self: *@This(), alpha_to_one_enabled: bool) void {
+    pub fn setAlphaToOneEnabled(self: *@This(), alpha_to_one_enabled: bool) void {
         return objc.msgSend(self, "setAlphaToOneEnabled:", void, .{alpha_to_one_enabled});
     }
     /// `-[MTLMeshRenderPipelineDescriptor isRasterizationEnabled]
@@ -9019,7 +9403,7 @@ pub const MeshRenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "isRasterizationEnabled", bool, .{});
     }
     /// `-[MTLMeshRenderPipelineDescriptor setRasterizationEnabled:]
-    pub fn setRasterizationEnabled_(self: *@This(), rasterization_enabled: bool) void {
+    pub fn setRasterizationEnabled(self: *@This(), rasterization_enabled: bool) void {
         return objc.msgSend(self, "setRasterizationEnabled:", void, .{rasterization_enabled});
     }
     /// `-[MTLMeshRenderPipelineDescriptor maxVertexAmplificationCount]
@@ -9027,7 +9411,7 @@ pub const MeshRenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "maxVertexAmplificationCount", usize, .{});
     }
     /// `-[MTLMeshRenderPipelineDescriptor setMaxVertexAmplificationCount:]
-    pub fn setMaxVertexAmplificationCount_(self: *@This(), max_vertex_amplification_count: usize) void {
+    pub fn setMaxVertexAmplificationCount(self: *@This(), max_vertex_amplification_count: usize) void {
         return objc.msgSend(self, "setMaxVertexAmplificationCount:", void, .{max_vertex_amplification_count});
     }
     /// `-[MTLMeshRenderPipelineDescriptor colorAttachments]
@@ -9039,7 +9423,7 @@ pub const MeshRenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "depthAttachmentPixelFormat", PixelFormat, .{});
     }
     /// `-[MTLMeshRenderPipelineDescriptor setDepthAttachmentPixelFormat:]
-    pub fn setDepthAttachmentPixelFormat_(self: *@This(), depth_attachment_pixel_format: PixelFormat) void {
+    pub fn setDepthAttachmentPixelFormat(self: *@This(), depth_attachment_pixel_format: PixelFormat) void {
         return objc.msgSend(self, "setDepthAttachmentPixelFormat:", void, .{depth_attachment_pixel_format});
     }
     /// `-[MTLMeshRenderPipelineDescriptor stencilAttachmentPixelFormat]
@@ -9047,7 +9431,7 @@ pub const MeshRenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "stencilAttachmentPixelFormat", PixelFormat, .{});
     }
     /// `-[MTLMeshRenderPipelineDescriptor setStencilAttachmentPixelFormat:]
-    pub fn setStencilAttachmentPixelFormat_(self: *@This(), stencil_attachment_pixel_format: PixelFormat) void {
+    pub fn setStencilAttachmentPixelFormat(self: *@This(), stencil_attachment_pixel_format: PixelFormat) void {
         return objc.msgSend(self, "setStencilAttachmentPixelFormat:", void, .{stencil_attachment_pixel_format});
     }
     /// `-[MTLMeshRenderPipelineDescriptor supportIndirectCommandBuffers]
@@ -9055,7 +9439,7 @@ pub const MeshRenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "supportIndirectCommandBuffers", bool, .{});
     }
     /// `-[MTLMeshRenderPipelineDescriptor setSupportIndirectCommandBuffers:]
-    pub fn setSupportIndirectCommandBuffers_(self: *@This(), support_indirect_command_buffers: bool) void {
+    pub fn setSupportIndirectCommandBuffers(self: *@This(), support_indirect_command_buffers: bool) void {
         return objc.msgSend(self, "setSupportIndirectCommandBuffers:", void, .{support_indirect_command_buffers});
     }
     /// `-[MTLMeshRenderPipelineDescriptor objectLinkedFunctions]
@@ -9063,7 +9447,7 @@ pub const MeshRenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "objectLinkedFunctions", *LinkedFunctions, .{});
     }
     /// `-[MTLMeshRenderPipelineDescriptor setObjectLinkedFunctions:]
-    pub fn setObjectLinkedFunctions_(self: *@This(), object_linked_functions: ?*LinkedFunctions) void {
+    pub fn setObjectLinkedFunctions(self: *@This(), object_linked_functions: ?*LinkedFunctions) void {
         return objc.msgSend(self, "setObjectLinkedFunctions:", void, .{object_linked_functions});
     }
     /// `-[MTLMeshRenderPipelineDescriptor meshLinkedFunctions]
@@ -9071,7 +9455,7 @@ pub const MeshRenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "meshLinkedFunctions", *LinkedFunctions, .{});
     }
     /// `-[MTLMeshRenderPipelineDescriptor setMeshLinkedFunctions:]
-    pub fn setMeshLinkedFunctions_(self: *@This(), mesh_linked_functions: ?*LinkedFunctions) void {
+    pub fn setMeshLinkedFunctions(self: *@This(), mesh_linked_functions: ?*LinkedFunctions) void {
         return objc.msgSend(self, "setMeshLinkedFunctions:", void, .{mesh_linked_functions});
     }
     /// `-[MTLMeshRenderPipelineDescriptor fragmentLinkedFunctions]
@@ -9079,17 +9463,20 @@ pub const MeshRenderPipelineDescriptor = opaque {
         return objc.msgSend(self, "fragmentLinkedFunctions", *LinkedFunctions, .{});
     }
     /// `-[MTLMeshRenderPipelineDescriptor setFragmentLinkedFunctions:]
-    pub fn setFragmentLinkedFunctions_(self: *@This(), fragment_linked_functions: ?*LinkedFunctions) void {
+    pub fn setFragmentLinkedFunctions(self: *@This(), fragment_linked_functions: ?*LinkedFunctions) void {
         return objc.msgSend(self, "setFragmentLinkedFunctions:", void, .{fragment_linked_functions});
     }
 };
 
 /// `MTLResource`
 pub const Resource = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `-[MTLResource setPurgeableState:]
-    pub fn setPurgeableState_(self: *@This(), state: PurgeableState) PurgeableState {
+    pub fn setPurgeableState(self: *@This(), state: PurgeableState) PurgeableState {
         return objc.msgSend(self, "setPurgeableState:", PurgeableState, .{state});
     }
     /// `-[MTLResource makeAliasable]
@@ -9105,7 +9492,7 @@ pub const Resource = opaque {
         return objc.msgSend(self, "label", ?*ns.String, .{});
     }
     /// `-[MTLResource setLabel:]
-    pub fn setLabel_(self: *@This(), str: ?*ns.String) void {
+    pub fn setLabel(self: *@This(), str: ?*ns.String) void {
         return objc.msgSend(self, "setLabel:", void, .{str});
     }
     /// `-[MTLResource device]
@@ -9144,37 +9531,43 @@ pub const Resource = opaque {
 
 /// `MTLResourceStateCommandEncoder`
 pub const ResourceStateCommandEncoder = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), CommandEncoder);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), CommandEncoder);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `-[MTLResourceStateCommandEncoder updateTextureMappings:mode:regions:mipLevels:slices:numRegions:]
-    pub fn updateTextureMappings_mode_regions_mipLevels_slices_numRegions_(self: *@This(), texture: *Texture, mode: SparseTextureMappingMode, regions: *const Region, mip_levels: *const usize, slices: *const usize, num_regions: usize) void {
+    pub fn updateTextureMappings_mode_regions_mipLevels_slices_numRegions(self: *@This(), texture: *Texture, mode: SparseTextureMappingMode, regions: *const Region, mip_levels: *const usize, slices: *const usize, num_regions: usize) void {
         return objc.msgSend(self, "updateTextureMappings:mode:regions:mipLevels:slices:numRegions:", void, .{ texture, mode, regions, mip_levels, slices, num_regions });
     }
     /// `-[MTLResourceStateCommandEncoder updateTextureMapping:mode:region:mipLevel:slice:]
-    pub fn updateTextureMapping_mode_region_mipLevel_slice_(self: *@This(), texture: *Texture, mode: SparseTextureMappingMode, region: Region, mip_level: usize, slice: usize) void {
+    pub fn updateTextureMapping_mode_region_mipLevel_slice(self: *@This(), texture: *Texture, mode: SparseTextureMappingMode, region: Region, mip_level: usize, slice: usize) void {
         return objc.msgSend(self, "updateTextureMapping:mode:region:mipLevel:slice:", void, .{ texture, mode, region, mip_level, slice });
     }
     /// `-[MTLResourceStateCommandEncoder updateTextureMapping:mode:indirectBuffer:indirectBufferOffset:]
-    pub fn updateTextureMapping_mode_indirectBuffer_indirectBufferOffset_(self: *@This(), texture: *Texture, mode: SparseTextureMappingMode, indirect_buffer: *Buffer, indirect_buffer_offset: usize) void {
+    pub fn updateTextureMapping_mode_indirectBuffer_indirectBufferOffset(self: *@This(), texture: *Texture, mode: SparseTextureMappingMode, indirect_buffer: *Buffer, indirect_buffer_offset: usize) void {
         return objc.msgSend(self, "updateTextureMapping:mode:indirectBuffer:indirectBufferOffset:", void, .{ texture, mode, indirect_buffer, indirect_buffer_offset });
     }
     /// `-[MTLResourceStateCommandEncoder updateFence:]
-    pub fn updateFence_(self: *@This(), fence: *Fence) void {
+    pub fn updateFence(self: *@This(), fence: *Fence) void {
         return objc.msgSend(self, "updateFence:", void, .{fence});
     }
     /// `-[MTLResourceStateCommandEncoder waitForFence:]
-    pub fn waitForFence_(self: *@This(), fence: *Fence) void {
+    pub fn waitForFence(self: *@This(), fence: *Fence) void {
         return objc.msgSend(self, "waitForFence:", void, .{fence});
     }
     /// `-[MTLResourceStateCommandEncoder moveTextureMappingsFromTexture:sourceSlice:sourceLevel:sourceOrigin:sourceSize:toTexture:destinationSlice:destinationLevel:destinationOrigin:]
-    pub fn moveTextureMappingsFromTexture_sourceSlice_sourceLevel_sourceOrigin_sourceSize_toTexture_destinationSlice_destinationLevel_destinationOrigin_(self: *@This(), source_texture: *Texture, source_slice: usize, source_level: usize, source_origin: Origin, source_size: Size, destination_texture: *Texture, destination_slice: usize, destination_level: usize, destination_origin: Origin) void {
+    pub fn moveTextureMappingsFromTexture_sourceSlice_sourceLevel_sourceOrigin_sourceSize_toTexture_destinationSlice_destinationLevel_destinationOrigin(self: *@This(), source_texture: *Texture, source_slice: usize, source_level: usize, source_origin: Origin, source_size: Size, destination_texture: *Texture, destination_slice: usize, destination_level: usize, destination_origin: Origin) void {
         return objc.msgSend(self, "moveTextureMappingsFromTexture:sourceSlice:sourceLevel:sourceOrigin:sourceSize:toTexture:destinationSlice:destinationLevel:destinationOrigin:", void, .{ source_texture, source_slice, source_level, source_origin, source_size, destination_texture, destination_slice, destination_level, destination_origin });
     }
 };
 
 /// `MTLResourceStatePassSampleBufferAttachmentDescriptor`
 pub const ResourceStatePassSampleBufferAttachmentDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLResourceStatePassSampleBufferAttachmentDescriptor", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == ns.Copying) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -9190,7 +9583,7 @@ pub const ResourceStatePassSampleBufferAttachmentDescriptor = opaque {
         return objc.msgSend(self, "sampleBuffer", ?*CounterSampleBuffer, .{});
     }
     /// `-[MTLResourceStatePassSampleBufferAttachmentDescriptor setSampleBuffer:]
-    pub fn setSampleBuffer_(self: *@This(), sample_buffer: ?*CounterSampleBuffer) void {
+    pub fn setSampleBuffer(self: *@This(), sample_buffer: ?*CounterSampleBuffer) void {
         return objc.msgSend(self, "setSampleBuffer:", void, .{sample_buffer});
     }
     /// `-[MTLResourceStatePassSampleBufferAttachmentDescriptor startOfEncoderSampleIndex]
@@ -9198,7 +9591,7 @@ pub const ResourceStatePassSampleBufferAttachmentDescriptor = opaque {
         return objc.msgSend(self, "startOfEncoderSampleIndex", usize, .{});
     }
     /// `-[MTLResourceStatePassSampleBufferAttachmentDescriptor setStartOfEncoderSampleIndex:]
-    pub fn setStartOfEncoderSampleIndex_(self: *@This(), start_of_encoder_sample_index: usize) void {
+    pub fn setStartOfEncoderSampleIndex(self: *@This(), start_of_encoder_sample_index: usize) void {
         return objc.msgSend(self, "setStartOfEncoderSampleIndex:", void, .{start_of_encoder_sample_index});
     }
     /// `-[MTLResourceStatePassSampleBufferAttachmentDescriptor endOfEncoderSampleIndex]
@@ -9206,15 +9599,18 @@ pub const ResourceStatePassSampleBufferAttachmentDescriptor = opaque {
         return objc.msgSend(self, "endOfEncoderSampleIndex", usize, .{});
     }
     /// `-[MTLResourceStatePassSampleBufferAttachmentDescriptor setEndOfEncoderSampleIndex:]
-    pub fn setEndOfEncoderSampleIndex_(self: *@This(), end_of_encoder_sample_index: usize) void {
+    pub fn setEndOfEncoderSampleIndex(self: *@This(), end_of_encoder_sample_index: usize) void {
         return objc.msgSend(self, "setEndOfEncoderSampleIndex:", void, .{end_of_encoder_sample_index});
     }
 };
 
 /// `MTLResourceStatePassSampleBufferAttachmentDescriptorArray`
 pub const ResourceStatePassSampleBufferAttachmentDescriptorArray = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternClass("MTLResourceStatePassSampleBufferAttachmentDescriptorArray", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `+[MTLResourceStatePassSampleBufferAttachmentDescriptorArray new]`
     pub const new = InternalInfo.new;
     /// `+[MTLResourceStatePassSampleBufferAttachmentDescriptorArray alloc]`
@@ -9222,18 +9618,21 @@ pub const ResourceStatePassSampleBufferAttachmentDescriptorArray = opaque {
     /// `[[MTLResourceStatePassSampleBufferAttachmentDescriptorArray alloc] init]`
     pub const allocInit = InternalInfo.allocInit;
     /// `-[MTLResourceStatePassSampleBufferAttachmentDescriptorArray objectAtIndexedSubscript:]
-    pub fn objectAtIndexedSubscript_(self: *@This(), attachment_index: usize) *ResourceStatePassSampleBufferAttachmentDescriptor {
+    pub fn objectAtIndexedSubscript(self: *@This(), attachment_index: usize) *ResourceStatePassSampleBufferAttachmentDescriptor {
         return objc.msgSend(self, "objectAtIndexedSubscript:", *ResourceStatePassSampleBufferAttachmentDescriptor, .{attachment_index});
     }
     /// `-[MTLResourceStatePassSampleBufferAttachmentDescriptorArray setObject:atIndexedSubscript:]
-    pub fn setObject_atIndexedSubscript_(self: *@This(), attachment: ?*ResourceStatePassSampleBufferAttachmentDescriptor, attachment_index: usize) void {
+    pub fn setObject_atIndexedSubscript(self: *@This(), attachment: ?*ResourceStatePassSampleBufferAttachmentDescriptor, attachment_index: usize) void {
         return objc.msgSend(self, "setObject:atIndexedSubscript:", void, .{ attachment, attachment_index });
     }
 };
 
 /// `MTLResourceStatePassDescriptor`
 pub const ResourceStatePassDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLResourceStatePassDescriptor", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == ns.Copying) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -9256,7 +9655,10 @@ pub const ResourceStatePassDescriptor = opaque {
 
 /// `MTLSamplerDescriptor`
 pub const SamplerDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLSamplerDescriptor", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == ns.Copying) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -9272,7 +9674,7 @@ pub const SamplerDescriptor = opaque {
         return objc.msgSend(self, "minFilter", SamplerMinMagFilter, .{});
     }
     /// `-[MTLSamplerDescriptor setMinFilter:]
-    pub fn setMinFilter_(self: *@This(), min_filter: SamplerMinMagFilter) void {
+    pub fn setMinFilter(self: *@This(), min_filter: SamplerMinMagFilter) void {
         return objc.msgSend(self, "setMinFilter:", void, .{min_filter});
     }
     /// `-[MTLSamplerDescriptor magFilter]
@@ -9280,7 +9682,7 @@ pub const SamplerDescriptor = opaque {
         return objc.msgSend(self, "magFilter", SamplerMinMagFilter, .{});
     }
     /// `-[MTLSamplerDescriptor setMagFilter:]
-    pub fn setMagFilter_(self: *@This(), mag_filter: SamplerMinMagFilter) void {
+    pub fn setMagFilter(self: *@This(), mag_filter: SamplerMinMagFilter) void {
         return objc.msgSend(self, "setMagFilter:", void, .{mag_filter});
     }
     /// `-[MTLSamplerDescriptor mipFilter]
@@ -9288,7 +9690,7 @@ pub const SamplerDescriptor = opaque {
         return objc.msgSend(self, "mipFilter", SamplerMipFilter, .{});
     }
     /// `-[MTLSamplerDescriptor setMipFilter:]
-    pub fn setMipFilter_(self: *@This(), mip_filter: SamplerMipFilter) void {
+    pub fn setMipFilter(self: *@This(), mip_filter: SamplerMipFilter) void {
         return objc.msgSend(self, "setMipFilter:", void, .{mip_filter});
     }
     /// `-[MTLSamplerDescriptor maxAnisotropy]
@@ -9296,7 +9698,7 @@ pub const SamplerDescriptor = opaque {
         return objc.msgSend(self, "maxAnisotropy", usize, .{});
     }
     /// `-[MTLSamplerDescriptor setMaxAnisotropy:]
-    pub fn setMaxAnisotropy_(self: *@This(), max_anisotropy: usize) void {
+    pub fn setMaxAnisotropy(self: *@This(), max_anisotropy: usize) void {
         return objc.msgSend(self, "setMaxAnisotropy:", void, .{max_anisotropy});
     }
     /// `-[MTLSamplerDescriptor sAddressMode]
@@ -9304,7 +9706,7 @@ pub const SamplerDescriptor = opaque {
         return objc.msgSend(self, "sAddressMode", SamplerAddressMode, .{});
     }
     /// `-[MTLSamplerDescriptor setSAddressMode:]
-    pub fn setSAddressMode_(self: *@This(), s_address_mode: SamplerAddressMode) void {
+    pub fn setSAddressMode(self: *@This(), s_address_mode: SamplerAddressMode) void {
         return objc.msgSend(self, "setSAddressMode:", void, .{s_address_mode});
     }
     /// `-[MTLSamplerDescriptor tAddressMode]
@@ -9312,7 +9714,7 @@ pub const SamplerDescriptor = opaque {
         return objc.msgSend(self, "tAddressMode", SamplerAddressMode, .{});
     }
     /// `-[MTLSamplerDescriptor setTAddressMode:]
-    pub fn setTAddressMode_(self: *@This(), t_address_mode: SamplerAddressMode) void {
+    pub fn setTAddressMode(self: *@This(), t_address_mode: SamplerAddressMode) void {
         return objc.msgSend(self, "setTAddressMode:", void, .{t_address_mode});
     }
     /// `-[MTLSamplerDescriptor rAddressMode]
@@ -9320,7 +9722,7 @@ pub const SamplerDescriptor = opaque {
         return objc.msgSend(self, "rAddressMode", SamplerAddressMode, .{});
     }
     /// `-[MTLSamplerDescriptor setRAddressMode:]
-    pub fn setRAddressMode_(self: *@This(), r_address_mode: SamplerAddressMode) void {
+    pub fn setRAddressMode(self: *@This(), r_address_mode: SamplerAddressMode) void {
         return objc.msgSend(self, "setRAddressMode:", void, .{r_address_mode});
     }
     /// `-[MTLSamplerDescriptor borderColor]
@@ -9328,7 +9730,7 @@ pub const SamplerDescriptor = opaque {
         return objc.msgSend(self, "borderColor", SamplerBorderColor, .{});
     }
     /// `-[MTLSamplerDescriptor setBorderColor:]
-    pub fn setBorderColor_(self: *@This(), border_color: SamplerBorderColor) void {
+    pub fn setBorderColor(self: *@This(), border_color: SamplerBorderColor) void {
         return objc.msgSend(self, "setBorderColor:", void, .{border_color});
     }
     /// `-[MTLSamplerDescriptor normalizedCoordinates]
@@ -9336,7 +9738,7 @@ pub const SamplerDescriptor = opaque {
         return objc.msgSend(self, "normalizedCoordinates", bool, .{});
     }
     /// `-[MTLSamplerDescriptor setNormalizedCoordinates:]
-    pub fn setNormalizedCoordinates_(self: *@This(), normalized_coordinates: bool) void {
+    pub fn setNormalizedCoordinates(self: *@This(), normalized_coordinates: bool) void {
         return objc.msgSend(self, "setNormalizedCoordinates:", void, .{normalized_coordinates});
     }
     /// `-[MTLSamplerDescriptor lodMinClamp]
@@ -9344,7 +9746,7 @@ pub const SamplerDescriptor = opaque {
         return objc.msgSend(self, "lodMinClamp", f32, .{});
     }
     /// `-[MTLSamplerDescriptor setLodMinClamp:]
-    pub fn setLodMinClamp_(self: *@This(), lod_min_clamp: f32) void {
+    pub fn setLodMinClamp(self: *@This(), lod_min_clamp: f32) void {
         return objc.msgSend(self, "setLodMinClamp:", void, .{lod_min_clamp});
     }
     /// `-[MTLSamplerDescriptor lodMaxClamp]
@@ -9352,7 +9754,7 @@ pub const SamplerDescriptor = opaque {
         return objc.msgSend(self, "lodMaxClamp", f32, .{});
     }
     /// `-[MTLSamplerDescriptor setLodMaxClamp:]
-    pub fn setLodMaxClamp_(self: *@This(), lod_max_clamp: f32) void {
+    pub fn setLodMaxClamp(self: *@This(), lod_max_clamp: f32) void {
         return objc.msgSend(self, "setLodMaxClamp:", void, .{lod_max_clamp});
     }
     /// `-[MTLSamplerDescriptor lodAverage]
@@ -9360,7 +9762,7 @@ pub const SamplerDescriptor = opaque {
         return objc.msgSend(self, "lodAverage", bool, .{});
     }
     /// `-[MTLSamplerDescriptor setLodAverage:]
-    pub fn setLodAverage_(self: *@This(), lod_average: bool) void {
+    pub fn setLodAverage(self: *@This(), lod_average: bool) void {
         return objc.msgSend(self, "setLodAverage:", void, .{lod_average});
     }
     /// `-[MTLSamplerDescriptor compareFunction]
@@ -9368,7 +9770,7 @@ pub const SamplerDescriptor = opaque {
         return objc.msgSend(self, "compareFunction", CompareFunction, .{});
     }
     /// `-[MTLSamplerDescriptor setCompareFunction:]
-    pub fn setCompareFunction_(self: *@This(), compare_function: CompareFunction) void {
+    pub fn setCompareFunction(self: *@This(), compare_function: CompareFunction) void {
         return objc.msgSend(self, "setCompareFunction:", void, .{compare_function});
     }
     /// `-[MTLSamplerDescriptor supportArgumentBuffers]
@@ -9376,7 +9778,7 @@ pub const SamplerDescriptor = opaque {
         return objc.msgSend(self, "supportArgumentBuffers", bool, .{});
     }
     /// `-[MTLSamplerDescriptor setSupportArgumentBuffers:]
-    pub fn setSupportArgumentBuffers_(self: *@This(), support_argument_buffers: bool) void {
+    pub fn setSupportArgumentBuffers(self: *@This(), support_argument_buffers: bool) void {
         return objc.msgSend(self, "setSupportArgumentBuffers:", void, .{support_argument_buffers});
     }
     /// `-[MTLSamplerDescriptor label]
@@ -9384,15 +9786,18 @@ pub const SamplerDescriptor = opaque {
         return objc.msgSend(self, "label", ?*ns.String, .{});
     }
     /// `-[MTLSamplerDescriptor setLabel:]
-    pub fn setLabel_(self: *@This(), str: ?*ns.String) void {
+    pub fn setLabel(self: *@This(), str: ?*ns.String) void {
         return objc.msgSend(self, "setLabel:", void, .{str});
     }
 };
 
 /// `MTLSamplerState`
 pub const SamplerState = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `-[MTLSamplerState label]
     pub fn label(self: *@This()) ?*ns.String {
         return objc.msgSend(self, "label", ?*ns.String, .{});
@@ -9409,7 +9814,10 @@ pub const SamplerState = opaque {
 
 /// `MTLBufferLayoutDescriptor`
 pub const BufferLayoutDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLBufferLayoutDescriptor", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == ns.Copying) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -9425,7 +9833,7 @@ pub const BufferLayoutDescriptor = opaque {
         return objc.msgSend(self, "stride", usize, .{});
     }
     /// `-[MTLBufferLayoutDescriptor setStride:]
-    pub fn setStride_(self: *@This(), value: usize) void {
+    pub fn setStride(self: *@This(), value: usize) void {
         return objc.msgSend(self, "setStride:", void, .{value});
     }
     /// `-[MTLBufferLayoutDescriptor stepFunction]
@@ -9433,7 +9841,7 @@ pub const BufferLayoutDescriptor = opaque {
         return objc.msgSend(self, "stepFunction", StepFunction, .{});
     }
     /// `-[MTLBufferLayoutDescriptor setStepFunction:]
-    pub fn setStepFunction_(self: *@This(), step_function: StepFunction) void {
+    pub fn setStepFunction(self: *@This(), step_function: StepFunction) void {
         return objc.msgSend(self, "setStepFunction:", void, .{step_function});
     }
     /// `-[MTLBufferLayoutDescriptor stepRate]
@@ -9441,15 +9849,18 @@ pub const BufferLayoutDescriptor = opaque {
         return objc.msgSend(self, "stepRate", usize, .{});
     }
     /// `-[MTLBufferLayoutDescriptor setStepRate:]
-    pub fn setStepRate_(self: *@This(), step_rate: usize) void {
+    pub fn setStepRate(self: *@This(), step_rate: usize) void {
         return objc.msgSend(self, "setStepRate:", void, .{step_rate});
     }
 };
 
 /// `MTLBufferLayoutDescriptorArray`
 pub const BufferLayoutDescriptorArray = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternClass("MTLBufferLayoutDescriptorArray", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `+[MTLBufferLayoutDescriptorArray new]`
     pub const new = InternalInfo.new;
     /// `+[MTLBufferLayoutDescriptorArray alloc]`
@@ -9457,18 +9868,21 @@ pub const BufferLayoutDescriptorArray = opaque {
     /// `[[MTLBufferLayoutDescriptorArray alloc] init]`
     pub const allocInit = InternalInfo.allocInit;
     /// `-[MTLBufferLayoutDescriptorArray objectAtIndexedSubscript:]
-    pub fn objectAtIndexedSubscript_(self: *@This(), index: usize) *BufferLayoutDescriptor {
+    pub fn objectAtIndexedSubscript(self: *@This(), index: usize) *BufferLayoutDescriptor {
         return objc.msgSend(self, "objectAtIndexedSubscript:", *BufferLayoutDescriptor, .{index});
     }
     /// `-[MTLBufferLayoutDescriptorArray setObject:atIndexedSubscript:]
-    pub fn setObject_atIndexedSubscript_(self: *@This(), buffer_desc: ?*BufferLayoutDescriptor, index: usize) void {
+    pub fn setObject_atIndexedSubscript(self: *@This(), buffer_desc: ?*BufferLayoutDescriptor, index: usize) void {
         return objc.msgSend(self, "setObject:atIndexedSubscript:", void, .{ buffer_desc, index });
     }
 };
 
 /// `MTLAttributeDescriptor`
 pub const AttributeDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLAttributeDescriptor", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == ns.Copying) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -9484,7 +9898,7 @@ pub const AttributeDescriptor = opaque {
         return objc.msgSend(self, "format", AttributeFormat, .{});
     }
     /// `-[MTLAttributeDescriptor setFormat:]
-    pub fn setFormat_(self: *@This(), fmt: AttributeFormat) void {
+    pub fn setFormat(self: *@This(), fmt: AttributeFormat) void {
         return objc.msgSend(self, "setFormat:", void, .{fmt});
     }
     /// `-[MTLAttributeDescriptor offset]
@@ -9492,7 +9906,7 @@ pub const AttributeDescriptor = opaque {
         return objc.msgSend(self, "offset", usize, .{});
     }
     /// `-[MTLAttributeDescriptor setOffset:]
-    pub fn setOffset_(self: *@This(), value: usize) void {
+    pub fn setOffset(self: *@This(), value: usize) void {
         return objc.msgSend(self, "setOffset:", void, .{value});
     }
     /// `-[MTLAttributeDescriptor bufferIndex]
@@ -9500,15 +9914,18 @@ pub const AttributeDescriptor = opaque {
         return objc.msgSend(self, "bufferIndex", usize, .{});
     }
     /// `-[MTLAttributeDescriptor setBufferIndex:]
-    pub fn setBufferIndex_(self: *@This(), buffer_index: usize) void {
+    pub fn setBufferIndex(self: *@This(), buffer_index: usize) void {
         return objc.msgSend(self, "setBufferIndex:", void, .{buffer_index});
     }
 };
 
 /// `MTLAttributeDescriptorArray`
 pub const AttributeDescriptorArray = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternClass("MTLAttributeDescriptorArray", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `+[MTLAttributeDescriptorArray new]`
     pub const new = InternalInfo.new;
     /// `+[MTLAttributeDescriptorArray alloc]`
@@ -9516,18 +9933,21 @@ pub const AttributeDescriptorArray = opaque {
     /// `[[MTLAttributeDescriptorArray alloc] init]`
     pub const allocInit = InternalInfo.allocInit;
     /// `-[MTLAttributeDescriptorArray objectAtIndexedSubscript:]
-    pub fn objectAtIndexedSubscript_(self: *@This(), index: usize) *AttributeDescriptor {
+    pub fn objectAtIndexedSubscript(self: *@This(), index: usize) *AttributeDescriptor {
         return objc.msgSend(self, "objectAtIndexedSubscript:", *AttributeDescriptor, .{index});
     }
     /// `-[MTLAttributeDescriptorArray setObject:atIndexedSubscript:]
-    pub fn setObject_atIndexedSubscript_(self: *@This(), attribute_desc: ?*AttributeDescriptor, index: usize) void {
+    pub fn setObject_atIndexedSubscript(self: *@This(), attribute_desc: ?*AttributeDescriptor, index: usize) void {
         return objc.msgSend(self, "setObject:atIndexedSubscript:", void, .{ attribute_desc, index });
     }
 };
 
 /// `MTLStageInputOutputDescriptor`
 pub const StageInputOutputDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLStageInputOutputDescriptor", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == ns.Copying) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -9559,7 +9979,7 @@ pub const StageInputOutputDescriptor = opaque {
         return objc.msgSend(self, "indexType", IndexType, .{});
     }
     /// `-[MTLStageInputOutputDescriptor setIndexType:]
-    pub fn setIndexType_(self: *@This(), index_type: IndexType) void {
+    pub fn setIndexType(self: *@This(), index_type: IndexType) void {
         return objc.msgSend(self, "setIndexType:", void, .{index_type});
     }
     /// `-[MTLStageInputOutputDescriptor indexBufferIndex]
@@ -9567,14 +9987,17 @@ pub const StageInputOutputDescriptor = opaque {
         return objc.msgSend(self, "indexBufferIndex", usize, .{});
     }
     /// `-[MTLStageInputOutputDescriptor setIndexBufferIndex:]
-    pub fn setIndexBufferIndex_(self: *@This(), index_buffer_index: usize) void {
+    pub fn setIndexBufferIndex(self: *@This(), index_buffer_index: usize) void {
         return objc.msgSend(self, "setIndexBufferIndex:", void, .{index_buffer_index});
     }
 };
 
 /// `MTLSharedTextureHandle`
 pub const SharedTextureHandle = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLSharedTextureHandle", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == ns.SecureCoding) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -9597,7 +10020,10 @@ pub const SharedTextureHandle = opaque {
 
 /// `MTLTextureDescriptor`
 pub const TextureDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLTextureDescriptor", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == ns.Copying) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -9609,15 +10035,15 @@ pub const TextureDescriptor = opaque {
     /// `[[MTLTextureDescriptor alloc] init]`
     pub const allocInit = InternalInfo.allocInit;
     /// `+[MTLTextureDescriptor texture2DDescriptorWithPixelFormat:width:height:mipmapped:]
-    pub fn texture2DDescriptorWithPixelFormat_width_height_mipmapped_(pixel_format: PixelFormat, w: usize, h: usize, mipmapped: bool) *TextureDescriptor {
+    pub fn texture2DDescriptorWithPixelFormat_width_height_mipmapped(pixel_format: PixelFormat, w: usize, h: usize, mipmapped: bool) *TextureDescriptor {
         return objc.msgSend(InternalInfo.class(), "texture2DDescriptorWithPixelFormat:width:height:mipmapped:", *TextureDescriptor, .{ pixel_format, w, h, mipmapped });
     }
     /// `+[MTLTextureDescriptor textureCubeDescriptorWithPixelFormat:size:mipmapped:]
-    pub fn textureCubeDescriptorWithPixelFormat_size_mipmapped_(pixel_format: PixelFormat, size: usize, mipmapped: bool) *TextureDescriptor {
+    pub fn textureCubeDescriptorWithPixelFormat_size_mipmapped(pixel_format: PixelFormat, size: usize, mipmapped: bool) *TextureDescriptor {
         return objc.msgSend(InternalInfo.class(), "textureCubeDescriptorWithPixelFormat:size:mipmapped:", *TextureDescriptor, .{ pixel_format, size, mipmapped });
     }
     /// `+[MTLTextureDescriptor textureBufferDescriptorWithPixelFormat:width:resourceOptions:usage:]
-    pub fn textureBufferDescriptorWithPixelFormat_width_resourceOptions_usage_(pixel_format: PixelFormat, w: usize, resource_options: ResourceOptions, texture_usage: TextureUsage) *TextureDescriptor {
+    pub fn textureBufferDescriptorWithPixelFormat_width_resourceOptions_usage(pixel_format: PixelFormat, w: usize, resource_options: ResourceOptions, texture_usage: TextureUsage) *TextureDescriptor {
         return objc.msgSend(InternalInfo.class(), "textureBufferDescriptorWithPixelFormat:width:resourceOptions:usage:", *TextureDescriptor, .{ pixel_format, w, resource_options, texture_usage });
     }
     /// `-[MTLTextureDescriptor textureType]
@@ -9625,7 +10051,7 @@ pub const TextureDescriptor = opaque {
         return objc.msgSend(self, "textureType", TextureType, .{});
     }
     /// `-[MTLTextureDescriptor setTextureType:]
-    pub fn setTextureType_(self: *@This(), texture_type: TextureType) void {
+    pub fn setTextureType(self: *@This(), texture_type: TextureType) void {
         return objc.msgSend(self, "setTextureType:", void, .{texture_type});
     }
     /// `-[MTLTextureDescriptor pixelFormat]
@@ -9633,7 +10059,7 @@ pub const TextureDescriptor = opaque {
         return objc.msgSend(self, "pixelFormat", PixelFormat, .{});
     }
     /// `-[MTLTextureDescriptor setPixelFormat:]
-    pub fn setPixelFormat_(self: *@This(), pixel_format: PixelFormat) void {
+    pub fn setPixelFormat(self: *@This(), pixel_format: PixelFormat) void {
         return objc.msgSend(self, "setPixelFormat:", void, .{pixel_format});
     }
     /// `-[MTLTextureDescriptor width]
@@ -9641,7 +10067,7 @@ pub const TextureDescriptor = opaque {
         return objc.msgSend(self, "width", usize, .{});
     }
     /// `-[MTLTextureDescriptor setWidth:]
-    pub fn setWidth_(self: *@This(), w: usize) void {
+    pub fn setWidth(self: *@This(), w: usize) void {
         return objc.msgSend(self, "setWidth:", void, .{w});
     }
     /// `-[MTLTextureDescriptor height]
@@ -9649,7 +10075,7 @@ pub const TextureDescriptor = opaque {
         return objc.msgSend(self, "height", usize, .{});
     }
     /// `-[MTLTextureDescriptor setHeight:]
-    pub fn setHeight_(self: *@This(), h: usize) void {
+    pub fn setHeight(self: *@This(), h: usize) void {
         return objc.msgSend(self, "setHeight:", void, .{h});
     }
     /// `-[MTLTextureDescriptor depth]
@@ -9657,7 +10083,7 @@ pub const TextureDescriptor = opaque {
         return objc.msgSend(self, "depth", usize, .{});
     }
     /// `-[MTLTextureDescriptor setDepth:]
-    pub fn setDepth_(self: *@This(), d: usize) void {
+    pub fn setDepth(self: *@This(), d: usize) void {
         return objc.msgSend(self, "setDepth:", void, .{d});
     }
     /// `-[MTLTextureDescriptor mipmapLevelCount]
@@ -9665,7 +10091,7 @@ pub const TextureDescriptor = opaque {
         return objc.msgSend(self, "mipmapLevelCount", usize, .{});
     }
     /// `-[MTLTextureDescriptor setMipmapLevelCount:]
-    pub fn setMipmapLevelCount_(self: *@This(), mipmap_level_count: usize) void {
+    pub fn setMipmapLevelCount(self: *@This(), mipmap_level_count: usize) void {
         return objc.msgSend(self, "setMipmapLevelCount:", void, .{mipmap_level_count});
     }
     /// `-[MTLTextureDescriptor sampleCount]
@@ -9673,7 +10099,7 @@ pub const TextureDescriptor = opaque {
         return objc.msgSend(self, "sampleCount", usize, .{});
     }
     /// `-[MTLTextureDescriptor setSampleCount:]
-    pub fn setSampleCount_(self: *@This(), sample_count: usize) void {
+    pub fn setSampleCount(self: *@This(), sample_count: usize) void {
         return objc.msgSend(self, "setSampleCount:", void, .{sample_count});
     }
     /// `-[MTLTextureDescriptor arrayLength]
@@ -9681,7 +10107,7 @@ pub const TextureDescriptor = opaque {
         return objc.msgSend(self, "arrayLength", usize, .{});
     }
     /// `-[MTLTextureDescriptor setArrayLength:]
-    pub fn setArrayLength_(self: *@This(), array_length: usize) void {
+    pub fn setArrayLength(self: *@This(), array_length: usize) void {
         return objc.msgSend(self, "setArrayLength:", void, .{array_length});
     }
     /// `-[MTLTextureDescriptor resourceOptions]
@@ -9689,7 +10115,7 @@ pub const TextureDescriptor = opaque {
         return objc.msgSend(self, "resourceOptions", ResourceOptions, .{});
     }
     /// `-[MTLTextureDescriptor setResourceOptions:]
-    pub fn setResourceOptions_(self: *@This(), resource_options: ResourceOptions) void {
+    pub fn setResourceOptions(self: *@This(), resource_options: ResourceOptions) void {
         return objc.msgSend(self, "setResourceOptions:", void, .{resource_options});
     }
     /// `-[MTLTextureDescriptor cpuCacheMode]
@@ -9697,7 +10123,7 @@ pub const TextureDescriptor = opaque {
         return objc.msgSend(self, "cpuCacheMode", CpuCacheMode, .{});
     }
     /// `-[MTLTextureDescriptor setCpuCacheMode:]
-    pub fn setCpuCacheMode_(self: *@This(), cpu_cache_mode: CpuCacheMode) void {
+    pub fn setCpuCacheMode(self: *@This(), cpu_cache_mode: CpuCacheMode) void {
         return objc.msgSend(self, "setCpuCacheMode:", void, .{cpu_cache_mode});
     }
     /// `-[MTLTextureDescriptor storageMode]
@@ -9705,7 +10131,7 @@ pub const TextureDescriptor = opaque {
         return objc.msgSend(self, "storageMode", StorageMode, .{});
     }
     /// `-[MTLTextureDescriptor setStorageMode:]
-    pub fn setStorageMode_(self: *@This(), storage_mode: StorageMode) void {
+    pub fn setStorageMode(self: *@This(), storage_mode: StorageMode) void {
         return objc.msgSend(self, "setStorageMode:", void, .{storage_mode});
     }
     /// `-[MTLTextureDescriptor hazardTrackingMode]
@@ -9713,7 +10139,7 @@ pub const TextureDescriptor = opaque {
         return objc.msgSend(self, "hazardTrackingMode", HazardTrackingMode, .{});
     }
     /// `-[MTLTextureDescriptor setHazardTrackingMode:]
-    pub fn setHazardTrackingMode_(self: *@This(), hazard_tracking_mode: HazardTrackingMode) void {
+    pub fn setHazardTrackingMode(self: *@This(), hazard_tracking_mode: HazardTrackingMode) void {
         return objc.msgSend(self, "setHazardTrackingMode:", void, .{hazard_tracking_mode});
     }
     /// `-[MTLTextureDescriptor usage]
@@ -9721,7 +10147,7 @@ pub const TextureDescriptor = opaque {
         return objc.msgSend(self, "usage", TextureUsage, .{});
     }
     /// `-[MTLTextureDescriptor setUsage:]
-    pub fn setUsage_(self: *@This(), texture_usage: TextureUsage) void {
+    pub fn setUsage(self: *@This(), texture_usage: TextureUsage) void {
         return objc.msgSend(self, "setUsage:", void, .{texture_usage});
     }
     /// `-[MTLTextureDescriptor allowGPUOptimizedContents]
@@ -9729,7 +10155,7 @@ pub const TextureDescriptor = opaque {
         return objc.msgSend(self, "allowGPUOptimizedContents", bool, .{});
     }
     /// `-[MTLTextureDescriptor setAllowGPUOptimizedContents:]
-    pub fn setAllowGPUOptimizedContents_(self: *@This(), allow_gpuoptimized_contents: bool) void {
+    pub fn setAllowGPUOptimizedContents(self: *@This(), allow_gpuoptimized_contents: bool) void {
         return objc.msgSend(self, "setAllowGPUOptimizedContents:", void, .{allow_gpuoptimized_contents});
     }
     /// `-[MTLTextureDescriptor compressionType]
@@ -9737,7 +10163,7 @@ pub const TextureDescriptor = opaque {
         return objc.msgSend(self, "compressionType", TextureCompressionType, .{});
     }
     /// `-[MTLTextureDescriptor setCompressionType:]
-    pub fn setCompressionType_(self: *@This(), compression_type: TextureCompressionType) void {
+    pub fn setCompressionType(self: *@This(), compression_type: TextureCompressionType) void {
         return objc.msgSend(self, "setCompressionType:", void, .{compression_type});
     }
     /// `-[MTLTextureDescriptor swizzle]
@@ -9745,37 +10171,40 @@ pub const TextureDescriptor = opaque {
         return objc.msgSend(self, "swizzle", TextureSwizzleChannels, .{});
     }
     /// `-[MTLTextureDescriptor setSwizzle:]
-    pub fn setSwizzle_(self: *@This(), value: TextureSwizzleChannels) void {
+    pub fn setSwizzle(self: *@This(), value: TextureSwizzleChannels) void {
         return objc.msgSend(self, "setSwizzle:", void, .{value});
     }
 };
 
 /// `MTLTexture`
 pub const Texture = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), Resource);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), Resource);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `-[MTLTexture getBytes:bytesPerRow:bytesPerImage:fromRegion:mipmapLevel:slice:]
-    pub fn getBytes_bytesPerRow_bytesPerImage_fromRegion_mipmapLevel_slice_(self: *@This(), pixel_bytes: *anyopaque, bytes_per_row: usize, bytes_per_image: usize, region: Region, level: usize, slice: usize) void {
+    pub fn getBytes_bytesPerRow_bytesPerImage_fromRegion_mipmapLevel_slice(self: *@This(), pixel_bytes: *anyopaque, bytes_per_row: usize, bytes_per_image: usize, region: Region, level: usize, slice: usize) void {
         return objc.msgSend(self, "getBytes:bytesPerRow:bytesPerImage:fromRegion:mipmapLevel:slice:", void, .{ pixel_bytes, bytes_per_row, bytes_per_image, region, level, slice });
     }
     /// `-[MTLTexture replaceRegion:mipmapLevel:slice:withBytes:bytesPerRow:bytesPerImage:]
-    pub fn replaceRegion_mipmapLevel_slice_withBytes_bytesPerRow_bytesPerImage_(self: *@This(), region: Region, level: usize, slice: usize, pixel_bytes: *const anyopaque, bytes_per_row: usize, bytes_per_image: usize) void {
+    pub fn replaceRegion_mipmapLevel_slice_withBytes_bytesPerRow_bytesPerImage(self: *@This(), region: Region, level: usize, slice: usize, pixel_bytes: *const anyopaque, bytes_per_row: usize, bytes_per_image: usize) void {
         return objc.msgSend(self, "replaceRegion:mipmapLevel:slice:withBytes:bytesPerRow:bytesPerImage:", void, .{ region, level, slice, pixel_bytes, bytes_per_row, bytes_per_image });
     }
     /// `-[MTLTexture getBytes:bytesPerRow:fromRegion:mipmapLevel:]
-    pub fn getBytes_bytesPerRow_fromRegion_mipmapLevel_(self: *@This(), pixel_bytes: *anyopaque, bytes_per_row: usize, region: Region, level: usize) void {
+    pub fn getBytes_bytesPerRow_fromRegion_mipmapLevel(self: *@This(), pixel_bytes: *anyopaque, bytes_per_row: usize, region: Region, level: usize) void {
         return objc.msgSend(self, "getBytes:bytesPerRow:fromRegion:mipmapLevel:", void, .{ pixel_bytes, bytes_per_row, region, level });
     }
     /// `-[MTLTexture replaceRegion:mipmapLevel:withBytes:bytesPerRow:]
-    pub fn replaceRegion_mipmapLevel_withBytes_bytesPerRow_(self: *@This(), region: Region, level: usize, pixel_bytes: *const anyopaque, bytes_per_row: usize) void {
+    pub fn replaceRegion_mipmapLevel_withBytes_bytesPerRow(self: *@This(), region: Region, level: usize, pixel_bytes: *const anyopaque, bytes_per_row: usize) void {
         return objc.msgSend(self, "replaceRegion:mipmapLevel:withBytes:bytesPerRow:", void, .{ region, level, pixel_bytes, bytes_per_row });
     }
     /// `-[MTLTexture newTextureViewWithPixelFormat:]
-    pub fn newTextureViewWithPixelFormat_(self: *@This(), pixel_format: PixelFormat) ?*Texture {
+    pub fn newTextureViewWithPixelFormat(self: *@This(), pixel_format: PixelFormat) ?*Texture {
         return objc.msgSend(self, "newTextureViewWithPixelFormat:", ?*Texture, .{pixel_format});
     }
     /// `-[MTLTexture newTextureViewWithPixelFormat:textureType:levels:slices:]
-    pub fn newTextureViewWithPixelFormat_textureType_levels_slices_(self: *@This(), pixel_format: PixelFormat, texture_type: TextureType, level_range: ns.Range, slice_range: ns.Range) ?*Texture {
+    pub fn newTextureViewWithPixelFormat_textureType_levels_slices(self: *@This(), pixel_format: PixelFormat, texture_type: TextureType, level_range: ns.Range, slice_range: ns.Range) ?*Texture {
         return objc.msgSend(self, "newTextureViewWithPixelFormat:textureType:levels:slices:", ?*Texture, .{ pixel_format, texture_type, level_range, slice_range });
     }
     /// `-[MTLTexture newSharedTextureHandle]
@@ -9783,11 +10212,11 @@ pub const Texture = opaque {
         return objc.msgSend(self, "newSharedTextureHandle", ?*SharedTextureHandle, .{});
     }
     /// `-[MTLTexture newRemoteTextureViewForDevice:]
-    pub fn newRemoteTextureViewForDevice_(self: *@This(), device: *Device) ?*Texture {
+    pub fn newRemoteTextureViewForDevice(self: *@This(), device: *Device) ?*Texture {
         return objc.msgSend(self, "newRemoteTextureViewForDevice:", ?*Texture, .{device});
     }
     /// `-[MTLTexture newTextureViewWithPixelFormat:textureType:levels:slices:swizzle:]
-    pub fn newTextureViewWithPixelFormat_textureType_levels_slices_swizzle_(self: *@This(), pixel_format: PixelFormat, texture_type: TextureType, level_range: ns.Range, slice_range: ns.Range, swizzle_channels: TextureSwizzleChannels) ?*Texture {
+    pub fn newTextureViewWithPixelFormat_textureType_levels_slices_swizzle(self: *@This(), pixel_format: PixelFormat, texture_type: TextureType, level_range: ns.Range, slice_range: ns.Range, swizzle_channels: TextureSwizzleChannels) ?*Texture {
         return objc.msgSend(self, "newTextureViewWithPixelFormat:textureType:levels:slices:swizzle:", ?*Texture, .{ pixel_format, texture_type, level_range, slice_range, swizzle_channels });
     }
     /// `-[MTLTexture rootResource]
@@ -9906,7 +10335,10 @@ pub const Texture = opaque {
 
 /// `MTLVertexBufferLayoutDescriptor`
 pub const VertexBufferLayoutDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLVertexBufferLayoutDescriptor", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == ns.Copying) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -9922,7 +10354,7 @@ pub const VertexBufferLayoutDescriptor = opaque {
         return objc.msgSend(self, "stride", usize, .{});
     }
     /// `-[MTLVertexBufferLayoutDescriptor setStride:]
-    pub fn setStride_(self: *@This(), value: usize) void {
+    pub fn setStride(self: *@This(), value: usize) void {
         return objc.msgSend(self, "setStride:", void, .{value});
     }
     /// `-[MTLVertexBufferLayoutDescriptor stepFunction]
@@ -9930,7 +10362,7 @@ pub const VertexBufferLayoutDescriptor = opaque {
         return objc.msgSend(self, "stepFunction", VertexStepFunction, .{});
     }
     /// `-[MTLVertexBufferLayoutDescriptor setStepFunction:]
-    pub fn setStepFunction_(self: *@This(), step_function: VertexStepFunction) void {
+    pub fn setStepFunction(self: *@This(), step_function: VertexStepFunction) void {
         return objc.msgSend(self, "setStepFunction:", void, .{step_function});
     }
     /// `-[MTLVertexBufferLayoutDescriptor stepRate]
@@ -9938,15 +10370,18 @@ pub const VertexBufferLayoutDescriptor = opaque {
         return objc.msgSend(self, "stepRate", usize, .{});
     }
     /// `-[MTLVertexBufferLayoutDescriptor setStepRate:]
-    pub fn setStepRate_(self: *@This(), step_rate: usize) void {
+    pub fn setStepRate(self: *@This(), step_rate: usize) void {
         return objc.msgSend(self, "setStepRate:", void, .{step_rate});
     }
 };
 
 /// `MTLVertexBufferLayoutDescriptorArray`
 pub const VertexBufferLayoutDescriptorArray = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternClass("MTLVertexBufferLayoutDescriptorArray", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `+[MTLVertexBufferLayoutDescriptorArray new]`
     pub const new = InternalInfo.new;
     /// `+[MTLVertexBufferLayoutDescriptorArray alloc]`
@@ -9954,18 +10389,21 @@ pub const VertexBufferLayoutDescriptorArray = opaque {
     /// `[[MTLVertexBufferLayoutDescriptorArray alloc] init]`
     pub const allocInit = InternalInfo.allocInit;
     /// `-[MTLVertexBufferLayoutDescriptorArray objectAtIndexedSubscript:]
-    pub fn objectAtIndexedSubscript_(self: *@This(), index: usize) *VertexBufferLayoutDescriptor {
+    pub fn objectAtIndexedSubscript(self: *@This(), index: usize) *VertexBufferLayoutDescriptor {
         return objc.msgSend(self, "objectAtIndexedSubscript:", *VertexBufferLayoutDescriptor, .{index});
     }
     /// `-[MTLVertexBufferLayoutDescriptorArray setObject:atIndexedSubscript:]
-    pub fn setObject_atIndexedSubscript_(self: *@This(), buffer_desc: ?*VertexBufferLayoutDescriptor, index: usize) void {
+    pub fn setObject_atIndexedSubscript(self: *@This(), buffer_desc: ?*VertexBufferLayoutDescriptor, index: usize) void {
         return objc.msgSend(self, "setObject:atIndexedSubscript:", void, .{ buffer_desc, index });
     }
 };
 
 /// `MTLVertexAttributeDescriptor`
 pub const VertexAttributeDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLVertexAttributeDescriptor", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == ns.Copying) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -9981,7 +10419,7 @@ pub const VertexAttributeDescriptor = opaque {
         return objc.msgSend(self, "format", VertexFormat, .{});
     }
     /// `-[MTLVertexAttributeDescriptor setFormat:]
-    pub fn setFormat_(self: *@This(), fmt: VertexFormat) void {
+    pub fn setFormat(self: *@This(), fmt: VertexFormat) void {
         return objc.msgSend(self, "setFormat:", void, .{fmt});
     }
     /// `-[MTLVertexAttributeDescriptor offset]
@@ -9989,7 +10427,7 @@ pub const VertexAttributeDescriptor = opaque {
         return objc.msgSend(self, "offset", usize, .{});
     }
     /// `-[MTLVertexAttributeDescriptor setOffset:]
-    pub fn setOffset_(self: *@This(), value: usize) void {
+    pub fn setOffset(self: *@This(), value: usize) void {
         return objc.msgSend(self, "setOffset:", void, .{value});
     }
     /// `-[MTLVertexAttributeDescriptor bufferIndex]
@@ -9997,15 +10435,18 @@ pub const VertexAttributeDescriptor = opaque {
         return objc.msgSend(self, "bufferIndex", usize, .{});
     }
     /// `-[MTLVertexAttributeDescriptor setBufferIndex:]
-    pub fn setBufferIndex_(self: *@This(), buffer_index: usize) void {
+    pub fn setBufferIndex(self: *@This(), buffer_index: usize) void {
         return objc.msgSend(self, "setBufferIndex:", void, .{buffer_index});
     }
 };
 
 /// `MTLVertexAttributeDescriptorArray`
 pub const VertexAttributeDescriptorArray = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternClass("MTLVertexAttributeDescriptorArray", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `+[MTLVertexAttributeDescriptorArray new]`
     pub const new = InternalInfo.new;
     /// `+[MTLVertexAttributeDescriptorArray alloc]`
@@ -10013,18 +10454,21 @@ pub const VertexAttributeDescriptorArray = opaque {
     /// `[[MTLVertexAttributeDescriptorArray alloc] init]`
     pub const allocInit = InternalInfo.allocInit;
     /// `-[MTLVertexAttributeDescriptorArray objectAtIndexedSubscript:]
-    pub fn objectAtIndexedSubscript_(self: *@This(), index: usize) *VertexAttributeDescriptor {
+    pub fn objectAtIndexedSubscript(self: *@This(), index: usize) *VertexAttributeDescriptor {
         return objc.msgSend(self, "objectAtIndexedSubscript:", *VertexAttributeDescriptor, .{index});
     }
     /// `-[MTLVertexAttributeDescriptorArray setObject:atIndexedSubscript:]
-    pub fn setObject_atIndexedSubscript_(self: *@This(), attribute_desc: ?*VertexAttributeDescriptor, index: usize) void {
+    pub fn setObject_atIndexedSubscript(self: *@This(), attribute_desc: ?*VertexAttributeDescriptor, index: usize) void {
         return objc.msgSend(self, "setObject:atIndexedSubscript:", void, .{ attribute_desc, index });
     }
 };
 
 /// `MTLVertexDescriptor`
 pub const VertexDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLVertexDescriptor", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == ns.Copying) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -10055,7 +10499,10 @@ pub const VertexDescriptor = opaque {
 
 /// `MTLVisibleFunctionTableDescriptor`
 pub const VisibleFunctionTableDescriptor = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
+    pub const InternalInfo = objc.ExternClass("MTLVisibleFunctionTableDescriptor", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
     pub fn as(self: *@This(), comptime Base: type) *Base {
         if (Base == ns.Copying) return @ptrCast(self);
         return InternalInfo.as(self, Base);
@@ -10075,21 +10522,24 @@ pub const VisibleFunctionTableDescriptor = opaque {
         return objc.msgSend(self, "functionCount", usize, .{});
     }
     /// `-[MTLVisibleFunctionTableDescriptor setFunctionCount:]
-    pub fn setFunctionCount_(self: *@This(), function_count: usize) void {
+    pub fn setFunctionCount(self: *@This(), function_count: usize) void {
         return objc.msgSend(self, "setFunctionCount:", void, .{function_count});
     }
 };
 
 /// `MTLVisibleFunctionTable`
 pub const VisibleFunctionTable = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), Resource);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), Resource);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `-[MTLVisibleFunctionTable setFunction:atIndex:]
-    pub fn setFunction_atIndex_(self: *@This(), function: ?*FunctionHandle, index: usize) void {
+    pub fn setFunction_atIndex(self: *@This(), function: ?*FunctionHandle, index: usize) void {
         return objc.msgSend(self, "setFunction:atIndex:", void, .{ function, index });
     }
     /// `-[MTLVisibleFunctionTable setFunctions:withRange:]
-    pub fn setFunctions_withRange_(self: *@This(), functions: [*]?*const FunctionHandle, range: ns.Range) void {
+    pub fn setFunctions_withRange(self: *@This(), functions: [*]?*const FunctionHandle, range: ns.Range) void {
         return objc.msgSend(self, "setFunctions:withRange:", void, .{ functions, range });
     }
     /// `-[MTLVisibleFunctionTable gpuResourceID]

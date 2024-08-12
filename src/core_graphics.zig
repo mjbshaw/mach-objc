@@ -4,7 +4,7 @@ const objc = @import("objc.zig");
 pub const ColorSpace = opaque {};
 
 // TODO: consider removing `Float` and just using `f64` directly. 32-bit Apple platforms are dead.
-pub const Float = if (builtin.target.ptrBitWidth() != 64) f64 else unreachable;
+pub const Float = if (builtin.target.ptrBitWidth() == 64) f64 else unreachable;
 
 pub const Point = extern struct {
     x: Float,

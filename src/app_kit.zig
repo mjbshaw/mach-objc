@@ -1,5 +1,5 @@
 const ns = @import("foundation.zig");
-const objc = @import("objc");
+const objc = @import("objc.zig");
 
 /// `NSBackingStoreType`
 pub const BackingStoreType = enum(usize) {
@@ -45,14 +45,20 @@ pub const WindowStyleMask = enum(usize) {
 
 /// `NSResponder`
 pub const Responder = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternClass("NSResponder", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
 };
 
 /// `NSApplication`
 pub const Application = opaque {
-    const InternalInfo = objc.ExternClass(@This(), Responder);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternClass("NSApplication", @This(), Responder);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `+[NSApplication new]`
     pub const new = InternalInfo.new;
     /// `+[NSApplication alloc]`
@@ -68,15 +74,18 @@ pub const Application = opaque {
         return objc.msgSend(InternalInfo.class(), "sharedApplication", *Application, .{});
     }
     /// `-[NSApplication setDelegate:]
-    pub fn setDelegate_(self: *@This(), delegate: ?*ApplicationDelegate) void {
+    pub fn setDelegate(self: *@This(), delegate: ?*ApplicationDelegate) void {
         return objc.msgSend(self, "setDelegate:", void, .{delegate});
     }
 };
 
 /// `NSWindow`
 pub const Window = opaque {
-    const InternalInfo = objc.ExternClass(@This(), Responder);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternClass("NSWindow", @This(), Responder);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `+[NSWindow new]`
     pub const new = InternalInfo.new;
     /// `+[NSWindow alloc]`
@@ -84,15 +93,18 @@ pub const Window = opaque {
     /// `[[NSWindow alloc] init]`
     pub const allocInit = InternalInfo.allocInit;
     /// `-[NSWindow initWithContentRect:styleMask:backing:defer:screen:]
-    pub fn initWithContentRect_styleMask_backing_defer_screen_(self: *@This(), content_rect: ns.Rect, style: WindowStyleMask, backing_store_type: BackingStoreType, flag: bool, screen: ?*Screen) *@This() {
+    pub fn initWithContentRect_styleMask_backing_defer_screen(self: *@This(), content_rect: ns.Rect, style: WindowStyleMask, backing_store_type: BackingStoreType, flag: bool, screen: ?*Screen) *@This() {
         return objc.msgSend(self, "initWithContentRect:styleMask:backing:defer:screen:", *@This(), .{ content_rect, style, backing_store_type, flag, screen });
     }
 };
 
 /// `NSScreen`
 pub const Screen = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternClass("NSScreen", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `+[NSScreen new]`
     pub const new = InternalInfo.new;
     /// `+[NSScreen alloc]`
@@ -107,6 +119,9 @@ pub const Screen = opaque {
 
 /// `NSApplicationDelegate`
 pub const ApplicationDelegate = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
 };

@@ -1150,9 +1150,9 @@ fn Generator(comptime WriterType: type) type {
                 try self.writer.writeAll(" = opaque {\n");
             }
             if (container.is_interface) {
-                try self.writer.writeAll("    const InternalInfo = objc.ExternClass(@This(), ");
+                try self.writer.print("    pub const InternalInfo = objc.ExternClass(\"{s}\", @This(), ", .{container.name});
             } else {
-                try self.writer.writeAll("    const InternalInfo = objc.ExternProtocol(@This(), ");
+                try self.writer.writeAll("    pub const InternalInfo = objc.ExternProtocol(@This(), ");
             }
             if (container.super) |super| {
                 try self.generateContainerName(super);
@@ -1164,6 +1164,9 @@ fn Generator(comptime WriterType: type) type {
                 }
             }
             try self.writer.writeAll(");\n");
+            try self.writer.writeAll("    pub const retain = InternalInfo.retain;\n");
+            try self.writer.writeAll("    pub const release = InternalInfo.release;\n");
+            try self.writer.writeAll("    pub const autorelease = InternalInfo.autorelease;\n");
             if ((container.is_interface and container.protocols.items.len > 0) or container.protocols.items.len > 1) {
                 try self.writer.writeAll("    pub fn as(self: *@This(), comptime Base: type) *Base {\n");
                 for (container.protocols.items) |protocol| {
@@ -1174,7 +1177,7 @@ fn Generator(comptime WriterType: type) type {
                 try self.writer.writeAll("        return InternalInfo.as(self, Base);\n");
                 try self.writer.writeAll("    }\n");
             } else {
-                try self.writer.writeAll("    const as = InternalInfo.as;\n");
+                try self.writer.writeAll("    pub const as = InternalInfo.as;\n");
             }
 
             if (container.is_interface) {

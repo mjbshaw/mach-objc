@@ -9,7 +9,7 @@ pub extern "System" var _dispatch_main_q: anyopaque;
 pub fn Block(comptime Signature: type) type {
     const signature_fn_info = @typeInfo(Signature).Fn;
     return opaque {
-        pub fn invoke(self: *const @This(), args: std.meta.ArgsTuple(Signature)) signature_fn_info.return_type.? {
+        pub fn invoke(self: *@This(), args: std.meta.ArgsTuple(Signature)) signature_fn_info.return_type.? {
             const self_param = std.builtin.Type.Fn.Param{
                 .is_generic = false,
                 .is_noalias = false,
@@ -101,12 +101,16 @@ pub fn BlockLiteral(comptime Context: type) type {
         }
 
         pub fn asBlockWithSignature(self: *@This(), comptime Signature: type) *Block(Signature) {
-            comptime {
-                validateBlockSignature(Signature, @This());
-            }
             return @ptrCast(self);
         }
     };
+}
+
+fn SignatureWithoutBlockLiteral(comptime Signature: type) type {
+    var type_info = @typeInfo(Signature);
+    type_info.Fn.calling_convention = .Unspecified;
+    type_info.Fn.params = type_info.Fn.params[1..];
+    return @Type(type_info);
 }
 
 pub fn BlockLiteralWithSignature(comptime Context: type, comptime Signature: type) type {
@@ -136,7 +140,12 @@ fn validateBlockSignature(comptime Invoke: type, comptime ExpectedLiteralType: t
     }
 }
 
-pub fn stackBlockLiteral(invoke: anytype, context: anytype, comptime copy: ?fn (dst: *BlockLiteral(@TypeOf(context)), src: *const BlockLiteral(@TypeOf(context))) callconv(.C) void, comptime dispose: ?fn (block: *const BlockLiteral(@TypeOf(context))) callconv(.C) void) BlockLiteralWithSignature(@TypeOf(context), @TypeOf(invoke)) {
+pub fn stackBlockLiteral(
+    invoke: anytype,
+    context: anytype,
+    comptime copy: ?fn (dst: *BlockLiteral(@TypeOf(context)), src: *const BlockLiteral(@TypeOf(context))) callconv(.C) void,
+    comptime dispose: ?fn (block: *const BlockLiteral(@TypeOf(context))) callconv(.C) void,
+) BlockLiteralWithSignature(@TypeOf(context), SignatureWithoutBlockLiteral(@TypeOf(invoke))) {
     const Context = @TypeOf(context);
     const Literal = BlockLiteral(Context);
     comptime {
@@ -145,13 +154,14 @@ pub fn stackBlockLiteral(invoke: anytype, context: anytype, comptime copy: ?fn (
             @compileError("Both `copy` and `dispose` must either be null or nonnull");
         }
     }
-    const has_copy_dispose = if (comptime copy != null and dispose != null) 1 << 25 else 0;
+    // const has_copy_dispose = if (comptime copy != null and dispose != null) 1 << 25 else 0;
+    const has_copy_dispose = comptime copy != null and dispose != null;
     return .{
         .literal = .{
-            .isa = &_NSConcreteStackBlock,
-            .flags = has_copy_dispose,
+            .isa = _NSConcreteStackBlock,
+            .flags = if (has_copy_dispose) 1 << 25 else 0,
             .invoke = invoke,
-            .descriptor = if (has_copy_dispose) Literal.copyDisposeStaticDescriptor(copy, dispose) else Literal.staticDescriptor(copy, dispose),
+            .descriptor = if (has_copy_dispose) Literal.copyDisposeStaticDescriptor(copy, dispose) else Literal.trivialStaticDescriptor(),
             .context = context,
         },
     };
@@ -160,9 +170,8 @@ const _NSConcreteStackBlock = @extern(*anyopaque, .{
     .name = "_NSConcreteStackBlock",
     .library_name = if (builtin.target.os.tag == .macos) null else "System",
 });
-// extern const _NSConcreteStackBlock: *anyopaque;
 
-pub fn globalBlockLiteral(invoke: anytype, context: anytype) BlockLiteralWithSignature(@TypeOf(context), @TypeOf(invoke)) {
+pub fn globalBlockLiteral(invoke: anytype, context: anytype) BlockLiteralWithSignature(@TypeOf(context), SignatureWithoutBlockLiteral(@TypeOf(invoke))) {
     const Context = @TypeOf(context);
     const Literal = BlockLiteral(Context);
     comptime {
@@ -172,10 +181,10 @@ pub fn globalBlockLiteral(invoke: anytype, context: anytype) BlockLiteralWithSig
     const block_is_global = 1 << 28;
     return .{
         .literal = .{
-            .isa = &_NSConcreteGlobalBlock,
+            .isa = _NSConcreteGlobalBlock,
             .flags = block_is_no_escape | block_is_global,
             .invoke = invoke,
-            .descriptor = Literal.staticDescriptor(),
+            .descriptor = Literal.trivialStaticDescriptor(),
             .context = context,
         },
     };
@@ -184,9 +193,8 @@ const _NSConcreteGlobalBlock = @extern(*anyopaque, .{
     .name = "_NSConcreteGlobalBlock",
     .library_name = if (builtin.target.os.tag == .macos) null else "System",
 });
-// extern const _NSConcreteGlobalBlock: *anyopaque;
 
-pub fn globalBlock(comptime invoke: anytype) *Block(@TypeOf(invoke)) {
+pub fn globalBlock(comptime invoke: anytype) *Block(SignatureWithoutBlockLiteral(@TypeOf(invoke))) {
     const Static = struct {
         const literal = globalBlockLiteral(invoke, {});
     };

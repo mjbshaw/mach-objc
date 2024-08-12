@@ -4,7 +4,7 @@ const cf = @import("core_foundation.zig");
 const objc = @import("objc.zig");
 const cg = @import("core_graphics.zig");
 const std = @import("std");
-const system = @import("system");
+const system = @import("system.zig");
 
 pub const Block = system.Block;
 pub const BlockLiteral = system.BlockLiteral;
@@ -15,9 +15,23 @@ pub const globalBlock = system.globalBlock;
 
 pub const Rect = cg.Rect;
 
+///`NSRange`
+pub const Range = extern struct {
+    location: usize,
+    length: usize,
+
+    /// `NSMakeRange()`
+    pub fn init(location: usize, length: usize) Range {
+        return .{ .location = location, .length = length };
+    }
+};
+
 /// `NSObject`'s protocol (`NSObjectProtocol` in Swift)
 pub const ObjectProtocol = opaque {
-    pub const InternalInfo = objc.ExternProtocol(@This(), objc.id);
+    pub const InternalInfo = objc.ExternProtocol(@This(), objc.Id);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
 
     pub const as = InternalInfo.as;
 
@@ -50,26 +64,14 @@ pub const ObjectProtocol = opaque {
     pub fn isKindOfClass(self: *Object, base_class: *objc.Class) bool {
         return objc.opt_isKindOfClass(self, base_class) != 0;
     }
-
-    /// `-[NSObject retain]`
-    pub fn retain(self: *Object) *Object {
-        return @ptrCast(objc.retain(@ptrCast(self)));
-    }
-
-    /// `-[NSObject release]`
-    pub fn release(self: *Object) void {
-        return objc.release(@ptrCast(self));
-    }
-
-    /// `-[NSObject autorelease]`
-    pub fn autorelease(self: *Object) *Object {
-        return @ptrCast(objc.autorelease(@ptrCast(self)));
-    }
 };
 
 /// `NSObject`
 pub const Object = opaque {
     pub const InternalInfo = objc.ExternClass("NSObject", @This(), ObjectProtocol);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
 
     pub const as = InternalInfo.as;
 
@@ -111,26 +113,14 @@ pub const Object = opaque {
     pub fn isKindOfClass(self: *Object, base_class: *objc.Class) bool {
         return self.as(ObjectProtocol).isKindOfClass(base_class);
     }
-
-    /// `-[NSObject retain]`
-    pub fn retain(self: *Object) *Object {
-        return self.as(ObjectProtocol).retain();
-    }
-
-    /// `-[NSObject release]`
-    pub fn release(self: *Object) void {
-        return self.as(ObjectProtocol).release();
-    }
-
-    /// `-[NSObject autorelease]`
-    pub fn autorelease(self: *Object) *Object {
-        return self.as(ObjectProtocol).autorelease();
-    }
 };
 
 /// `NSString`
 pub const String = opaque {
     pub const InternalInfo = objc.ExternClass("NSString", @This(), Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
 
     pub fn as(self: *String, comptime T: type) *T {
         if (T == cf.String) return @ptrCast(self);
@@ -139,6 +129,34 @@ pub const String = opaque {
     pub fn from(str: *cf.String) *String {
         return @ptrCast(str);
     }
+
+    pub const Encoding = enum(usize) {
+        ascii = 1,
+        next_step = 2,
+        japanese_euc = 3,
+        utf8 = 4,
+        iso_latin1 = 5,
+        symbol = 6,
+        non_lossy_ascii = 7,
+        shift_jis = 8,
+        iso_latin2 = 9,
+        unicode = 10,
+        windows_cp1251 = 11,
+        windows_cp1252 = 12,
+        windows_cp1253 = 13,
+        windows_cp1254 = 14,
+        windows_cp1250 = 15,
+        iso_2022_jp = 21,
+        macos_roman = 30,
+        utf16_big_endian = 0x90000100,
+        utf16_little_endian = 0x94000100,
+        utf32 = 0x8c000100,
+        utf32_big_endian = 0x98000100,
+        utf32_little_endian = 0x9c000100,
+        _,
+
+        pub const utf16: Encoding = .unicode;
+    };
 
     pub fn literal(comptime utf8: []const u8) *String {
         return @ptrCast(cf.String.literal(utf8));
@@ -168,7 +186,11 @@ pub const String = opaque {
     /// `+[NSString stringWithUTF8String:]`
     pub fn stringWithUtf8String(utf8_string: [*:0]const u8) *String {
         const c_str: [*:0]const c_char = @ptrCast(utf8_string);
-        return objc.msgSend(InternalInfo.objcClass(), "stringWithUTF8String:", *String, .{c_str});
+        return objc.msgSend(InternalInfo.class(), "stringWithUTF8String:", *String, .{c_str});
+    }
+
+    pub fn initWithBytesNoCopy_length_encoding_freeWhenDone(self: *String, bytes: *anyopaque, length: usize, encoding: Encoding, free_when_done: bool) *String {
+        return objc.msgSend(self, "initWithBytesNoCopy:length:encoding:freeWhenDone:", *String, .{ bytes, length, encoding, free_when_done });
     }
 
     /// `-[NSString UTF8String]`
@@ -185,6 +207,9 @@ pub const String = opaque {
 /// `NSMutableString`
 pub const MutableString = opaque {
     pub const InternalInfo = objc.ExternClass("NSMutableString", @This(), String);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
 
     pub fn as(self: *MutableString, comptime T: type) *T {
         if (T == cf.MutableString or T == cf.String) return @ptrCast(self);
@@ -233,6 +258,9 @@ pub const MutableString = opaque {
 /// `NSError`
 pub const Error = opaque {
     pub const InternalInfo = objc.ExternClass("NSError", @This(), Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
 
     pub const as = InternalInfo.as;
 
@@ -259,11 +287,19 @@ pub const Error = opaque {
     pub fn userInfo(self: *Error) *Dictionary(UserInfoKey, objc.id) {
         return objc.msgSend(self, "userInfo", *Dictionary(UserInfoKey, objc.id), .{});
     }
+
+    /// `-[NSError localizedDescription]`
+    pub fn localizedDescription(self: *Error) *String {
+        return objc.msgSend(self, "localizedDescription", *String, .{});
+    }
 };
 
 /// `NSData`
 pub const Data = opaque {
     pub const InternalInfo = objc.ExternClass("NSData", @This(), Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
 
     pub fn as(self: *MutableString, comptime T: type) *T {
         if (T == dispatch.Data) return @ptrCast(self);
@@ -278,6 +314,9 @@ pub const Data = opaque {
 pub fn Enumerator(T: type) type {
     return opaque {
         pub const InternalInfo = objc.ExternClass("NSEnumerator", @This(), Object);
+        pub const retain = InternalInfo.retain;
+        pub const release = InternalInfo.release;
+        pub const autorelease = InternalInfo.autorelease;
 
         pub const as = InternalInfo.as;
 
@@ -295,6 +334,9 @@ pub fn Enumerator(T: type) type {
 pub fn Dictionary(K: type, V: type) type {
     return opaque {
         pub const InternalInfo = objc.ExternClass("NSDictionary", @This(), Object);
+        pub const retain = InternalInfo.retain;
+        pub const release = InternalInfo.release;
+        pub const autorelease = InternalInfo.autorelease;
 
         pub const as = InternalInfo.as;
 
@@ -411,6 +453,9 @@ pub const FastEnumeration = opaque {
 pub fn Array(T: type) type {
     return opaque {
         pub const InternalInfo = objc.ExternClass("NSArray", @This(), Object);
+        pub const retain = InternalInfo.retain;
+        pub const release = InternalInfo.release;
+        pub const autorelease = InternalInfo.autorelease;
 
         pub const as = InternalInfo.as;
 

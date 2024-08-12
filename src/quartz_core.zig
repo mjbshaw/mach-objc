@@ -6,6 +6,9 @@ const objc = @import("objc.zig");
 /// `CALayer`
 pub const Layer = opaque {
     pub const InternalInfo = objc.ExternClass("CALayer", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
 
     pub const as = InternalInfo.as;
 
@@ -17,6 +20,9 @@ pub const Layer = opaque {
 /// `CAMetalDrawable`
 pub const MetalDrawable = opaque {
     pub const InternalInfo = objc.ExternProtocol(@This(), mtl.Drawable);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
 
     pub const as = InternalInfo.as;
 
@@ -32,6 +38,9 @@ pub const MetalDrawable = opaque {
 /// `CAMetalLayer`
 pub const MetalLayer = opaque {
     pub const InternalInfo = objc.ExternClass("CAMetalLayer", @This(), Layer);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
 
     pub const as = InternalInfo.as;
 

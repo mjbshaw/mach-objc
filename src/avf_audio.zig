@@ -140,8 +140,11 @@ pub const AudioSessionIoType = enum(usize) {
 
 /// `AVAudioSession`
 pub const AudioSession = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternClass("AVAudioSession", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `+[AVAudioSession new]`
     pub const new = InternalInfo.new;
     /// `+[AVAudioSession alloc]`
@@ -153,43 +156,43 @@ pub const AudioSession = opaque {
         return objc.msgSend(InternalInfo.class(), "sharedInstance", *AudioSession, .{});
     }
     /// `-[AVAudioSession setCategory:error:]
-    pub fn setCategory_error_(self: *@This(), session_category: AudioSessionCategory, out_error: ?*?*ns.Error) bool {
+    pub fn setCategory_error(self: *@This(), session_category: AudioSessionCategory, out_error: ?*?*ns.Error) bool {
         return objc.msgSend(self, "setCategory:error:", bool, .{ session_category, out_error });
     }
     /// `-[AVAudioSession setCategory:withOptions:error:]
-    pub fn setCategory_withOptions_error_(self: *@This(), session_category: AudioSessionCategory, options: AudioSessionCategoryOptions, out_error: ?*?*ns.Error) bool {
+    pub fn setCategory_withOptions_error(self: *@This(), session_category: AudioSessionCategory, options: AudioSessionCategoryOptions, out_error: ?*?*ns.Error) bool {
         return objc.msgSend(self, "setCategory:withOptions:error:", bool, .{ session_category, options, out_error });
     }
     /// `-[AVAudioSession setCategory:mode:options:error:]
-    pub fn setCategory_mode_options_error_(self: *@This(), session_category: AudioSessionCategory, session_mode: AudioSessionMode, options: *objc.Id, out_error: ?*?*ns.Error) bool {
+    pub fn setCategory_mode_options_error(self: *@This(), session_category: AudioSessionCategory, session_mode: AudioSessionMode, options: *objc.Id, out_error: ?*?*ns.Error) bool {
         return objc.msgSend(self, "setCategory:mode:options:error:", bool, .{ session_category, session_mode, options, out_error });
     }
     /// `-[AVAudioSession setCategory:mode:routeSharingPolicy:options:error:]
-    pub fn setCategory_mode_routeSharingPolicy_options_error_(self: *@This(), session_category: AudioSessionCategory, session_mode: AudioSessionMode, policy: AudioSessionRouteSharingPolicy, options: AudioSessionCategoryOptions, out_error: ?*?*ns.Error) bool {
+    pub fn setCategory_mode_routeSharingPolicy_options_error(self: *@This(), session_category: AudioSessionCategory, session_mode: AudioSessionMode, policy: AudioSessionRouteSharingPolicy, options: AudioSessionCategoryOptions, out_error: ?*?*ns.Error) bool {
         return objc.msgSend(self, "setCategory:mode:routeSharingPolicy:options:error:", bool, .{ session_category, session_mode, policy, options, out_error });
     }
     /// `-[AVAudioSession setMode:error:]
-    pub fn setMode_error_(self: *@This(), session_mode: AudioSessionMode, out_error: ?*?*ns.Error) bool {
+    pub fn setMode_error(self: *@This(), session_mode: AudioSessionMode, out_error: ?*?*ns.Error) bool {
         return objc.msgSend(self, "setMode:error:", bool, .{ session_mode, out_error });
     }
     /// `-[AVAudioSession setAllowHapticsAndSystemSoundsDuringRecording:error:]
-    pub fn setAllowHapticsAndSystemSoundsDuringRecording_error_(self: *@This(), in_value: bool, out_error: ?*?*ns.Error) bool {
+    pub fn setAllowHapticsAndSystemSoundsDuringRecording_error(self: *@This(), in_value: bool, out_error: ?*?*ns.Error) bool {
         return objc.msgSend(self, "setAllowHapticsAndSystemSoundsDuringRecording:error:", bool, .{ in_value, out_error });
     }
     /// `-[AVAudioSession requestRecordPermission:]
-    pub fn requestRecordPermission_(self: *@This(), response: *ns.Block(fn (bool) void)) void {
+    pub fn requestRecordPermission(self: *@This(), response: *ns.Block(fn (bool) void)) void {
         return objc.msgSend(self, "requestRecordPermission:", void, .{response});
     }
     /// `-[AVAudioSession overrideOutputAudioPort:error:]
-    pub fn overrideOutputAudioPort_error_(self: *@This(), port_override: AudioSessionPortOverride, out_error: ?*?*ns.Error) bool {
+    pub fn overrideOutputAudioPort_error(self: *@This(), port_override: AudioSessionPortOverride, out_error: ?*?*ns.Error) bool {
         return objc.msgSend(self, "overrideOutputAudioPort:error:", bool, .{ port_override, out_error });
     }
     /// `-[AVAudioSession setPreferredInput:error:]
-    pub fn setPreferredInput_error_(self: *@This(), in_port: ?*AudioSessionPortDescription, out_error: ?*?*ns.Error) bool {
+    pub fn setPreferredInput_error(self: *@This(), in_port: ?*AudioSessionPortDescription, out_error: ?*?*ns.Error) bool {
         return objc.msgSend(self, "setPreferredInput:error:", bool, .{ in_port, out_error });
     }
     /// `-[AVAudioSession setPrefersNoInterruptionsFromSystemAlerts:error:]
-    pub fn setPrefersNoInterruptionsFromSystemAlerts_error_(self: *@This(), in_value: bool, out_error: ?*?*ns.Error) bool {
+    pub fn setPrefersNoInterruptionsFromSystemAlerts_error(self: *@This(), in_value: bool, out_error: ?*?*ns.Error) bool {
         return objc.msgSend(self, "setPrefersNoInterruptionsFromSystemAlerts:error:", bool, .{ in_value, out_error });
     }
     /// `-[AVAudioSession availableCategories]
@@ -233,47 +236,47 @@ pub const AudioSession = opaque {
         return objc.msgSend(self, "prefersNoInterruptionsFromSystemAlerts", bool, .{});
     }
     /// `-[AVAudioSession setActive:error:]
-    pub fn setActive_error_(self: *@This(), active: bool, out_error: ?*?*ns.Error) bool {
+    pub fn setActive_error(self: *@This(), active: bool, out_error: ?*?*ns.Error) bool {
         return objc.msgSend(self, "setActive:error:", bool, .{ active, out_error });
     }
     /// `-[AVAudioSession setActive:withOptions:error:]
-    pub fn setActive_withOptions_error_(self: *@This(), active: bool, options: AudioSessionSetActiveOptions, out_error: ?*?*ns.Error) bool {
+    pub fn setActive_withOptions_error(self: *@This(), active: bool, options: AudioSessionSetActiveOptions, out_error: ?*?*ns.Error) bool {
         return objc.msgSend(self, "setActive:withOptions:error:", bool, .{ active, options, out_error });
     }
     /// `-[AVAudioSession activateWithOptions:completionHandler:]
-    pub fn activateWithOptions_completionHandler_(self: *@This(), options: AudioSessionActivationOptions, handler: *ns.Block(fn (bool, ?*ns.Error) void)) void {
+    pub fn activateWithOptions_completionHandler(self: *@This(), options: AudioSessionActivationOptions, handler: *ns.Block(fn (bool, ?*ns.Error) void)) void {
         return objc.msgSend(self, "activateWithOptions:completionHandler:", void, .{ options, handler });
     }
     /// `-[AVAudioSession setPreferredSampleRate:error:]
-    pub fn setPreferredSampleRate_error_(self: *@This(), sample_rate: f64, out_error: ?*?*ns.Error) bool {
+    pub fn setPreferredSampleRate_error(self: *@This(), sample_rate: f64, out_error: ?*?*ns.Error) bool {
         return objc.msgSend(self, "setPreferredSampleRate:error:", bool, .{ sample_rate, out_error });
     }
     /// `-[AVAudioSession setPreferredIOBufferDuration:error:]
-    pub fn setPreferredIOBufferDuration_error_(self: *@This(), duration: ns.TimeInterval, out_error: ?*?*ns.Error) bool {
+    pub fn setPreferredIOBufferDuration_error(self: *@This(), duration: ns.TimeInterval, out_error: ?*?*ns.Error) bool {
         return objc.msgSend(self, "setPreferredIOBufferDuration:error:", bool, .{ duration, out_error });
     }
     /// `-[AVAudioSession setPreferredInputNumberOfChannels:error:]
-    pub fn setPreferredInputNumberOfChannels_error_(self: *@This(), count: isize, out_error: ?*?*ns.Error) bool {
+    pub fn setPreferredInputNumberOfChannels_error(self: *@This(), count: isize, out_error: ?*?*ns.Error) bool {
         return objc.msgSend(self, "setPreferredInputNumberOfChannels:error:", bool, .{ count, out_error });
     }
     /// `-[AVAudioSession setPreferredOutputNumberOfChannels:error:]
-    pub fn setPreferredOutputNumberOfChannels_error_(self: *@This(), count: isize, out_error: ?*?*ns.Error) bool {
+    pub fn setPreferredOutputNumberOfChannels_error(self: *@This(), count: isize, out_error: ?*?*ns.Error) bool {
         return objc.msgSend(self, "setPreferredOutputNumberOfChannels:error:", bool, .{ count, out_error });
     }
     /// `-[AVAudioSession setPreferredInputOrientation:error:]
-    pub fn setPreferredInputOrientation_error_(self: *@This(), orientation: AudioStereoOrientation, out_error: ?*?*ns.Error) bool {
+    pub fn setPreferredInputOrientation_error(self: *@This(), orientation: AudioStereoOrientation, out_error: ?*?*ns.Error) bool {
         return objc.msgSend(self, "setPreferredInputOrientation:error:", bool, .{ orientation, out_error });
     }
     /// `-[AVAudioSession setInputGain:error:]
-    pub fn setInputGain_error_(self: *@This(), gain: f32, out_error: ?*?*ns.Error) bool {
+    pub fn setInputGain_error(self: *@This(), gain: f32, out_error: ?*?*ns.Error) bool {
         return objc.msgSend(self, "setInputGain:error:", bool, .{ gain, out_error });
     }
     /// `-[AVAudioSession setInputDataSource:error:]
-    pub fn setInputDataSource_error_(self: *@This(), data_source: ?*AudioSessionDataSourceDescription, out_error: ?*?*ns.Error) bool {
+    pub fn setInputDataSource_error(self: *@This(), data_source: ?*AudioSessionDataSourceDescription, out_error: ?*?*ns.Error) bool {
         return objc.msgSend(self, "setInputDataSource:error:", bool, .{ data_source, out_error });
     }
     /// `-[AVAudioSession setOutputDataSource:error:]
-    pub fn setOutputDataSource_error_(self: *@This(), data_source: ?*AudioSessionDataSourceDescription, out_error: ?*?*ns.Error) bool {
+    pub fn setOutputDataSource_error(self: *@This(), data_source: ?*AudioSessionDataSourceDescription, out_error: ?*?*ns.Error) bool {
         return objc.msgSend(self, "setOutputDataSource:error:", bool, .{ data_source, out_error });
     }
     /// `-[AVAudioSession preferredSampleRate]
@@ -377,7 +380,7 @@ pub const AudioSession = opaque {
         return objc.msgSend(self, "promptStyle", AudioSessionPromptStyle, .{});
     }
     /// `-[AVAudioSession setAggregatedIOPreference:error:]
-    pub fn setAggregatedIOPreference_error_(self: *@This(), in_iotype: AudioSessionIoType, out_error: ?*?*ns.Error) bool {
+    pub fn setAggregatedIOPreference_error(self: *@This(), in_iotype: AudioSessionIoType, out_error: ?*?*ns.Error) bool {
         return objc.msgSend(self, "setAggregatedIOPreference:error:", bool, .{ in_iotype, out_error });
     }
     /// `-[AVAudioSession availableInputs]
@@ -389,11 +392,11 @@ pub const AudioSession = opaque {
         return objc.msgSend(self, "currentRoute", *AudioSessionRouteDescription, .{});
     }
     /// `-[AVAudioSession setActive:withFlags:error:]
-    pub fn setActive_withFlags_error_(self: *@This(), active: bool, flags: isize, out_error: ?*?*ns.Error) bool {
+    pub fn setActive_withFlags_error(self: *@This(), active: bool, flags: isize, out_error: ?*?*ns.Error) bool {
         return objc.msgSend(self, "setActive:withFlags:error:", bool, .{ active, flags, out_error });
     }
     /// `-[AVAudioSession setPreferredHardwareSampleRate:error:]
-    pub fn setPreferredHardwareSampleRate_error_(self: *@This(), sample_rate: f64, out_error: ?*?*ns.Error) bool {
+    pub fn setPreferredHardwareSampleRate_error(self: *@This(), sample_rate: f64, out_error: ?*?*ns.Error) bool {
         return objc.msgSend(self, "setPreferredHardwareSampleRate:error:", bool, .{ sample_rate, out_error });
     }
     /// `-[AVAudioSession delegate]
@@ -401,7 +404,7 @@ pub const AudioSession = opaque {
         return objc.msgSend(self, "delegate", *AudioSessionDelegate, .{});
     }
     /// `-[AVAudioSession setDelegate:]
-    pub fn setDelegate_(self: *@This(), session_delegate: *AudioSessionDelegate) void {
+    pub fn setDelegate(self: *@This(), session_delegate: *AudioSessionDelegate) void {
         return objc.msgSend(self, "setDelegate:", void, .{session_delegate});
     }
     /// `-[AVAudioSession inputIsAvailable]
@@ -428,8 +431,11 @@ pub const AudioSession = opaque {
 
 /// `AVAudioSessionPortDescription`
 pub const AudioSessionPortDescription = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternClass("AVAudioSessionPortDescription", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `+[AVAudioSessionPortDescription new]`
     pub const new = InternalInfo.new;
     /// `+[AVAudioSessionPortDescription alloc]`
@@ -437,7 +443,7 @@ pub const AudioSessionPortDescription = opaque {
     /// `[[AVAudioSessionPortDescription alloc] init]`
     pub const allocInit = InternalInfo.allocInit;
     /// `-[AVAudioSessionPortDescription setPreferredDataSource:error:]
-    pub fn setPreferredDataSource_error_(self: *@This(), data_source: ?*AudioSessionDataSourceDescription, out_error: ?*?*ns.Error) bool {
+    pub fn setPreferredDataSource_error(self: *@This(), data_source: ?*AudioSessionDataSourceDescription, out_error: ?*?*ns.Error) bool {
         return objc.msgSend(self, "setPreferredDataSource:error:", bool, .{ data_source, out_error });
     }
     /// `-[AVAudioSessionPortDescription portType]
@@ -480,8 +486,11 @@ pub const AudioSessionPortDescription = opaque {
 
 /// `AVAudioSessionDataSourceDescription`
 pub const AudioSessionDataSourceDescription = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternClass("AVAudioSessionDataSourceDescription", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `+[AVAudioSessionDataSourceDescription new]`
     pub const new = InternalInfo.new;
     /// `+[AVAudioSessionDataSourceDescription alloc]`
@@ -489,7 +498,7 @@ pub const AudioSessionDataSourceDescription = opaque {
     /// `[[AVAudioSessionDataSourceDescription alloc] init]`
     pub const allocInit = InternalInfo.allocInit;
     /// `-[AVAudioSessionDataSourceDescription setPreferredPolarPattern:error:]
-    pub fn setPreferredPolarPattern_error_(self: *@This(), pattern: AudioSessionPolarPattern, out_error: ?*?*ns.Error) bool {
+    pub fn setPreferredPolarPattern_error(self: *@This(), pattern: AudioSessionPolarPattern, out_error: ?*?*ns.Error) bool {
         return objc.msgSend(self, "setPreferredPolarPattern:error:", bool, .{ pattern, out_error });
     }
     /// `-[AVAudioSessionDataSourceDescription dataSourceID]
@@ -524,8 +533,11 @@ pub const AudioSessionDataSourceDescription = opaque {
 
 /// `AVAudioSessionRouteDescription`
 pub const AudioSessionRouteDescription = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternClass("AVAudioSessionRouteDescription", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `+[AVAudioSessionRouteDescription new]`
     pub const new = InternalInfo.new;
     /// `+[AVAudioSessionRouteDescription alloc]`
@@ -544,8 +556,11 @@ pub const AudioSessionRouteDescription = opaque {
 
 /// `AVAudioSessionChannelDescription`
 pub const AudioSessionChannelDescription = opaque {
-    const InternalInfo = objc.ExternClass(@This(), ns.Object);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternClass("AVAudioSessionChannelDescription", @This(), ns.Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `+[AVAudioSessionChannelDescription new]`
     pub const new = InternalInfo.new;
     /// `+[AVAudioSessionChannelDescription alloc]`
@@ -572,14 +587,17 @@ pub const AudioSessionChannelDescription = opaque {
 
 /// `AVAudioSessionDelegate`
 pub const AudioSessionDelegate = opaque {
-    const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
-    const as = InternalInfo.as;
+    pub const InternalInfo = objc.ExternProtocol(@This(), ns.ObjectProtocol);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+    pub const as = InternalInfo.as;
     /// `-[AVAudioSessionDelegate beginInterruption]
     pub fn beginInterruption(self: *@This()) void {
         return objc.msgSend(self, "beginInterruption", void, .{});
     }
     /// `-[AVAudioSessionDelegate endInterruptionWithFlags:]
-    pub fn endInterruptionWithFlags_(self: *@This(), flags: usize) void {
+    pub fn endInterruptionWithFlags(self: *@This(), flags: usize) void {
         return objc.msgSend(self, "endInterruptionWithFlags:", void, .{flags});
     }
     /// `-[AVAudioSessionDelegate endInterruption]
@@ -587,7 +605,7 @@ pub const AudioSessionDelegate = opaque {
         return objc.msgSend(self, "endInterruption", void, .{});
     }
     /// `-[AVAudioSessionDelegate inputIsAvailableChanged:]
-    pub fn inputIsAvailableChanged_(self: *@This(), is_input_available: bool) void {
+    pub fn inputIsAvailableChanged(self: *@This(), is_input_available: bool) void {
         return objc.msgSend(self, "inputIsAvailableChanged:", void, .{is_input_available});
     }
 };
