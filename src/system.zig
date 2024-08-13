@@ -33,7 +33,7 @@ pub fn Block(comptime Signature: type) type {
         pub fn copy(self: *const @This()) *@This() {
             return _Block_copy(self);
         }
-        const _Block_copy = @extern(fn (*const anyopaque) callconv(.C) *anyopaque, .{
+        const _Block_copy = @extern(*const fn (*const anyopaque) callconv(.C) *anyopaque, .{
             .name = "_Block_copy",
             .library_name = if (builtin.target.os.tag == .macos) null else "System",
         });
@@ -41,7 +41,7 @@ pub fn Block(comptime Signature: type) type {
         pub fn release(self: *const @This()) void {
             _Block_release(self);
         }
-        const _Block_release = @extern(fn (*const anyopaque) callconv(.C) void, .{
+        const _Block_release = @extern(*const fn (*const anyopaque) callconv(.C) void, .{
             .name = "_Block_release",
             .library_name = if (builtin.target.os.tag == .macos) null else "System",
         });

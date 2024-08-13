@@ -14,7 +14,7 @@ pub fn stackBlockLiteral(
     return system.stackBlockLiteral(invoke, context, copy, dispose);
 }
 
-pub fn globalBlockLiteral(invoke: anytype, context: anytype) BlockLiteralWithSignature(@TypeOf(context),fn () void) {
+pub fn globalBlockLiteral(invoke: anytype, context: anytype) BlockLiteralWithSignature(@TypeOf(context), fn () void) {
     return system.globalBlockLiteral(invoke, context);
 }
 
@@ -65,9 +65,11 @@ pub const Data = opaque {
     /// `DISPATCH_DATA_DESTRUCTOR_DEFAULT`
     const destructor_default: ?*Block = null;
     /// `DISPATCH_DATA_DESTRUCTOR_FREE`
-    const destructor_free = @extern(*Block, .{ .name = "_dispatch_data_destructor_free", .library_name = "System" });
+    const destructor_free = @extern(*const *Block, .{ .name = "_dispatch_data_destructor_free", .library_name = "System" });
     /// `DISPATCH_DATA_DESTRUCTOR_MUNMAP`
-    const destructor_munmap = @extern(*Block, .{ .name = "_dispatch_data_destructor_munmap", .library_name = "System" });
+    const destructor_munmap = @extern(*const *Block, .{ .name = "_dispatch_data_destructor_munmap", .library_name = "System" });
+    // TODO: Should we keep using aliases? See https://github.com/ziglang/zig/issues/19515
+    const destructor_none = @extern(*const *Block, .{ .name = "_dispatch_data_destructor_none", .library_name = "System" });
 
     /// `dispatch_data_create()`
     pub fn create(buffer: []const u8, queue: ?*const Queue, destructor: ?*Block) *const Data {

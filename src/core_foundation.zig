@@ -111,8 +111,9 @@ pub const TimeInterval = f64;
 pub const RunLoop = opaque {
     /// `CFRunLoopMode`
     pub const Mode = opaque {
-        pub const common = @extern(*Mode, .{ .name = "kCFRunLoopCommonModes" });
-        pub const default = @extern(*Mode, .{ .name = "kCFRunLoopDefaultMode" });
+        // TODO: Should we keep using aliases? See https://github.com/ziglang/zig/issues/19515
+        pub const common = @extern(*const *Mode, .{ .name = "kCFRunLoopCommonModes" });
+        pub const default = @extern(*const *Mode, .{ .name = "kCFRunLoopDefaultMode" });
 
         pub fn asString(self: *Mode) *String {
             return @ptrCast(self);

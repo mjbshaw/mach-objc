@@ -13,35 +13,35 @@ pub const CommonCounter = opaque {
     pub const as = InternalInfo.as;
 
     /// `MTLCommonCounterTimestamp`
-    pub const timestamp = @extern(*CommonCounter, .{ .name = "MTLCommonCounterTimestamp" });
+    pub const timestamp = @extern(*const *CommonCounter, .{ .name = "MTLCommonCounterTimestamp" });
     /// `MTLCommonCounterTessellationInputPatches`
-    pub const tessellation_input_patches = @extern(*CommonCounter, .{ .name = "MTLCommonCounterTessellationInputPatches" });
+    pub const tessellation_input_patches = @extern(*const *CommonCounter, .{ .name = "MTLCommonCounterTessellationInputPatches" });
     /// `MTLCommonCounterVertexInvocations`
-    pub const vertex_invocations = @extern(*CommonCounter, .{ .name = "MTLCommonCounterVertexInvocations" });
+    pub const vertex_invocations = @extern(*const *CommonCounter, .{ .name = "MTLCommonCounterVertexInvocations" });
     /// `MTLCommonCounterPostTessellationVertexInvocations`
-    pub const post_tessellation_vertex_invocations = @extern(*CommonCounter, .{ .name = "MTLCommonCounterPostTessellationVertexInvocations" });
+    pub const post_tessellation_vertex_invocations = @extern(*const *CommonCounter, .{ .name = "MTLCommonCounterPostTessellationVertexInvocations" });
     /// `MTLCommonCounterClipperInvocations`
-    pub const clipper_invocations = @extern(*CommonCounter, .{ .name = "MTLCommonCounterClipperInvocations" });
+    pub const clipper_invocations = @extern(*const *CommonCounter, .{ .name = "MTLCommonCounterClipperInvocations" });
     /// `MTLCommonCounterClipperPrimitivesOut`
-    pub const clipper_primitives_out = @extern(*CommonCounter, .{ .name = "MTLCommonCounterClipperPrimitivesOut" });
+    pub const clipper_primitives_out = @extern(*const *CommonCounter, .{ .name = "MTLCommonCounterClipperPrimitivesOut" });
     /// `MTLCommonCounterFragmentInvocations`
-    pub const fragment_invocations = @extern(*CommonCounter, .{ .name = "MTLCommonCounterFragmentInvocations" });
+    pub const fragment_invocations = @extern(*const *CommonCounter, .{ .name = "MTLCommonCounterFragmentInvocations" });
     /// `MTLCommonCounterFragmentsPassed`
-    pub const fragments_passed = @extern(*CommonCounter, .{ .name = "MTLCommonCounterFragmentsPassed" });
+    pub const fragments_passed = @extern(*const *CommonCounter, .{ .name = "MTLCommonCounterFragmentsPassed" });
     /// `MTLCommonCounterComputeKernelInvocations`
-    pub const compute_kernel_invocations = @extern(*CommonCounter, .{ .name = "MTLCommonCounterComputeKernelInvocations" });
+    pub const compute_kernel_invocations = @extern(*const *CommonCounter, .{ .name = "MTLCommonCounterComputeKernelInvocations" });
     /// `MTLCommonCounterTotalCycles`
-    pub const total_cycles = @extern(*CommonCounter, .{ .name = "MTLCommonCounterTotalCycles" });
+    pub const total_cycles = @extern(*const *CommonCounter, .{ .name = "MTLCommonCounterTotalCycles" });
     /// `MTLCommonCounterVertexCycles`
-    pub const vertex_cycles = @extern(*CommonCounter, .{ .name = "MTLCommonCounterVertexCycles" });
+    pub const vertex_cycles = @extern(*const *CommonCounter, .{ .name = "MTLCommonCounterVertexCycles" });
     /// `MTLCommonCounterTessellationCycles`
-    pub const tessellation_cycles = @extern(*CommonCounter, .{ .name = "MTLCommonCounterTessellationCycles" });
+    pub const tessellation_cycles = @extern(*const *CommonCounter, .{ .name = "MTLCommonCounterTessellationCycles" });
     /// `MTLCommonCounterPostTessellationVertexCycles`
-    pub const post_tessellation_vertex_cycles = @extern(*CommonCounter, .{ .name = "MTLCommonCounterPostTessellationVertexCycles" });
+    pub const post_tessellation_vertex_cycles = @extern(*const *CommonCounter, .{ .name = "MTLCommonCounterPostTessellationVertexCycles" });
     /// `MTLCommonCounterFragmentCycles`
-    pub const fragment_cycles = @extern(*CommonCounter, .{ .name = "MTLCommonCounterFragmentCycles" });
+    pub const fragment_cycles = @extern(*const *CommonCounter, .{ .name = "MTLCommonCounterFragmentCycles" });
     /// `MTLCommonCounterRenderTargetWriteCycles`
-    pub const render_target_write_cycles = @extern(*CommonCounter, .{ .name = "MTLCommonCounterRenderTargetWriteCycles" });
+    pub const render_target_write_cycles = @extern(*const *CommonCounter, .{ .name = "MTLCommonCounterRenderTargetWriteCycles" });
 };
 
 /// `MTLCommonCounterSet`
@@ -50,11 +50,11 @@ pub const CommonCounterSet = opaque {
     pub const as = InternalInfo.as;
 
     /// `MTLCommonCounterSetTimestamp`
-    pub const timestamp = @extern(*CommonCounterSet, .{ .name = "MTLCommonCounterSetTimestamp" });
+    pub const timestamp = @extern(*const *CommonCounterSet, .{ .name = "MTLCommonCounterSetTimestamp" });
     /// `MTLCommonCounterSetStageUtilization`
-    pub const stage_utilization = @extern(*CommonCounterSet, .{ .name = "MTLCommonCounterSetStageUtilization" });
+    pub const stage_utilization = @extern(*const *CommonCounterSet, .{ .name = "MTLCommonCounterSetStageUtilization" });
     /// `MTLCommonCounterSetStatistic`
-    pub const statistic = @extern(*CommonCounterSet, .{ .name = "MTLCommonCounterSetStatistic" });
+    pub const statistic = @extern(*const *CommonCounterSet, .{ .name = "MTLCommonCounterSetStatistic" });
 };
 
 // MTLDevice.hpp
@@ -65,11 +65,11 @@ pub const DeviceNotificationName = opaque {
     pub const as = InternalInfo.as;
 
     /// `MTLDeviceWasAddedNotification`
-    pub const device_was_added = @extern(*CommonCounter, .{ .name = "MTLDeviceWasAddedNotification" });
+    pub const device_was_added = @extern(*const *CommonCounter, .{ .name = "MTLDeviceWasAddedNotification" });
     /// `MTLDeviceRemovalRequestedNotification`
-    pub const device_removal_requested = @extern(*CommonCounter, .{ .name = "MTLDeviceRemovalRequestedNotification" });
+    pub const device_removal_requested = @extern(*const *CommonCounter, .{ .name = "MTLDeviceRemovalRequestedNotification" });
     /// `MTLDeviceWasRemovedNotification`
-    pub const device_was_removed = @extern(*CommonCounter, .{ .name = "MTLDeviceWasRemovedNotification" });
+    pub const device_was_removed = @extern(*const *CommonCounter, .{ .name = "MTLDeviceWasRemovedNotification" });
 };
 
 /// `MTLAutoreleasedComputePipelineReflection`
