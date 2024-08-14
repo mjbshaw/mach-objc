@@ -35,5 +35,7 @@ pub const ApplicationDelegate = opaque {
     pub const as = InternalInfo.as;
 };
 
+/// `UIApplicationMain`
 pub const applicationMain = UIApplicationMain;
 extern fn UIApplicationMain(argc: c_int, argv: *?*c_char, principal_class_name: ?*ns.String, delegate_class_name: ?*ns.String) c_int;
+

@@ -112,7 +112,9 @@ pub const RunLoop = opaque {
     /// `CFRunLoopMode`
     pub const Mode = opaque {
         // TODO: Should we keep using aliases? See https://github.com/ziglang/zig/issues/19515
+        /// `kCFRunLoopCommonModes`
         pub const common = @extern(*const *Mode, .{ .name = "kCFRunLoopCommonModes" });
+        /// `kCFRunLoopDefaultMode`
         pub const default = @extern(*const *Mode, .{ .name = "kCFRunLoopDefaultMode" });
 
         pub fn asString(self: *Mode) *String {

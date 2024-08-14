@@ -15,6 +15,9 @@ pub const globalBlock = system.globalBlock;
 
 pub const Rect = cg.Rect;
 
+/// `NSTimeInterval`
+pub const TimeInterval = f64;
+
 ///`NSRange`
 pub const Range = extern struct {
     location: usize,
@@ -36,32 +39,32 @@ pub const ObjectProtocol = opaque {
     pub const as = InternalInfo.as;
 
     /// `-[NSObject description]`
-    pub fn description(self: *Object) *String {
+    pub fn description(self: *ObjectProtocol) *String {
         return objc.msgSend(self, "description", *String, .{});
     }
 
     /// `-[NSObject debugDescription]`
-    pub fn debugDescription(self: *Object) *String {
+    pub fn debugDescription(self: *ObjectProtocol) *String {
         return objc.msgSend(self, "debugDescription", *String, .{});
     }
 
     /// `-[NSObject isEqual:]`
-    pub fn isEqual(self: *Object, other: ?*objc.id) bool {
+    pub fn isEqual(self: *ObjectProtocol, other: ?*objc.id) bool {
         return objc.msgSend(self, "isEqual:", bool, .{other});
     }
 
     /// `-[NSObject hash]`
-    pub fn hash(self: *Object) usize {
+    pub fn hash(self: *ObjectProtocol) usize {
         return objc.msgSend(self, "hash", usize, .{});
     }
 
     /// `-[NSObject class]`
-    pub fn class(self: *Object) *objc.Class {
+    pub fn class(self: *ObjectProtocol) *objc.Class {
         return objc.opt_class(self);
     }
 
     /// `-[NSObject isKindOfClass:]`
-    pub fn isKindOfClass(self: *Object, base_class: *objc.Class) bool {
+    pub fn isKindOfClass(self: *ObjectProtocol, base_class: *objc.Class) bool {
         return objc.opt_isKindOfClass(self, base_class) != 0;
     }
 };
@@ -508,3 +511,91 @@ pub fn Array(T: type) type {
         }
     };
 }
+
+/// `NSThread`
+pub const Thread = opaque {
+    pub const InternalInfo = objc.ExternClass("NSThread", @This(), Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+
+    pub const as = InternalInfo.as;
+
+    /// `+[NSThread new]`
+    pub const new = InternalInfo.new;
+
+    /// `+[NSThread alloc]`
+    pub const alloc = InternalInfo.alloc;
+
+    /// `[[NSThread alloc] init]`
+    pub const allocInit = InternalInfo.allocInit();
+
+    /// `+[NSString isMainThread]`
+    pub fn isMainThread() bool {
+        return objc.msgSend(InternalInfo.class(), "isMainThread", bool, .{});
+    }
+
+    /// `+[NSString mainThread]`
+    pub fn mainThread() *Thread {
+        return objc.msgSend(InternalInfo.class(), "mainThread", *Thread, .{});
+    }
+
+    /// `+[NSString currentThread]`
+    pub fn currentThread() *Thread {
+        return objc.msgSend(InternalInfo.class(), "currentThread", *Thread, .{});
+    }
+
+    /// `-[NSString name]`
+    pub fn name(self: *Thread) ?*String {
+        return objc.msgSend(self, "name", ?*String, .{});
+    }
+};
+
+/// `NSDate`
+pub const Date = opaque {
+    pub const InternalInfo = objc.ExternClass("NSDate", @This(), Object);
+    pub const retain = InternalInfo.retain;
+    pub const release = InternalInfo.release;
+    pub const autorelease = InternalInfo.autorelease;
+
+    pub const as = InternalInfo.as;
+
+    /// `+[NSDate new]`
+    pub const new = InternalInfo.new;
+
+    /// `+[NSDate alloc]`
+    pub const alloc = InternalInfo.alloc;
+
+    /// `[[NSDate alloc] init]`
+    pub const allocInit = InternalInfo.allocInit();
+
+    /// `-[NSDate initWithTimeIntervalSinceNow:]`
+    pub fn initWithTimeIntervalSinceNow(self: *Date, time_interval: TimeInterval) *Date {
+        return objc.msgSend(self, "initWithTimeIntervalSinceNow:", *Date, .{time_interval});
+    }
+
+    /// `+[NSDate distantFuture]`
+    pub fn distantFuture() *Date {
+        return objc.msgSend(InternalInfo.class(), "distantFuture", *Date, .{});
+    }
+
+    /// `+[NSDate distantPast]`
+    pub fn distantPast() *Date {
+        return objc.msgSend(InternalInfo.class(), "distantPast", *Date, .{});
+    }
+
+    /// `-[NSDate timeIntervalSinceNow]`
+    pub fn timeIntervalSinceNow(self: *Date) TimeInterval {
+        return objc.msgSend(self, "timeIntervalSinceNow", TimeInterval, .{});
+    }
+
+    /// `-[NSDate timeIntervalSinceReferenceDate]`
+    pub fn timeIntervalSinceReferenceDate(self: *Date) TimeInterval {
+        return objc.msgSend(self, "timeIntervalSinceReferenceDate", TimeInterval, .{});
+    }
+
+    /// `-[NSDate timeIntervalSince1970]`
+    pub fn timeIntervalSince1970(self: *Date) TimeInterval {
+        return objc.msgSend(self, "timeIntervalSince1970", TimeInterval, .{});
+    }
+};
