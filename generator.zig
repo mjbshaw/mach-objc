@@ -1063,7 +1063,6 @@ fn Generator(comptime WriterType: type) type {
             try self.generateEnumerations();
             try self.generateContainers();
             try self.generateClasses();
-            try self.generateSelectors();
             try self.generateInit();
         }
 
@@ -1077,22 +1076,9 @@ fn Generator(comptime WriterType: type) type {
             }
         }
 
-        fn generateSelectors(self: *Self) !void {
-            var it = self.selectors.iterator();
-            while (it.next()) |entry| {
-                const method_name = entry.key_ptr.*;
-                try self.writer.print("var sel_", .{});
-                try self.generateSelectorName(method_name);
-                try self.writer.print(": *c.objc_selector = undefined;\n", .{});
-            }
-            try self.writer.print("\n", .{});
-        }
-
         fn generateInit(self: *Self) !void {
             try self.writer.print("pub fn init() void {{\n", .{});
             try self.generateInitClasses();
-            try self.writer.print("\n", .{});
-            try self.generateInitSelectors();
             try self.writer.print("}}\n", .{});
         }
 
@@ -1103,16 +1089,6 @@ fn Generator(comptime WriterType: type) type {
                     try self.generateContainerName(container);
                     try self.writer.print(" = c.objc_getClass(\"{s}\").?;\n", .{container.name});
                 }
-            }
-        }
-
-        fn generateInitSelectors(self: *Self) !void {
-            var it = self.selectors.iterator();
-            while (it.next()) |entry| {
-                const method_name = entry.key_ptr.*;
-                try self.writer.print("    sel_", .{});
-                try self.generateSelectorName(method_name);
-                try self.writer.print(" = c.sel_registerName(\"{s}\").?;\n", .{method_name});
             }
         }
 
@@ -1283,9 +1259,7 @@ fn Generator(comptime WriterType: type) type {
             try self.writer.print(") ", .{});
             try self.generateType(method.return_type);
             try self.writer.print(" {{\n", .{});
-            try self.writer.writeAll("                return @as(");
-            try self.generateObjcSignature(method);
-            try self.writer.writeAll(", @ptrCast(&c.objc_msgSend))(");
+            try self.writer.writeAll("                return objc.msgSend(");
             try self.generateMethodArgs(method);
             try self.writer.print(");\n", .{});
             try self.writer.print("            }}\n", .{});
@@ -1345,39 +1319,23 @@ fn Generator(comptime WriterType: type) type {
             }
         }
 
-        fn generateObjcSignature(self: *Self, method: Method) !void {
-            try self.writer.writeAll("*const fn (");
-            if (method.instance) {
-                try self.writer.writeAll("*T");
-            } else {
-                try self.writer.writeAll("*c.objc_class");
-            }
-            try self.writer.writeAll(", *c.objc_selector");
-            for (method.params.items) |param| {
-                try self.writer.writeAll(", ");
-                if (getBlockType(param)) |_| {
-                    try self.writer.writeAll("*const anyopaque");
-                } else {
-                    try self.generateType(param.ty);
-                }
-            }
-            try self.writer.writeAll(") callconv(.C) ");
-            try self.generateType(method.return_type);
-        }
-
         fn generateMethodArgs(self: *Self, method: Method) !void {
             if (method.instance) {
                 try self.writer.print("self_", .{});
             } else {
                 try self.writer.print("T.class()", .{});
             }
-            try self.writer.print(", sel_", .{});
-            try self.generateSelectorName(method.name);
+            try self.writer.print(", \"{s}\", ", .{method.name});
+            try self.generateType(method.return_type);
+            try self.writer.writeAll(", .{");
 
+            var first = true;
             for (method.params.items) |param| {
-                try self.writer.writeAll(", ");
+                if (!first) try self.writer.writeAll(", ");
+                first = false;
                 try self.writer.print("{s}_", .{param.name});
             }
+            try self.writer.writeAll("}");
         }
 
         fn getBlockType(param: Param) ?Type.Function {

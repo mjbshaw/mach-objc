@@ -1080,7 +1080,7 @@ pub const String = opaque {
             //     const block = Literal{ .isa = _NSConcreteStackBlock, .flags = 0, .reserved = 0, .invoke = @ptrCast(&Helper.cCallback), .descriptor = &descriptor, .context = context };
             //     return @as(*const fn (*T, *c.objc_selector, Range, StringEnumerationOptions, *const anyopaque) callconv(.C) void, @ptrCast(&c.objc_msgSend))(self_, sel_enumerateSubstringsInRange_options_usingBlock_, range_, opts_, @ptrCast(&block));
             // }
-            pub fn enumerateLinesUsingBlock(self_: *T, block_: *Block(fn(*String, bool) void)) void {
+            pub fn enumerateLinesUsingBlock(self_: *T, block_: *Block(fn (*String, bool) void)) void {
                 return @as(*const fn (*T, *c.objc_selector, *const anyopaque) callconv(.C) void, @ptrCast(&c.objc_msgSend))(self_, sel_enumerateLinesUsingBlock_, block_);
             }
             pub fn dataUsingEncoding_allowLossyConversion(self_: *T, encoding_: StringEncoding, lossy_: bool) ?*Data {
